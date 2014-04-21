@@ -14,6 +14,7 @@ using ReplayAPI;
 using BMAPI;
 using o_RA.Properties;
 using System.Xml;
+using oRAInterface;
 
 namespace o_RA
 {
@@ -23,25 +24,30 @@ namespace o_RA
         {
             InitializeComponent();
         }
+        private XmlReader locale;
 
-        //Public objects:
-        Replay replay;
-        Beatmap beatmap;
-        XmlReader locale;
-        readonly Dictionary<string, string> Language = new Dictionary<string, string>();
-        readonly double[] timingWindows = new double[3];
-        readonly ToolTip progressTT = new ToolTip();
-        string progressTTText = "";
-        string replayDir = "", beatmapDir = "";
-        //Lists
-        readonly List<TreeNode> replays = new List<TreeNode>();
-        readonly Dictionary<string, string> beatmapHashes = new Dictionary<string, string>();
+        private Replay replay;
+        private Beatmap beatmap;
+        private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
+        private readonly double[] timingWindows = new double[3];
+        private readonly ToolTip progressTT = new ToolTip();
+        private string progressTTText = "";
+        private string replayDir = "", beatmapDir = "";
+        private readonly List<TreeNode> replays = new List<TreeNode>();
+        private readonly Dictionary<string, string> beatmapHashes = new Dictionary<string, string>();
 
-        //Private objects
         private readonly Bitmap timelineFrameImg = new Bitmap(18, 18);
+        private static readonly smgiFuncs.PluginServices Plugins = new smgiFuncs.PluginServices(); //Declares Plugins as global
+
+        smgiFuncs.Plugin p = Plugins.LoadPlugin("CursorTracer");
 
         private void Form1_Load(object sender, EventArgs e)
-        {
+        {     
+            TabPage newTabPage = new TabPage(p.Instance.p_Name);
+            if (p.Instance.p_TabItem != null)
+                newTabPage.Controls.Add(p.Instance.p_TabItem);
+            MainContainer.TabPages.Add(newTabPage);
+
             ReplayTimelineLB.ItemHeight = 20;
 
             if (Settings.Default.ApplicationLocale == "")
@@ -260,6 +266,7 @@ namespace o_RA
             try
             {
                 replay = new Replay(replayDir + "\\" + e.Node.Text);
+                p.Instance.p_CurrentReplay = replay;
             }
             catch (Exception ex)
             {
@@ -329,6 +336,7 @@ namespace o_RA
                     int posErrCount = 0, negErrCount = 0;
                     int inc = 0;
                     TWChart.Series[0].Points.Clear();
+
                     //Match up beatmap objects to replay clicks
                     List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
                     foreach (BaseCircle hitObject in beatmap.HitObjects)
@@ -354,7 +362,6 @@ namespace o_RA
                             inc += 1;
                         }
                     }
-
                     ReplayTimelineLB.Items.Clear();
                     ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10? "\t\t" : "\t") + "{X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray());
                     ReplayTimelineLB.SelectedIndex = 0;
@@ -498,7 +505,7 @@ namespace o_RA
         private void ReplayTimelineLB_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.DrawBackground();
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             string text = ReplayTimelineLB.Items[e.Index].ToString();
             e.Graphics.DrawImageUnscaled(timelineFrameImg, e.Bounds.Left + 1, e.Bounds.Height + 1);
             e.Graphics.DrawString(text, new Font("Segoe UI", 8), Brushes.Black, e.Bounds.Left + 22, e.Bounds.Top + 10 - e.Graphics.MeasureString(text, new Font("Segoe UI", 8)).Height / 2);
@@ -557,10 +564,10 @@ namespace o_RA
 
             if (result.PointIndex != -1 && result.Series != null && result.PointIndex < SRPMChart.Series[0].Points.Count && !Equals(result.Series.Tag, "0"))
             {
-                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)SRPMChart.Series[0].Points[result.PointIndex].XValue)
+                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)result.Series.Points[result.PointIndex].XValue)
                 {
-                    ChartToolTip.Tag = (int)SRPMChart.Series[0].Points[result.PointIndex].XValue;
-                    ChartToolTip.SetToolTip(SRPMChart, SRPMChart.Series[0].Points[result.PointIndex].YValues[0] + "RPM");
+                    ChartToolTip.Tag = (int)result.Series.Points[result.PointIndex].XValue;
+                    ChartToolTip.SetToolTip(SRPMChart, result.Series.Points[result.PointIndex].YValues[0] + "RPM");
                 }
             }
             else

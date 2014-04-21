@@ -8,6 +8,6 @@ namespace ReplayAPI
         public int Time;
         public double X;
         public double Y;
-        public KeyData Keys = KeyData.None;
+        public KeyData Keys;
     }
 }

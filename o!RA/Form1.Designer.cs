@@ -50,6 +50,15 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.ReplayTimelineLB = new System.Windows.Forms.ListBox();
             this.ChartToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pluginsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.ReplaySelectPanel.SuspendLayout();
             this.MainContainer.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -59,6 +68,7 @@
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // ReplaySelectPanel
@@ -68,15 +78,15 @@
             this.ReplaySelectPanel.BackColor = System.Drawing.SystemColors.Control;
             this.ReplaySelectPanel.Controls.Add(this.Progress);
             this.ReplaySelectPanel.Controls.Add(this.ReplaysList);
-            this.ReplaySelectPanel.Location = new System.Drawing.Point(0, 0);
+            this.ReplaySelectPanel.Location = new System.Drawing.Point(0, 27);
             this.ReplaySelectPanel.Name = "ReplaySelectPanel";
-            this.ReplaySelectPanel.Size = new System.Drawing.Size(297, 753);
+            this.ReplaySelectPanel.Size = new System.Drawing.Size(297, 726);
             this.ReplaySelectPanel.TabIndex = 3;
             // 
             // Progress
             // 
             this.Progress.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Progress.Location = new System.Drawing.Point(0, 727);
+            this.Progress.Location = new System.Drawing.Point(0, 700);
             this.Progress.Name = "Progress";
             this.Progress.Size = new System.Drawing.Size(297, 26);
             this.Progress.TabIndex = 1;
@@ -92,7 +102,7 @@
             this.ReplaysList.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ReplaysList.Location = new System.Drawing.Point(0, 0);
             this.ReplaysList.Name = "ReplaysList";
-            this.ReplaysList.Size = new System.Drawing.Size(297, 727);
+            this.ReplaysList.Size = new System.Drawing.Size(297, 700);
             this.ReplaysList.TabIndex = 0;
             this.ReplaysList.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ReplaysList_AfterSelect);
             // 
@@ -106,11 +116,11 @@
             this.MainContainer.Controls.Add(this.tabPage3);
             this.MainContainer.Controls.Add(this.tabPage4);
             this.MainContainer.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MainContainer.Location = new System.Drawing.Point(303, 0);
+            this.MainContainer.Location = new System.Drawing.Point(303, 27);
             this.MainContainer.Margin = new System.Windows.Forms.Padding(10);
             this.MainContainer.Name = "MainContainer";
             this.MainContainer.SelectedIndex = 0;
-            this.MainContainer.Size = new System.Drawing.Size(978, 523);
+            this.MainContainer.Size = new System.Drawing.Size(978, 496);
             this.MainContainer.TabIndex = 5;
             // 
             // tabPage1
@@ -120,7 +130,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(970, 497);
+            this.tabPage1.Size = new System.Drawing.Size(970, 470);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Timing Windows";
             // 
@@ -152,7 +162,7 @@
             series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
             this.TWChart.Series.Add(series1);
             this.TWChart.Series.Add(series2);
-            this.TWChart.Size = new System.Drawing.Size(964, 491);
+            this.TWChart.Size = new System.Drawing.Size(964, 464);
             this.TWChart.TabIndex = 9;
             this.TWChart.Text = "chart1";
             this.TWChart.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TWChart_MouseDown);
@@ -272,6 +282,74 @@
             this.ChartToolTip.BackColor = System.Drawing.Color.White;
             this.ChartToolTip.ForeColor = System.Drawing.Color.Black;
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.settingsToolStripMenuItem,
+            this.pluginsToolStripMenuItem,
+            this.aboutToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1281, 24);
+            this.menuStrip1.TabIndex = 13;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // pluginsToolStripMenuItem
+            // 
+            this.pluginsToolStripMenuItem.Name = "pluginsToolStripMenuItem";
+            this.pluginsToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
+            this.pluginsToolStripMenuItem.Text = "Plugins";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.languageToolStripMenuItem,
+            this.preferencesToolStripMenuItem});
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem1});
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.aboutToolStripMenuItem.Text = "Help";
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            // 
+            // languageToolStripMenuItem
+            // 
+            this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
+            this.languageToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.languageToolStripMenuItem.Text = "Language";
+            // 
+            // preferencesToolStripMenuItem
+            // 
+            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.preferencesToolStripMenuItem.Text = "Preferences";
+            // 
+            // aboutToolStripMenuItem1
+            // 
+            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem1.Text = "About";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -280,6 +358,8 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.MainContainer);
             this.Controls.Add(this.ReplaySelectPanel);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "o!RA";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -292,7 +372,10 @@
             this.tabPage3.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -313,6 +396,15 @@
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.ToolTip ChartToolTip;
         private System.Windows.Forms.DataVisualization.Charting.Chart SRPMChart;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem languageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pluginsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
     }
 }
 

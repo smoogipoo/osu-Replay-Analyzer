@@ -1,0 +1,1 @@
+﻿(TimingWindows) - Calculate average deviation

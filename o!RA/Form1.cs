@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Drawing;
@@ -38,8 +39,6 @@ namespace o_RA
 
         //Private objects
         private readonly Bitmap timelineFrameImg = new Bitmap(18, 18);
-        private readonly Series TWDataSeries = new Series();
-        private Series TLSelectionSeries = new Series();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -329,11 +328,9 @@ namespace o_RA
                     double posErrAvg = 0, negErrAvg = 0, errAvg = 0;
                     int posErrCount = 0, negErrCount = 0;
                     int inc = 0;
-                    
+                    TWChart.Series[0].Points.Clear();
                     //Match up beatmap objects to replay clicks
                     List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
-                    TWDataSeries.Points.Clear();
-                    TLSelectionSeries.Points.Clear();
                     foreach (BaseCircle hitObject in beatmap.HitObjects)
                     {
                         ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < timingWindows[2]) && !iteratedObjects.Contains(click)) ??
@@ -342,7 +339,7 @@ namespace o_RA
                         if (c != null)
                         {
                             iteratedObjects.Add(c);
-                            TWDataSeries.Points.AddXY(inc, c.Time - hitObject.startTime);
+                            TWChart.Series[0].Points.AddXY(inc, c.Time - hitObject.startTime);
                             errAvg += c.Time - hitObject.startTime;
                             if (c.Time - hitObject.startTime > 0)
                             {
@@ -360,18 +357,18 @@ namespace o_RA
 
                     ReplayTimelineLB.Items.Clear();
                     ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10? "\t\t" : "\t") + "{X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray());
-                    TWChart.Series.Clear();
-                    TWChart.Series.Add(TWDataSeries);
                     ReplayTimelineLB.SelectedIndex = 0;
                     /* End Timing Windows tab */
 
 
                     /* Start Spinner RPM tab */
+                    SRPMChart.Series.Clear();
+                    int currentSpinnerNumber = 1;
                     foreach (object spinner in beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
                     {
                         PointInfo currentPosition = new PointInfo(-500,-500);
-                        List<int> RPMCount = new List<int>();
-
+                        Dictionary<double, int> RPMCount = new Dictionary<double, int>();
+                        double currentTime = 0;
                         foreach (ReplayInfo repPoint in replay.replayData.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).endTime && repPoint.Time > ((SpinnerInfo)spinner).startTime))
                         {
                             if ((int)currentPosition.x == -500)
@@ -381,27 +378,34 @@ namespace o_RA
                             }
                             else
                             {
+                                currentTime += repPoint.TimeDiff;
                                 double ptsDist = currentPosition.DistanceTo(new PointInfo(repPoint.X, repPoint.Y));
                                 double p1CDist = currentPosition.DistanceTo(((SpinnerInfo)spinner).location);
                                 double p2CDist = new PointInfo(repPoint.X, repPoint.Y).DistanceTo(((SpinnerInfo)spinner).location);
                                 double travelDegrees = Math.Acos((Math.Pow(p1CDist, 2) + Math.Pow(p2CDist, 2) - Math.Pow(ptsDist, 2)) / (2 * p1CDist * p2CDist)) * (180 / Math.PI);
-                                RPMCount.Add((int)Math.Min((travelDegrees / (0.006 * repPoint.TimeDiff)), 477));
+                                RPMCount.Add(currentTime, (int)Math.Min((travelDegrees / (0.006 * repPoint.TimeDiff)), 477));
                                 currentPosition.x = repPoint.X;
                                 currentPosition.y = repPoint.Y;
                             }
                         }
+                        int count = 0;
+                        int valueAmnt = 0;
+                        Series spinnerSeries = new Series();
+                        spinnerSeries.ChartType = SeriesChartType.Spline;
+                        spinnerSeries.BorderWidth = 2;
+                        spinnerSeries.Name = "Spinner " + currentSpinnerNumber;
+                        foreach (var frame in RPMCount)
+                        {
+                            valueAmnt += frame.Value;
+                            count += 1;
+                            spinnerSeries.Points.AddXY(frame.Key, valueAmnt / count);
+                        }
+                        SRPMChart.Series.Add(spinnerSeries);
+                        currentSpinnerNumber += 1;
                     }
 
 
-
                     /* End Spinner RPM tab */
-
-
-
-
-
-
-
 
                     /* Start Info tabs */
                     int uRate = TWChart.Series[0].Points.Count != 0 ? Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0] - TWChart.Series[0].Points.FindMinByValue().YValues[0]) : 0;
@@ -414,8 +418,8 @@ namespace o_RA
                     MapInfoTB.AppendText(Language["info_Format"] + beatmap.Format + "\n");
                     MapInfoTB.AppendText(Language["info_FName"] + beatmap.Filename + "\n");
                     MapInfoTB.AppendText(Language["info_FSize"] + File.OpenRead(beatmap.Filename).Length + " bytes\n");
-                    MapInfoTB.AppendText(Language["info_FHash"] + file.Value);
-                    MapInfoTB.AppendText("\tTotal objects:\t\t" + beatmap.HitObjects.Count);
+                    MapInfoTB.AppendText(Language["info_FHash"] + file.Value + "\n");
+                    MapInfoTB.AppendText("\tTotal hitobjects:\t\t" + beatmap.HitObjects.Count);
                     MapInfoTB.AppendText("\n");
                     MapInfoTB.AppendText(Language["info_MapAFN"] + beatmap.AudioFilename + "\n");
                     MapInfoTB.AppendText(beatmap.Title != null ? Language["info_MapName"] + beatmap.Title + (beatmap.TitleUnicode != "" && beatmap.TitleUnicode != beatmap.Title ? "(" + beatmap.TitleUnicode + ")" : "") + "\n" : "");
@@ -494,6 +498,7 @@ namespace o_RA
         private void ReplayTimelineLB_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.DrawBackground();
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             string text = ReplayTimelineLB.Items[e.Index].ToString();
             e.Graphics.DrawImageUnscaled(timelineFrameImg, e.Bounds.Left + 1, e.Bounds.Height + 1);
             e.Graphics.DrawString(text, new Font("Segoe UI", 8), Brushes.Black, e.Bounds.Left + 22, e.Bounds.Top + 10 - e.Graphics.MeasureString(text, new Font("Segoe UI", 8)).Height / 2);
@@ -501,12 +506,9 @@ namespace o_RA
 
         private void ReplayTimelineLB_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (TWChart.Series.Contains(TLSelectionSeries))
-                TWChart.Series.Remove(TLSelectionSeries);
-            TLSelectionSeries.Points.Clear();
-            TLSelectionSeries.Points.AddXY(ReplayTimelineLB.SelectedIndex, TWChart.ChartAreas[0].AxisY.Maximum - 5);
-            TLSelectionSeries.Points.AddXY(ReplayTimelineLB.SelectedIndex, TWChart.ChartAreas[0].AxisY.Minimum + 5);
-            TWChart.Series.Add(TLSelectionSeries);
+            TWChart.Series[1].Points.Clear();
+            TWChart.Series[1].Points.AddXY(ReplayTimelineLB.SelectedIndex, TWChart.ChartAreas[0].AxisY.Maximum - 5);
+            TWChart.Series[1].Points.AddXY(ReplayTimelineLB.SelectedIndex, TWChart.ChartAreas[0].AxisY.Minimum + 5);
         }
 
         private void TWChart_MouseDown(object sender, MouseEventArgs e)
@@ -531,6 +533,77 @@ namespace o_RA
             else
             {
                 ChartToolTip.Hide(TWChart);
+            }
+        }
+
+        private void SRPMChart_MouseMove(object sender, MouseEventArgs e)
+        {
+            HitTestResult result = SRPMChart.HitTest(e.X, e.Y);
+            if (result.PointIndex != -1 && result.Series != null && result.Series.BorderWidth != 0)
+            {
+                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s, result.Series) && s.BorderWidth != 0))
+                {
+                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
+                }
+                result.Series.BorderWidth = 3;
+            }
+            else
+            {
+                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s.Tag, "1") && s.BorderWidth != 0))
+                {
+                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
+                }
+            }
+
+            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < SRPMChart.Series[0].Points.Count && !Equals(result.Series.Tag, "0"))
+            {
+                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)SRPMChart.Series[0].Points[result.PointIndex].XValue)
+                {
+                    ChartToolTip.Tag = (int)SRPMChart.Series[0].Points[result.PointIndex].XValue;
+                    ChartToolTip.SetToolTip(SRPMChart, SRPMChart.Series[0].Points[result.PointIndex].YValues[0] + "RPM");
+                }
+            }
+            else
+            {
+                ChartToolTip.Hide(SRPMChart);
+            }
+        }
+
+        private void SRPMChart_MouseDown(object sender, MouseEventArgs e)
+        {
+            HitTestResult result = SRPMChart.HitTest(e.X, e.Y);
+            if (result.PointIndex != -1 && result.Series != null)
+            {
+                if (result.Series.BorderWidth == 0)
+                {
+                    foreach (Series s in SRPMChart.Series)
+                    {
+                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
+                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = true;
+                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "";
+                    }
+                }
+                else
+                {
+                    foreach (Series s in SRPMChart.Series.Where(s => !Equals(s, result.Series)))
+                    {
+                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 0;
+                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = false;
+                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "0";
+                    }
+                    result.Series.BorderWidth = 3;
+                    result.Series.Tag = "1";
+                }
+
+            }
+            else
+            {
+                foreach (Series s in SRPMChart.Series)
+                {
+                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
+                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = true;
+                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "";
+                }
             }
         }
     }

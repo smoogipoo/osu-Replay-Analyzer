@@ -1,30 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Forms;
+using BMAPI;
 using oRAInterface;
 using ReplayAPI;
-using BMAPI;
 
-namespace CursorTracer
+namespace PluginTemplate
 {
-    public class Class1 : IPlugin
+    public class oRA : IPlugin
     {
-        #region "Plugin Constants" (Set these)
-        public static string Name = "Cursor Tracer";
-        public static string Description = "Provides a cursor trace.";
-        public static string Author = "smoogipooo";
+        #region Plugin Constants (Set these)
+        public static string Name = "My o!RA Plugin";
+        public static string Description = "My plugin is beautiful.";
+        public static string Author = "Me!";
         public static string Version = "1.0.0";
         public static string UpdateURL = "";
         #endregion
 
-        #region "Exposed items"
+        #region Exposed items
         public IPluginHost Host { get; set; }
 
         public static ToolStripMenuItem MenuItem;
-        public static UserControl TabItem = new mainFrm();
+        public static UserControl TabItem;
 
-        public static string ReplayDirectory = "";
-        public static string BeatmapDirectory = "";
-        public static string ProgressToolTipText = "";
+        public static string ReplayDirectory;
+        public static string BeatmapDirectory;
+        public static string ProgressToolTipText;
         public static double[] TimingWindows;
         public static Replay CurrentReplay;
         public static Beatmap CurrentBeatmap;
@@ -33,7 +33,7 @@ namespace CursorTracer
         public static ListBox FrameTimeline;
         public static ProgressBar Progress;
         #endregion
-        #region "Exposed item interfaces"
+        #region Exposed item interfaces
         public string p_Name
         {
             get { return Name; }

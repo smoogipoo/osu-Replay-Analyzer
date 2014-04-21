@@ -7,8 +7,8 @@
     <ProjectGuid>{772FF769-F3BD-4A86-901B-2928800C4548}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CursorTracer</RootNamespace>
-    <AssemblyName>CursorTracer</AssemblyName>
+    <RootNamespace>PluginTemplate</RootNamespace>
+    <AssemblyName>PluginTemplate</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -51,19 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
-    <Compile Include="mainFrm.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="mainFrm.Designer.cs">
-      <DependentUpon>mainFrm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="oRA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="mainFrm.resx">
-      <DependentUpon>mainFrm.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

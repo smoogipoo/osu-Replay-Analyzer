@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
-using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -12,52 +10,70 @@ using System.Security.Cryptography;
 using System.Windows.Forms.DataVisualization.Charting;
 using ReplayAPI;
 using BMAPI;
-using o_RA.Properties;
 using System.Xml;
-using oRAInterface;
+using smgiFuncs;
 
 namespace o_RA
 {
-    public partial class Form1 : Form
+    public partial class oRAMainForm : Form
     {
-        public Form1()
+        public oRAMainForm()
         {
             InitializeComponent();
         }
         private XmlReader locale;
+        public static Settings settings = new Settings();
 
-        private Replay replay;
-        private Beatmap beatmap;
+        Replay replay;
+        Beatmap beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
-        private readonly double[] timingWindows = new double[3];
-        private readonly ToolTip progressTT = new ToolTip();
-        private string progressTTText = "";
-        private string replayDir = "", beatmapDir = "";
-        private readonly List<TreeNode> replays = new List<TreeNode>();
-        private readonly Dictionary<string, string> beatmapHashes = new Dictionary<string, string>();
+        readonly double[] TimingWindows = new double[3];
+        readonly ToolTip ProgressTT = new ToolTip();
+        string ProgressTTText = "";
+        string ReplayDir = "", BeatmapDir = "";
+        readonly List<TreeNode> Replays = new List<TreeNode>();
+        readonly Dictionary<string, string> BeatmapHashes = new Dictionary<string, string>();
 
-        private readonly Bitmap timelineFrameImg = new Bitmap(18, 18);
-        private static readonly smgiFuncs.PluginServices Plugins = new smgiFuncs.PluginServices(); //Declares Plugins as global
+        private static readonly PluginServices Plugins = new PluginServices(); //Declares Plugins as global
+        private const int PluginPriority = 10;
 
-        smgiFuncs.Plugin p = Plugins.LoadPlugin("CursorTracer");
+        private readonly Bitmap TimelineFrameImg = new Bitmap(18, 18);
+
 
         private void Form1_Load(object sender, EventArgs e)
         {     
-            TabPage newTabPage = new TabPage(p.Instance.p_Name);
-            if (p.Instance.p_TabItem != null)
-                newTabPage.Controls.Add(p.Instance.p_TabItem);
-            MainContainer.TabPages.Add(newTabPage);
+            foreach (string file in Directory.GetFiles(Environment.CurrentDirectory + @"\Plugins\", "*.dll").Where(file => !settings.ContainsSetting("DisallowedPlugins") || !settings.GetSetting("DisallowedPlugins").Split(new[] { '|' }).Contains(file)))
+            {
+                sString fileString = file;
+                fileString = fileString.SubString(fileString.LastIndexOf(@"\") + 1, fileString.LastIndexOf("."));
+                Plugin p = Plugins.LoadPlugin(fileString.ToString());
+                if (p.Instance.p_TabItem != null)
+                {
+                    TabPage newTabPage = new TabPage(p.Instance.p_Name);
+                    newTabPage.Controls.Add(p.Instance.p_TabItem);
+                    MainContainer.TabPages.Add(newTabPage);
+                }
+                if (p.Instance.p_MenuItem != null)
+                {
+                    PluginsMenuItem.DropDownItems.Add(p.Instance.p_MenuItem);
+                }
+            }
+            Thread pluginUpdateThread = new Thread(UpdatePlugins)
+            {
+                IsBackground = true
+            };
+            pluginUpdateThread.Start();
 
             ReplayTimelineLB.ItemHeight = 20;
 
-            if (Settings.Default.ApplicationLocale == "")
+            if (!settings.ContainsSetting("ApplicationLocale") || settings.GetSetting("ApplicationLocale") == "")
             {
                 LocaleSelectForm lsf = new LocaleSelectForm();
                 lsf.ShowDialog();
             }
             try
             {
-                locale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\" + Settings.Default.ApplicationLocale + ".xml"));
+                locale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\" + settings.GetSetting("ApplicationLocale") + ".xml"));
             }
             catch (FileNotFoundException)
             {
@@ -71,7 +87,7 @@ namespace o_RA
                     if (!Language.ContainsKey(n))
                         Language.Add(n, locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
             }
-            if (Settings.Default.ApplicationLocale != "enUS")
+            if (settings.GetSetting("ApplicationLocale") != "enUS")
             {
                 XmlReader enLocale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\enUS.xml"));
                 while (enLocale.Read())
@@ -86,8 +102,8 @@ namespace o_RA
             if (procs.Length != 0)
             {
                 string gameDir = procs[0].Modules[0].FileName.Substring(0,procs[0].Modules[0].FileName.LastIndexOf("\\", StringComparison.Ordinal));
-                replayDir = gameDir + "\\Replays";
-                beatmapDir = gameDir + "\\Songs";
+                ReplayDir = gameDir + "\\Replays";
+                BeatmapDir = gameDir + "\\Songs";
             }
             else
             {
@@ -96,14 +112,14 @@ namespace o_RA
                 {
                    using (FolderBrowserDialog fd = new FolderBrowserDialog())
                    {
-                       while (replayDir == "")
+                       while (ReplayDir == "")
                        {
                            if (fd.ShowDialog() == DialogResult.OK)
                            {
                                if (Directory.Exists(fd.SelectedPath + "\\Replays") && Directory.Exists(fd.SelectedPath + "\\Songs"))
                                {
-                                   replayDir = fd.SelectedPath + "\\Replays";
-                                   beatmapDir = fd.SelectedPath + "\\Songs";
+                                   ReplayDir = fd.SelectedPath + "\\Replays";
+                                   BeatmapDir = fd.SelectedPath + "\\Songs";
                                }
                                else
                                {
@@ -118,34 +134,54 @@ namespace o_RA
                    }
                 }
             }
-            progressTTText = Language["info_PopReplays"];
+            ProgressTTText = Language["info_PopReplays"];
 
-            Thread populateListsThread = new Thread(populateLists);
+            Thread populateListsThread = new Thread(PopulateLists);
             populateListsThread.IsBackground = true;
             populateListsThread.Start();
 
-            FileSystemWatcher replayWatcher = new FileSystemWatcher(replayDir);
+            FileSystemWatcher replayWatcher = new FileSystemWatcher(ReplayDir);
             replayWatcher.NotifyFilter = NotifyFilters.FileName;
             replayWatcher.Filter = "*.osr";
-            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(beatmapDir);
+            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(BeatmapDir);
             replayWatcher.NotifyFilter = NotifyFilters.FileName;
             beatmapWatcher.Filter = "*.osu";
             beatmapWatcher.IncludeSubdirectories = true;
 
-            replayWatcher.Created += replayCreated;
-            replayWatcher.Deleted += replayDeleted;
-            replayWatcher.Renamed += replayRenamed;
-            beatmapWatcher.Created += beatmapCreated;
-            beatmapWatcher.Deleted += beatmapDeleted;
-            beatmapWatcher.Renamed += beatmapRenamed;
+            replayWatcher.Created += ReplayCreated;
+            replayWatcher.Deleted += ReplayDeleted;
+            replayWatcher.Renamed += ReplayRenamed;
+            beatmapWatcher.Created += BeatmapCreated;
+            beatmapWatcher.Deleted += BeatmapDeleted;
+            beatmapWatcher.Renamed += BeatmapRenamed;
 
             replayWatcher.EnableRaisingEvents = true;
             beatmapWatcher.EnableRaisingEvents = true;
         }
 
-        private void populateLists()
+        private void UpdatePlugins()
         {
-            DirectoryInfo info = new DirectoryInfo(replayDir);
+            while(true)
+            {
+                foreach (Plugin p in Plugins.PluginCollection)
+                {
+                    p.Instance.p_BeatmapDirectory = BeatmapDir;
+                    p.Instance.p_ReplayDirectory = ReplayDir;
+                    p.Instance.p_CurrentBeatmap = beatmap;
+                    p.Instance.p_CurrentReplay = replay;
+                    p.Instance.p_FrameTimeline = ReplayTimelineLB;
+                    p.Instance.p_MainTabControl = MainContainer;
+                    p.Instance.p_Progress = Progress;
+                    p.Instance.p_ProgressToolTipText = ProgressTTText;
+                    p.Instance.p_TimingWindows = TimingWindows;
+                }
+                Thread.Sleep(1000 / PluginPriority);
+            }
+        }
+
+        private void PopulateLists()
+        {
+            DirectoryInfo info = new DirectoryInfo(ReplayDir);
             FileInfo[] files = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
             try
@@ -161,7 +197,7 @@ namespace o_RA
             }
             foreach (FileInfo file in files)
             {
-                replays.Add(new TreeNode(file.Name));
+                Replays.Add(new TreeNode(file.Name));
                 try
                 {
                     Progress.BeginInvoke((MethodInvoker)delegate
@@ -175,10 +211,10 @@ namespace o_RA
                 }
             }
 
-            ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.AddRange(replays.ToArray())));
-            progressTTText = Language["info_PopBeatmaps"];
+            ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.AddRange(Replays.ToArray())));
+            ProgressTTText = Language["info_PopBeatmaps"];
 
-            string[] beatmapFiles = Directory.GetFiles(beatmapDir, "*.osu", SearchOption.AllDirectories);
+            string[] beatmapFiles = Directory.GetFiles(BeatmapDir, "*.osu", SearchOption.AllDirectories);
             
             try
             {
@@ -200,7 +236,7 @@ namespace o_RA
                     {
                         using (var stream = File.OpenRead(file))
                         {
-                            beatmapHashes.Add(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                            BeatmapHashes.Add(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                                 Progress.BeginInvoke((MethodInvoker)delegate
                                 {
                                     Progress.Value += 1;
@@ -214,19 +250,19 @@ namespace o_RA
             {
                 Progress.Value = 0;
             });
-            progressTTText = "All operations completed.";
+            ProgressTTText = "All operations completed.";
         }
 
-        private void replayCreated(object sender, FileSystemEventArgs e)
+        private void ReplayCreated(object sender, FileSystemEventArgs e)
         {
             ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.Insert(0, e.Name)));
             
         }
-        private void replayDeleted(object sender, FileSystemEventArgs e)
+        private void ReplayDeleted(object sender, FileSystemEventArgs e)
         {
             ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.RemoveByKey(e.Name)));
         }
-        private void replayRenamed(object sender, RenamedEventArgs e)
+        private void ReplayRenamed(object sender, RenamedEventArgs e)
         {
             ReplaysList.BeginInvoke((MethodInvoker)delegate
             {
@@ -235,28 +271,28 @@ namespace o_RA
             });
         }
 
-        private void beatmapCreated(object sender, FileSystemEventArgs e)
+        private void BeatmapCreated(object sender, FileSystemEventArgs e)
         {
             using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(e.FullPath))
                 {
-                    beatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                 }             
             }
         }
-        private void beatmapDeleted(object sender, FileSystemEventArgs e)
+        private void BeatmapDeleted(object sender, FileSystemEventArgs e)
         {
-            beatmapHashes.Remove(e.FullPath);
+            BeatmapHashes.Remove(e.FullPath);
         }
-        private void beatmapRenamed(object sender, RenamedEventArgs e)
+        private void BeatmapRenamed(object sender, RenamedEventArgs e)
         {
-            beatmapHashes.Remove(e.OldFullPath);
+            BeatmapHashes.Remove(e.OldFullPath);
             using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(e.FullPath))
                 {
-                    beatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                 }
             }
         }
@@ -265,8 +301,7 @@ namespace o_RA
         {
             try
             {
-                replay = new Replay(replayDir + "\\" + e.Node.Text);
-                p.Instance.p_CurrentReplay = replay;
+                replay = new Replay(ReplayDir + "\\" + e.Node.Text);
             }
             catch (Exception ex)
             {
@@ -275,7 +310,7 @@ namespace o_RA
             }
             try //Todo: I don't know how
             {
-                var file = beatmapHashes.ToList().FirstOrDefault(kvp => kvp.Value.Contains(replay.mapHash));
+                var file = BeatmapHashes.ToList().FirstOrDefault(kvp => kvp.Value.Contains(replay.mapHash));
                 if (file.Key != null)
                 {
                     beatmap = new Beatmap(file.Key);
@@ -311,7 +346,7 @@ namespace o_RA
                     //Timing windows are determined by linear interpolation
                     for (int i = 2; i >= 0; i--)
                     {
-                        timingWindows[i] = beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
+                        TimingWindows[i] = beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
                     }
 
                     //Get a list of all the individual clicks
@@ -341,9 +376,9 @@ namespace o_RA
                     List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
                     foreach (BaseCircle hitObject in beatmap.HitObjects)
                     {
-                        ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < timingWindows[2]) && !iteratedObjects.Contains(click)) ??
-                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < timingWindows[1]) && !iteratedObjects.Contains(click)) ??
-                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < timingWindows[0]) && !iteratedObjects.Contains(click));
+                        ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
+                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
+                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < TimingWindows[0]) && !iteratedObjects.Contains(click));
                         if (c != null)
                         {
                             iteratedObjects.Add(c);
@@ -371,12 +406,12 @@ namespace o_RA
                     /* Start Spinner RPM tab */
                     SRPMChart.Series.Clear();
                     int currentSpinnerNumber = 1;
-                    foreach (object spinner in beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
+                    foreach (var spinner in beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
                     {
                         PointInfo currentPosition = new PointInfo(-500,-500);
                         Dictionary<double, int> RPMCount = new Dictionary<double, int>();
                         double currentTime = 0;
-                        foreach (ReplayInfo repPoint in replay.replayData.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).endTime && repPoint.Time > ((SpinnerInfo)spinner).startTime))
+                        foreach (ReplayInfo repPoint in replay.replayData.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).endTime && repPoint.Time > spinner.startTime))
                         {
                             if ((int)currentPosition.x == -500)
                             {
@@ -387,8 +422,8 @@ namespace o_RA
                             {
                                 currentTime += repPoint.TimeDiff;
                                 double ptsDist = currentPosition.DistanceTo(new PointInfo(repPoint.X, repPoint.Y));
-                                double p1CDist = currentPosition.DistanceTo(((SpinnerInfo)spinner).location);
-                                double p2CDist = new PointInfo(repPoint.X, repPoint.Y).DistanceTo(((SpinnerInfo)spinner).location);
+                                double p1CDist = currentPosition.DistanceTo(spinner.location);
+                                double p2CDist = new PointInfo(repPoint.X, repPoint.Y).DistanceTo(spinner.location);
                                 double travelDegrees = Math.Acos((Math.Pow(p1CDist, 2) + Math.Pow(p2CDist, 2) - Math.Pow(ptsDist, 2)) / (2 * p1CDist * p2CDist)) * (180 / Math.PI);
                                 RPMCount.Add(currentTime, (int)Math.Min((travelDegrees / (0.006 * repPoint.TimeDiff)), 477));
                                 currentPosition.x = repPoint.X;
@@ -454,20 +489,14 @@ namespace o_RA
                     int totalTime = beatmap.HitObjects[beatmap.HitObjects.Count - 1].startTime - beatmap.HitObjects[0].startTime;
                     MapInfoTB.AppendText(Language["info_MapTotalTime"] + TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") + "\n");
                     MapInfoTB.AppendText(Language["info_MapDrainTime"]);
-                    foreach (var brk in beatmap.Events)
-                    {
-                        if (brk.GetType() == typeof(BreakInfo))
-                        {
-                            totalTime -= (((BreakInfo)brk).endTime - brk.startTime);
-                        }
-                    }
+                    totalTime = beatmap.Events.Where(brk => brk.GetType() == typeof (BreakInfo)).Aggregate(totalTime, (current, brk) => current - (((BreakInfo) brk).endTime - brk.startTime));
                     MapInfoTB.AppendText(TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") + "\n");
 
                     //Replay Info
                     ReplayInfoTB.Text = "\n";
                     ReplayInfoTB.AppendText(Language["info_Format"] + replay.fileFormat + "\n");
-                    ReplayInfoTB.AppendText(Language["info_FName"] + replayDir + "\\" + e.Node.Text + "\n");
-                    ReplayInfoTB.AppendText(Language["info_FSize"] + File.OpenRead(replayDir + "\\" + e.Node.Text).Length + " bytes\n");
+                    ReplayInfoTB.AppendText(Language["info_FName"] + ReplayDir + "\\" + e.Node.Text + "\n");
+                    ReplayInfoTB.AppendText(Language["info_FSize"] + File.OpenRead(ReplayDir + "\\" + e.Node.Text).Length + " bytes\n");
                     ReplayInfoTB.AppendText(Language["info_FHash"] + replay.replayHash + "\n");
                     ReplayInfoTB.AppendText("\tReplay frames:\t\t" + replay.replayData.Count);
                     ReplayInfoTB.AppendText("\n");
@@ -494,12 +523,12 @@ namespace o_RA
 
         private void Progress_MouseEnter(object sender, EventArgs e)
         {
-            progressTT.Show(progressTTText, Progress, 0);
+            ProgressTT.Show(ProgressTTText, Progress, 0);
         }
 
         private void Progress_MouseLeave(object sender, EventArgs e)
         {
-            progressTT.Hide(Progress);
+            ProgressTT.Hide(Progress);
         }
 
         private void ReplayTimelineLB_DrawItem(object sender, DrawItemEventArgs e)
@@ -507,7 +536,7 @@ namespace o_RA
             e.DrawBackground();
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             string text = ReplayTimelineLB.Items[e.Index].ToString();
-            e.Graphics.DrawImageUnscaled(timelineFrameImg, e.Bounds.Left + 1, e.Bounds.Height + 1);
+            e.Graphics.DrawImageUnscaled(TimelineFrameImg, e.Bounds.Left + 1, e.Bounds.Height + 1);
             e.Graphics.DrawString(text, new Font("Segoe UI", 8), Brushes.Black, e.Bounds.Left + 22, e.Bounds.Top + 10 - e.Graphics.MeasureString(text, new Font("Segoe UI", 8)).Height / 2);
         }
 

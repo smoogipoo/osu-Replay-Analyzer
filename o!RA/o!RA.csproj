@@ -63,11 +63,11 @@
     <Compile Include="BarGraph.Designer.cs">
       <DependentUpon>BarGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form1.cs">
+    <Compile Include="oRAMainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="oRAMainForm.Designer.cs">
+      <DependentUpon>oRAMainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="LanguageBox.cs">
       <SubType>UserControl</SubType>
@@ -87,8 +87,8 @@
     <EmbeddedResource Include="BarGraph.resx">
       <DependentUpon>BarGraph.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="oRAMainForm.resx">
+      <DependentUpon>oRAMainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LanguageBox.resx">
       <DependentUpon>LanguageBox.cs</DependentUpon>

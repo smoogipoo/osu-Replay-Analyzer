@@ -281,10 +281,7 @@ namespace smgiFuncs
     #region "Plugin Services"
     public class PluginServices : IPluginHost
     {
-        readonly List<Plugin> PluginCollection = new List<Plugin>();
-
-        //Lists
-        public Dictionary<string, string> BeatmapHashes { get; set; }
+        public readonly List<Plugin> PluginCollection = new List<Plugin>();
 
         public Plugin LoadPlugin(string name)
         {

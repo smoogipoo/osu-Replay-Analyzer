@@ -1,6 +1,6 @@
 ﻿namespace o_RA
 {
-    partial class Form1
+    partial class oRAMainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -52,13 +52,15 @@
             this.ChartToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pluginsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PluginsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.ReplaySelectPanel.SuspendLayout();
             this.MainContainer.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -173,7 +175,7 @@
             this.tabPage2.Controls.Add(this.SRPMChart);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(970, 497);
+            this.tabPage2.Size = new System.Drawing.Size(970, 470);
             this.tabPage2.TabIndex = 4;
             this.tabPage2.Text = "Spinner RPM";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -194,7 +196,7 @@
             this.SRPMChart.Location = new System.Drawing.Point(0, 0);
             this.SRPMChart.Name = "SRPMChart";
             this.SRPMChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
-            this.SRPMChart.Size = new System.Drawing.Size(970, 497);
+            this.SRPMChart.Size = new System.Drawing.Size(970, 470);
             this.SRPMChart.TabIndex = 10;
             this.SRPMChart.Text = "chart1";
             this.SRPMChart.MouseDown += new System.Windows.Forms.MouseEventHandler(this.SRPMChart_MouseDown);
@@ -205,7 +207,7 @@
             this.tabPage3.Controls.Add(this.MapInfoTB);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(970, 497);
+            this.tabPage3.Size = new System.Drawing.Size(970, 470);
             this.tabPage3.TabIndex = 3;
             this.tabPage3.Text = "Map Information";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -219,7 +221,7 @@
             this.MapInfoTB.Margin = new System.Windows.Forms.Padding(10);
             this.MapInfoTB.Name = "MapInfoTB";
             this.MapInfoTB.ReadOnly = true;
-            this.MapInfoTB.Size = new System.Drawing.Size(970, 497);
+            this.MapInfoTB.Size = new System.Drawing.Size(970, 470);
             this.MapInfoTB.TabIndex = 0;
             this.MapInfoTB.Text = "";
             // 
@@ -230,7 +232,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.tabPage4.Size = new System.Drawing.Size(970, 497);
+            this.tabPage4.Size = new System.Drawing.Size(970, 470);
             this.tabPage4.TabIndex = 2;
             this.tabPage4.Text = "Replay Information";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -243,7 +245,7 @@
             this.ReplayInfoTB.Location = new System.Drawing.Point(0, 0);
             this.ReplayInfoTB.Name = "ReplayInfoTB";
             this.ReplayInfoTB.ReadOnly = true;
-            this.ReplayInfoTB.Size = new System.Drawing.Size(970, 497);
+            this.ReplayInfoTB.Size = new System.Drawing.Size(970, 470);
             this.ReplayInfoTB.TabIndex = 0;
             this.ReplayInfoTB.Text = "";
             // 
@@ -287,7 +289,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.settingsToolStripMenuItem,
-            this.pluginsToolStripMenuItem,
+            this.PluginsMenuItem,
             this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -303,11 +305,11 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
-            // pluginsToolStripMenuItem
+            // exitToolStripMenuItem
             // 
-            this.pluginsToolStripMenuItem.Name = "pluginsToolStripMenuItem";
-            this.pluginsToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
-            this.pluginsToolStripMenuItem.Text = "Plugins";
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
             // 
             // settingsToolStripMenuItem
             // 
@@ -318,6 +320,27 @@
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "Settings";
             // 
+            // languageToolStripMenuItem
+            // 
+            this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
+            this.languageToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.languageToolStripMenuItem.Text = "Language";
+            // 
+            // preferencesToolStripMenuItem
+            // 
+            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.preferencesToolStripMenuItem.Text = "Preferences";
+            // 
+            // PluginsMenuItem
+            // 
+            this.PluginsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem1,
+            this.toolStripSeparator1});
+            this.PluginsMenuItem.Name = "PluginsMenuItem";
+            this.PluginsMenuItem.Size = new System.Drawing.Size(58, 20);
+            this.PluginsMenuItem.Text = "Plugins";
+            // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -326,29 +349,22 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.aboutToolStripMenuItem.Text = "Help";
             // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            // 
-            // languageToolStripMenuItem
-            // 
-            this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
-            this.languageToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.languageToolStripMenuItem.Text = "Language";
-            // 
-            // preferencesToolStripMenuItem
-            // 
-            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.preferencesToolStripMenuItem.Text = "Preferences";
-            // 
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem1.Text = "About";
+            // 
+            // settingsToolStripMenuItem1
+            // 
+            this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
+            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.settingsToolStripMenuItem1.Text = "Settings";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // Form1
             // 
@@ -402,9 +418,11 @@
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem languageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem pluginsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem PluginsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
 

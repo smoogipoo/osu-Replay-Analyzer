@@ -43,14 +43,13 @@ namespace o_RA
            if (BackgroundImage != null)
            {
                e.Graphics.DrawImage(BackgroundImage, 5, 5, 145, 90);
-           }
-           
+           }         
         }
 
         private void LanguageBox_Click(object sender, EventArgs e)
         {
-            Properties.Settings.Default.ApplicationLocale = v_locale;
-            Properties.Settings.Default.Save();
+            oRAMainForm.settings.AddSetting("ApplicationLocale", v_locale);
+            oRAMainForm.settings.Save();
             var findForm = FindForm();
             if (findForm != null)
                 findForm.Close();

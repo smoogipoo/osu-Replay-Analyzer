@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\</OutputPath>
+    <OutputPath>..\o!RA\DLLs\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -32,13 +32,15 @@
   <ItemGroup>
     <Reference Include="oRAInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\o!RA\DLLs\oRAInterface.dll</HintPath>
+      <HintPath>DLLs\oRAInterface.dll</HintPath>
     </Reference>
-    <Reference Include="osu!BMAPI">
-      <HintPath>..\o!RA\DLLs\osu!BMAPI.dll</HintPath>
+    <Reference Include="osu!BMAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLs\osu!BMAPI.dll</HintPath>
     </Reference>
-    <Reference Include="osu!ReplayAPI">
-      <HintPath>..\o!RA\DLLs\osu!ReplayAPI.dll</HintPath>
+    <Reference Include="osu!ReplayAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLs\osu!ReplayAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

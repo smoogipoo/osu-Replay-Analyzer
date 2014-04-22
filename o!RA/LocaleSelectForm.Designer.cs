@@ -34,7 +34,7 @@
             // languageBox1
             // 
             this.languageBox1.BackgroundImage = global::o_RA.Properties.Resources.enUSFlag;
-            this.languageBox1.Locale = "enUS";
+            this.languageBox1.Locale = "en";
             this.languageBox1.Location = new System.Drawing.Point(171, 87);
             this.languageBox1.Name = "languageBox1";
             this.languageBox1.Size = new System.Drawing.Size(155, 100);

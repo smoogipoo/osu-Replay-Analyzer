@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.IO;
-using BMAPI;
 using oRAInterface;
-using ReplayAPI;
 
-namespace smgiFuncs
+namespace o_RA
 {
     #region "Updater"
     public class Updater
@@ -279,35 +277,43 @@ namespace smgiFuncs
     }
     #endregion
     #region "Plugin Services"
-    public class PluginServices : IPluginHost
+    public class PluginServices : object
     {
         public readonly List<Plugin> PluginCollection = new List<Plugin>();
+        public readonly List<string> IncompatiblePlugins = new List<string>();
 
-        public Plugin LoadPlugin(string name)
+        public Plugin LoadPlugin(string File)
         {
-            Assembly pluginAssembly = Assembly.LoadFrom(Environment.CurrentDirectory + @"\plugins\" + name + ".dll");
-            foreach (Type pType in pluginAssembly.GetTypes())
+            try
             {
-                if (pType.IsPublic && !pType.IsAbstract)
+                Assembly pluginAssembly = Assembly.LoadFrom(File);
+                foreach (Type pType in pluginAssembly.GetTypes())
                 {
-                    Type pluginInterface = pType.GetInterface("oRAInterface.IPlugin", true);
-                    if (pluginInterface != null)
+                    if (pType.IsPublic && !pType.IsAbstract)
                     {
-                        Plugin nPlugin = new Plugin();
-                        nPlugin.PluginName = name;
-                        nPlugin.Instance = (IPlugin)Activator.CreateInstance(pluginAssembly.GetType(pType.ToString()));
-                        nPlugin.Instance.Host = this;
-                        nPlugin.Instance.Initialize();
-                        PluginCollection.Add(nPlugin);
-                        return nPlugin;
+                        Type pluginInterface = pType.GetInterface("oRAInterface.IPlugin", true);
+                        if (pluginInterface != null)
+                        {
+                            Plugin nPlugin = new Plugin();
+                            nPlugin.Instance = (IPlugin)Activator.CreateInstance(pluginAssembly.GetType(pType.ToString()));
+                            nPlugin.Instance.Host = this;
+                            nPlugin.AssemblyFile = File;
+                            nPlugin.Instance.Initialize();
+                            PluginCollection.Add(nPlugin);
+                            return nPlugin;
+                        }
                     }
                 }
             }
+            catch
+            {
+                IncompatiblePlugins.Add(File);
+            }
             return null;
         }
-        public void UnloadPlugin(string name)
+        public void UnloadPlugin(string File)
         {
-            foreach (Plugin plugin in PluginCollection.Where(plugin => plugin.PluginName == name))
+            foreach (Plugin plugin in PluginCollection.ToArray().Where(plugin => plugin.AssemblyFile == File))
             {
                 int index = PluginCollection.IndexOf(plugin);
                 plugin.Instance.Dispose();
@@ -319,7 +325,7 @@ namespace smgiFuncs
     public class Plugin
     {
         public IPlugin Instance { get; set; }
-        public string PluginName { get; set; }
+        public string AssemblyFile { get; set; }
     }
     #endregion
 }

@@ -1,19 +1,15 @@
 <Language>
-	<info_osuClosed>o!RA has detected that osu! is not currently running. \nPlease manually select your osu! game directory.</info_osuClosed>
+	<info_osuClosed>o!RA has detected that osu! is not currently running. \nPlease select your osu! directory.</info_osuClosed>
 	<info_osuClosedMessageBoxTitle>osu! Directory</info_osuClosedMessageBoxTitle>
 	<info_osuWrongDir>Selected directory does not contain the osu! Songs and/or Replays folder.\nPlease select your osu! directory.</info_osuWrongDir>
 	<info_RepLoadError>An error occurred and the replay could not be loaded.\nNotify smoogipooo of the following error message:\n</info_RepLoadError>
-	
 	<info_PopReplays>Populating replays...</info_PopReplays>
 	<info_PopBeatmaps>Populating beatmaps...</info_PopBeatmaps>
 	<info_TimingWindows>Timing windows:</info_TimingWindows>
-	
 	<info_Format>\tFormat:\t\t\t</info_Format>
 	<info_FName>\tFile name:\t\t</info_FName>
 	<info_FSize>\tFile size:\t\t\t</info_FSize>
-	<info_FHash>\tFile hash:\t\t\t</info_FHash>
-	
-	<!-- Beatmap specific properties -->
+	<info_FHash>\tFile hash:\t\t</info_FHash>
 	<info_MapAFN>\tAudio file name:\t\t</info_MapAFN>
 	<info_MapName>\tName:\t\t\t</info_MapName>
 	<info_MapArtist>\tArtist:\t\t\t</info_MapArtist>
@@ -30,8 +26,6 @@
 	<info_MapComboColour>\tCombo</info_MapComboColour>
 	<info_MapTotalTime>\tTotal time:\t\t</info_MapTotalTime>
 	<info_MapDrainTime>\tDrain time:\t\t</info_MapDrainTime>
-	
-	<!-- Replay specific properties -->
 	<info_RepMode>\tMode:\t\t\t</info_RepMode>
 	<info_RepPlayer>\tPlayer:\t\t\t</info_RepPlayer>
 	<info_RepScore>\tPlayer score:\t\t</info_RepScore>
@@ -43,9 +37,7 @@
 	<info_RepGekiCount>\tGeki count:\t\t</info_RepGekiCount>
 	<info_RepKatuCount>\tKatu count:\t\t</info_RepKatuCount>
 	<info_RepMods>\tMods:\t\t\t</info_RepMods>
-	
-	<!-- Timing graph specific properties -->
-	<info_UnstableRate>\tUnstable Rate:\t\t</info_UnstableRate>
-	<info_ErrorRate>\tError Rate:\t\t</info_ErrorRate>
-	<info_OverallErrorRate>\tOverall Error Rate:\t\t</info_OverallErrorRate>
+	<info_UnstableRate>\tUnstable rate:\t\t</info_UnstableRate>
+	<info_ErrorRate>\tError rate:\t\t</info_ErrorRate>
+	<info_OverallErrorRate>\tOverall error rate:\t\t</info_OverallErrorRate>
 </Language>

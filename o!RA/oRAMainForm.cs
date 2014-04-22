@@ -11,7 +11,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using ReplayAPI;
 using BMAPI;
 using System.Xml;
-using smgiFuncs;
+using oRAInterface;
 
 namespace o_RA
 {
@@ -24,45 +24,52 @@ namespace o_RA
         private XmlReader locale;
         public static Settings settings = new Settings();
 
+
         Replay replay;
         Beatmap beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
-        readonly double[] TimingWindows = new double[3];
-        readonly ToolTip ProgressTT = new ToolTip();
-        string ProgressTTText = "";
-        string ReplayDir = "", BeatmapDir = "";
-        readonly List<TreeNode> Replays = new List<TreeNode>();
-        readonly Dictionary<string, string> BeatmapHashes = new Dictionary<string, string>();
+        static DataClass oRAData;
+        static ControlsClass oRAControls;
 
-        private static readonly PluginServices Plugins = new PluginServices(); //Declares Plugins as global
-        private const int PluginPriority = 10;
-
+        public static readonly PluginServices Plugins = new PluginServices();
         private readonly Bitmap TimelineFrameImg = new Bitmap(18, 18);
 
-
         private void Form1_Load(object sender, EventArgs e)
-        {     
-            foreach (string file in Directory.GetFiles(Environment.CurrentDirectory + @"\Plugins\", "*.dll").Where(file => !settings.ContainsSetting("DisallowedPlugins") || !settings.GetSetting("DisallowedPlugins").Split(new[] { '|' }).Contains(file)))
+        {
+            oRAData = new DataClass();
+            oRAControls = new ControlsClass();
+            oRAData.Replays = new List<TreeNode>();
+            oRAData.BeatmapHashes = new Dictionary<string, string>();
+            oRAData.TimingWindows = new double[3];
+            oRAControls.ProgressToolTip = new ToolTip();
+            oRAControls.FrameTimeline = ReplayTimelineLB;
+            oRAControls.MainTabControl = MainContainer;
+            oRAControls.Progress = Progress;
+
+            //Load Plugins
+            if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
             {
-                sString fileString = file;
-                fileString = fileString.SubString(fileString.LastIndexOf(@"\") + 1, fileString.LastIndexOf("."));
-                Plugin p = Plugins.LoadPlugin(fileString.ToString());
-                if (p.Instance.p_TabItem != null)
+                foreach (string pluginFile in Directory.GetDirectories(Environment.CurrentDirectory + @"\Plugins\").SelectMany(dir => Directory.GetFiles(dir, "*.dll").Where(file => !settings.ContainsSetting("DisabledPlugins") || !settings.GetSetting("DisabledPlugins").Split(new[] { '|' }).Contains(file))))
                 {
-                    TabPage newTabPage = new TabPage(p.Instance.p_Name);
-                    newTabPage.Controls.Add(p.Instance.p_TabItem);
-                    MainContainer.TabPages.Add(newTabPage);
-                }
-                if (p.Instance.p_MenuItem != null)
-                {
-                    PluginsMenuItem.DropDownItems.Add(p.Instance.p_MenuItem);
+                    Plugin p = Plugins.LoadPlugin(pluginFile);
+                    if (p == null)
+                        continue;
+                    p.Instance.p_Data = oRAData;
+                    p.Instance.p_Controls = oRAControls;
+                    if (p.Instance.p_PluginTabItem != null)
+                    {
+                        TabPage newTabPage = new TabPage(p.Instance.p_Name);
+                        newTabPage.Controls.Add(p.Instance.p_PluginTabItem);
+                        p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
+                        MainContainer.TabPages.Add(newTabPage);
+                    }
+                    if (p.Instance.p_PluginMenuItem != null)
+                    {
+                        PluginsMenuItem.DropDownItems.Add(p.Instance.p_PluginMenuItem);
+                    }
                 }
             }
-            Thread pluginUpdateThread = new Thread(UpdatePlugins)
-            {
-                IsBackground = true
-            };
-            pluginUpdateThread.Start();
+
 
             ReplayTimelineLB.ItemHeight = 20;
 
@@ -73,7 +80,7 @@ namespace o_RA
             }
             try
             {
-                locale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\" + settings.GetSetting("ApplicationLocale") + ".xml"));
+                locale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\Locales\\" + settings.GetSetting("ApplicationLocale") + ".xml"));
             }
             catch (FileNotFoundException)
             {
@@ -87,9 +94,9 @@ namespace o_RA
                     if (!Language.ContainsKey(n))
                         Language.Add(n, locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
             }
-            if (settings.GetSetting("ApplicationLocale") != "enUS")
+            if (settings.GetSetting("ApplicationLocale") != "en")
             {
-                XmlReader enLocale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\enUS.xml"));
+                XmlReader enLocale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\en.xml"));
                 while (enLocale.Read())
                 {
                     string n = enLocale.Name;
@@ -102,8 +109,8 @@ namespace o_RA
             if (procs.Length != 0)
             {
                 string gameDir = procs[0].Modules[0].FileName.Substring(0,procs[0].Modules[0].FileName.LastIndexOf("\\", StringComparison.Ordinal));
-                ReplayDir = gameDir + "\\Replays";
-                BeatmapDir = gameDir + "\\Songs";
+                oRAData.ReplayDirectory = gameDir + "\\Replays";
+                oRAData.BeatmapDirectory = gameDir + "\\Songs";
             }
             else
             {
@@ -112,14 +119,14 @@ namespace o_RA
                 {
                    using (FolderBrowserDialog fd = new FolderBrowserDialog())
                    {
-                       while (ReplayDir == "")
+                       while (oRAData.ReplayDirectory == null)
                        {
                            if (fd.ShowDialog() == DialogResult.OK)
                            {
                                if (Directory.Exists(fd.SelectedPath + "\\Replays") && Directory.Exists(fd.SelectedPath + "\\Songs"))
                                {
-                                   ReplayDir = fd.SelectedPath + "\\Replays";
-                                   BeatmapDir = fd.SelectedPath + "\\Songs";
+                                   oRAData.ReplayDirectory = fd.SelectedPath + "\\Replays";
+                                   oRAData.BeatmapDirectory = fd.SelectedPath + "\\Songs";
                                }
                                else
                                {
@@ -134,16 +141,16 @@ namespace o_RA
                    }
                 }
             }
-            ProgressTTText = Language["info_PopReplays"];
+            oRAControls.ProgressToolTip.Tag = Language["info_PopReplays"];
 
             Thread populateListsThread = new Thread(PopulateLists);
             populateListsThread.IsBackground = true;
             populateListsThread.Start();
 
-            FileSystemWatcher replayWatcher = new FileSystemWatcher(ReplayDir);
+            FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory);
             replayWatcher.NotifyFilter = NotifyFilters.FileName;
             replayWatcher.Filter = "*.osr";
-            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(BeatmapDir);
+            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(oRAData.BeatmapDirectory);
             replayWatcher.NotifyFilter = NotifyFilters.FileName;
             beatmapWatcher.Filter = "*.osu";
             beatmapWatcher.IncludeSubdirectories = true;
@@ -159,29 +166,9 @@ namespace o_RA
             beatmapWatcher.EnableRaisingEvents = true;
         }
 
-        private void UpdatePlugins()
-        {
-            while(true)
-            {
-                foreach (Plugin p in Plugins.PluginCollection)
-                {
-                    p.Instance.p_BeatmapDirectory = BeatmapDir;
-                    p.Instance.p_ReplayDirectory = ReplayDir;
-                    p.Instance.p_CurrentBeatmap = beatmap;
-                    p.Instance.p_CurrentReplay = replay;
-                    p.Instance.p_FrameTimeline = ReplayTimelineLB;
-                    p.Instance.p_MainTabControl = MainContainer;
-                    p.Instance.p_Progress = Progress;
-                    p.Instance.p_ProgressToolTipText = ProgressTTText;
-                    p.Instance.p_TimingWindows = TimingWindows;
-                }
-                Thread.Sleep(1000 / PluginPriority);
-            }
-        }
-
         private void PopulateLists()
         {
-            DirectoryInfo info = new DirectoryInfo(ReplayDir);
+            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] files = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
             try
@@ -197,7 +184,7 @@ namespace o_RA
             }
             foreach (FileInfo file in files)
             {
-                Replays.Add(new TreeNode(file.Name));
+                oRAData.Replays.Add(new TreeNode(file.Name));
                 try
                 {
                     Progress.BeginInvoke((MethodInvoker)delegate
@@ -211,10 +198,10 @@ namespace o_RA
                 }
             }
 
-            ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.AddRange(Replays.ToArray())));
-            ProgressTTText = Language["info_PopBeatmaps"];
+            ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.AddRange(oRAData.Replays.ToArray())));
+            oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
 
-            string[] beatmapFiles = Directory.GetFiles(BeatmapDir, "*.osu", SearchOption.AllDirectories);
+            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
             
             try
             {
@@ -236,7 +223,7 @@ namespace o_RA
                     {
                         using (var stream = File.OpenRead(file))
                         {
-                            BeatmapHashes.Add(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                            oRAData.BeatmapHashes.Add(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                                 Progress.BeginInvoke((MethodInvoker)delegate
                                 {
                                     Progress.Value += 1;
@@ -250,7 +237,7 @@ namespace o_RA
             {
                 Progress.Value = 0;
             });
-            ProgressTTText = "All operations completed.";
+            oRAControls.ProgressToolTip.Tag = "All operations completed.";
         }
 
         private void ReplayCreated(object sender, FileSystemEventArgs e)
@@ -277,22 +264,22 @@ namespace o_RA
             {
                 using (var stream = File.OpenRead(e.FullPath))
                 {
-                    BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    oRAData.BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                 }             
             }
         }
         private void BeatmapDeleted(object sender, FileSystemEventArgs e)
         {
-            BeatmapHashes.Remove(e.FullPath);
+            oRAData.BeatmapHashes.Remove(e.FullPath);
         }
         private void BeatmapRenamed(object sender, RenamedEventArgs e)
         {
-            BeatmapHashes.Remove(e.OldFullPath);
+            oRAData.BeatmapHashes.Remove(e.OldFullPath);
             using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(e.FullPath))
                 {
-                    BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    oRAData.BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                 }
             }
         }
@@ -301,7 +288,7 @@ namespace o_RA
         {
             try
             {
-                replay = new Replay(ReplayDir + "\\" + e.Node.Text);
+                replay = new Replay(oRAData.ReplayDirectory + "\\" + e.Node.Text);
             }
             catch (Exception ex)
             {
@@ -310,7 +297,7 @@ namespace o_RA
             }
             try //Todo: I don't know how
             {
-                var file = BeatmapHashes.ToList().FirstOrDefault(kvp => kvp.Value.Contains(replay.mapHash));
+                var file = oRAData.BeatmapHashes.ToList().FirstOrDefault(kvp => kvp.Value.Contains(replay.mapHash));
                 if (file.Key != null)
                 {
                     beatmap = new Beatmap(file.Key);
@@ -346,7 +333,7 @@ namespace o_RA
                     //Timing windows are determined by linear interpolation
                     for (int i = 2; i >= 0; i--)
                     {
-                        TimingWindows[i] = beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
+                        oRAData.TimingWindows[i] = beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
                     }
 
                     //Get a list of all the individual clicks
@@ -376,9 +363,9 @@ namespace o_RA
                     List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
                     foreach (BaseCircle hitObject in beatmap.HitObjects)
                     {
-                        ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
-                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
-                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < TimingWindows[0]) && !iteratedObjects.Contains(click));
+                        ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
+                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
+                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.startTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
                         if (c != null)
                         {
                             iteratedObjects.Add(c);
@@ -479,7 +466,7 @@ namespace o_RA
                     MapInfoTB.AppendText(Language["info_MapCS"] + beatmap.CircleSize.ToString(".00") + "\n");
                     foreach (ComboInfo combo in beatmap.ComboColours)
                     {
-                        MapInfoTB.AppendText(Language["info_MapComboColour"] + " " + combo.comboNumber + ":\t\t\t");
+                        MapInfoTB.AppendText(Language["info_MapComboColour"] + " " + combo.comboNumber + ":\t\t");
                         int pos = MapInfoTB.TextLength;
                         MapInfoTB.AppendText(combo.colour.r + @", " + combo.colour.g + @", " + combo.colour.b + "\n");
                         MapInfoTB.Select(pos, MapInfoTB.TextLength);
@@ -495,8 +482,8 @@ namespace o_RA
                     //Replay Info
                     ReplayInfoTB.Text = "\n";
                     ReplayInfoTB.AppendText(Language["info_Format"] + replay.fileFormat + "\n");
-                    ReplayInfoTB.AppendText(Language["info_FName"] + ReplayDir + "\\" + e.Node.Text + "\n");
-                    ReplayInfoTB.AppendText(Language["info_FSize"] + File.OpenRead(ReplayDir + "\\" + e.Node.Text).Length + " bytes\n");
+                    ReplayInfoTB.AppendText(Language["info_FName"] + oRAData.ReplayDirectory + "\\" + e.Node.Text + "\n");
+                    ReplayInfoTB.AppendText(Language["info_FSize"] + File.OpenRead(oRAData.ReplayDirectory + "\\" + e.Node.Text).Length + " bytes\n");
                     ReplayInfoTB.AppendText(Language["info_FHash"] + replay.replayHash + "\n");
                     ReplayInfoTB.AppendText("\tReplay frames:\t\t" + replay.replayData.Count);
                     ReplayInfoTB.AppendText("\n");
@@ -523,12 +510,12 @@ namespace o_RA
 
         private void Progress_MouseEnter(object sender, EventArgs e)
         {
-            ProgressTT.Show(ProgressTTText, Progress, 0);
+            oRAControls.ProgressToolTip.Show((string)oRAControls.ProgressToolTip.Tag, Progress, 0);
         }
 
         private void Progress_MouseLeave(object sender, EventArgs e)
         {
-            ProgressTT.Hide(Progress);
+            oRAControls.ProgressToolTip.Hide(Progress);
         }
 
         private void ReplayTimelineLB_DrawItem(object sender, DrawItemEventArgs e)
@@ -641,6 +628,17 @@ namespace o_RA
                     SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "";
                 }
             }
+        }
+
+        private void settingsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            PluginSettingsForm psf = new PluginSettingsForm();
+            psf.Show();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

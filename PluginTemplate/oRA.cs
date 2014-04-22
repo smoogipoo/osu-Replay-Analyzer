@@ -1,38 +1,27 @@
-﻿using System.Collections.Generic;
-using System.Windows.Forms;
-using BMAPI;
+﻿using System.Windows.Forms;
 using oRAInterface;
-using ReplayAPI;
 
 namespace PluginTemplate
 {
     public class oRA : IPlugin
     {
         #region Plugin Constants (Set these)
-        public static string Name = "My o!RA Plugin";
+        public static string Name = "My first o!RA Plugin";
         public static string Description = "My plugin is beautiful.";
         public static string Author = "Me!";
         public static string Version = "1.0.0";
-        public static string UpdateURL = "";
+        public static string HomePage = "";
         #endregion
 
         #region Exposed items
-        public IPluginHost Host { get; set; }
+        public object Host { get; set; }
 
-        public static ToolStripMenuItem MenuItem;
-        public static UserControl TabItem;
-
-        public static string ReplayDirectory;
-        public static string BeatmapDirectory;
-        public static string ProgressToolTipText;
-        public static double[] TimingWindows;
-        public static Replay CurrentReplay;
-        public static Beatmap CurrentBeatmap;
-        public static Dictionary<string, string> BeatmapHashes;
-        public static TabControl MainTabControl;
-        public static ListBox FrameTimeline;
-        public static ProgressBar Progress;
+        public static ToolStripMenuItem PluginMenuItem;
+        public static UserControl PluginTabItem;
+        public static DataClass Data;
+        public static ControlsClass Controls;
         #endregion
+
         #region Exposed item interfaces
         public string p_Name
         {
@@ -50,67 +39,27 @@ namespace PluginTemplate
         {
             get { return Version; }
         }
-        public string p_UpdateURL
+        public string p_HomePage
         {
-            get { return UpdateURL; }
+            get { return HomePage; }
         }
-        public ToolStripMenuItem p_MenuItem
+        public ToolStripMenuItem p_PluginMenuItem
         {
-            get { return MenuItem; }
+            get { return PluginMenuItem; }
         }
-        public UserControl p_TabItem
+        public UserControl p_PluginTabItem
         {
-            get { return TabItem; }
+            get { return PluginTabItem; }
         }
-        public string p_ReplayDirectory
+        public DataClass p_Data
         {
-            get { return ReplayDirectory; }
-            set { ReplayDirectory = value; }
+            get { return Data; }
+            set { Data = value; }
         }
-        public string p_BeatmapDirectory
+        public ControlsClass p_Controls
         {
-            get { return BeatmapDirectory; }
-            set { BeatmapDirectory = value; }
-        }
-        public string p_ProgressToolTipText
-        {
-            get { return ProgressToolTipText; }
-            set { ProgressToolTipText = value; }
-        }
-        public double[] p_TimingWindows
-        {
-            get { return TimingWindows; }
-            set { TimingWindows = value; }
-        }
-        public Replay p_CurrentReplay
-        {
-            get { return CurrentReplay; }
-            set { CurrentReplay = value; }
-        }
-        public Beatmap p_CurrentBeatmap
-        {
-            get { return CurrentBeatmap; }
-            set { CurrentBeatmap = value; }
-        }
-        public Dictionary<string, string> p_BeatmapHashes
-        {
-            get { return BeatmapHashes; }
-            set { BeatmapHashes = value; }
-        }
-        public TabControl p_MainTabControl
-        {
-            get { return MainTabControl; }
-            set { MainTabControl = value; }
-        }
-        public ListBox p_FrameTimeline
-        {
-            get { return FrameTimeline; }
-            set { FrameTimeline = value; }
-        }
-        public ProgressBar p_Progress
-        {
-            get { return Progress; }
-            set { Progress = value; }
+            get { return Controls; }
+            set { Controls = value; }
         }
         #endregion     
 

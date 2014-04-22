@@ -1,0 +1,40 @@
+<Language>
+	<info_osuClosed>o!RA heeft gemerkt dat osu! niet opgestart is.\nSelecteer alstublieft de osu! bestandsfolder.</info_osuClosed>
+	<info_osuClosedMessageBoxTitle>osu! Bestandsfolder</info_osuClosedMessageBoxTitle>
+	<info_osuWrongDir>De geselecteerde bestandsfolder bevat niet de osu! Songs/Replays mappen.\nSelecteer alstublieft de osu! bestandsfolder.</info_osuWrongDir>
+	<info_RepLoadError>Er is een error opgetreden en de replay is niet geladen.\nNeem contact op met smoogipooo met het volgende bericht:\n</info_RepLoadError>
+	<info_PopReplays>Replays behandelen...</info_PopReplays>
+	<info_PopBeatmaps>Beatmaps behandelen...</info_PopBeatmaps>
+	<info_TimingWindows>Timing windows:     </info_TimingWindows>
+	<info_Format>tFormaat:\t\t\t</info_Format>
+	<info_FName>\tBestand naam:\t\t</info_FName>
+	<info_FSize>\tBestand grootte:\t\t\t</info_FSize>
+	<info_FHash>\tBestands hash:\t\t</info_FHash>
+	<info_MapAFN>\tAudio bestand naam:\t\t</info_MapAFN>
+	<info_MapName>\tNaam:\t\t\t</info_MapName>
+	<info_MapArtist>\tArtiest:\t\t\t</info_MapArtist>
+	<info_MapSource>\tBron:\t\t\t</info_MapSource>
+	<info_MapCreator>\tMaker:\t\t\t</info_MapCreator>
+	<info_MapVersion>\tVersie:\t\t\t</info_MapVersion>
+	<info_MapID>\tBeatmap ID:\t\t</info_MapID>
+	<info_MapSetID>\tBeatmap set ID:\t\t</info_MapSetID>
+	<info_MapTags>\tTags:\t\t\t</info_MapTags>
+	<info_MapOD>\tGehele moeilijkheid:\t\t</info_MapOD>
+	<info_MapAR>\tApproachRate:\t\t</info_MapAR>
+	<info_MapHP>\tHP drain snelheid:\t\t</info_MapHP>
+	<info_MapCS>\tCirkel grootte:\t\t</info_MapCS>
+	<info_MapComboColour>\tCombo</info_MapComboColour>
+	<info_MapTotalTime>\tTotale tijd:\t\t</info_MapTotalTime>
+	<info_MapDrainTime>\tDrain tijd:\t\t</info_MapDrainTime>
+	<info_RepMode>\tMode:\t\t\t</info_RepMode>
+	<info_RepPlayer>\tSpeler:\t\t\t</info_RepPlayer>
+	<info_RepScore>\tSpeler punten:\t\t</info_RepScore>
+	<info_RepCombo>\tSpeler combo:\t\t</info_RepCombo>
+	<info_Rep300Count>\tHit 300 aantal:\t\t</info_Rep300Count>
+	<info_Rep100Count>\tHit 100 aantal:\t\t</info_Rep100Count>
+	<info_Rep50Count>\tHit 50 aantal:\t\t</info_Rep50Count>
+	<info_RepMissCount>\tMis aantal:\t\t</info_RepMissCount>
+	<info_RepGekiCount>\tGeki aantal:\t\t</info_RepGekiCount>
+	<info_RepKatuCount>\tKatu aantal:\t\t</info_RepKatuCount>
+	<info_RepMods>\tMods:\t\t\t</info_RepMods>
+</Language>

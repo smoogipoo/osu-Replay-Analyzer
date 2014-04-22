@@ -5,39 +5,39 @@
 	<info_RepLoadError>在读取重放(replay)文件中出现了错误.\n请把此错误信息转告给smoogipooo:\n</info_RepLoadError>
 	<info_PopReplays>导入replay文件中...</info_PopReplays>
 	<info_PopBeatmaps>导入图谱文件中...</info_PopBeatmaps>
-	<info_TimingWindows>Timing窗口:</info_TimingWindows>
-	<info_Format>\t格式:\t\t\t\t</info_Format>
-	<info_FName>\t文件名称:\t\t\t</info_FName>
-	<info_FSize>\t文件大小t:\t\t\t</info_FSize>
-	<info_FHash>\t文件哈希值:\t\t\t</info_FHash>
-	<info_MapAFN>\t音效文件名称:\t\t\t</info_MapAFN>
-	<info_MapName>\t名字:\t\t\t\t</info_MapName>
-	<info_MapArtist>\t艺术家t:\t\t\t\t</info_MapArtist>
-	<info_MapSource>\t来源:\t\t\t\t</info_MapSource>
-	<info_MapCreator>\t创建者:\t\t\t\t</info_MapCreator>
-	<info_MapVersion>\t版本t:\t\t\t\t</info_MapVersion>
-	<info_MapID>\t图谱ID(beatmap ID):\t\t\t</info_MapID>
-	<info_MapSetID>\t图谱设定ID:\t\t\t</info_MapSetID>
-	<info_MapTags>\t标签:\t\t\t\t</info_MapTags>
-	<info_MapOD>\tOD值 (总体难度):\t\t</info_MapOD>
-	<info_MapAR>\tAR值(收缩圈速度):\t\t</info_MapAR>
-	<info_MapHP>\t生命值减少速度:\t\t\t</info_MapHP>
-	<info_MapCS>\tCS值(note的大小):\t\t</info_MapCS>
-	<info_MapComboColour>\t连击数</info_MapComboColour>
-	<info_MapTotalTime>\t总时间:\t\t\t\t</info_MapTotalTime>
-	<info_MapDrainTime>\t总时间(生命值会减少的时间):\t</info_MapDrainTime>
-	<info_RepMode>\t模式:\t\t\t\t</info_RepMode>
-	<info_RepPlayer>\t玩家:\t\t\t\t</info_RepPlayer>
-	<info_RepScore>\t玩家分数:\t\t\t</info_RepScore>
-	<info_RepCombo>\t玩家连击数:\t\t\t</info_RepCombo>
-	<info_Rep300Count>\t击打出300的总数:\t\t\t</info_Rep300Count>
-	<info_Rep100Count>\t击打出100的总数:\t\t\t</info_Rep100Count>
-	<info_Rep50Count>\t击打出50的总数:\t\t\t</info_Rep50Count>
-	<info_RepMissCount>\tmiss总数(未击中):\t\t\t</info_RepMissCount>
-	<info_RepGekiCount>\t“激”的总数:\t\t\t</info_RepGekiCount>
-	<info_RepKatuCount>\t"喝“的总数:\t\t\t</info_RepKatuCount>
-	<info_RepMods>\tmods:\t\t\t\t</info_RepMods>
-	<info_UnstableRate>\tUR值(不稳定率):\t\t\t</info_UnstableRate>
-	<info_ErrorRate>\t击打误差值:\t\t\t</info_ErrorRate>
-	<info_OverallErrorRate>\t总击打误差值:\t\t\t</info_OverallErrorRate>
+	<text_TimingWindow>Timing窗口</text_TimingWindow>
+	<info_Format>格式:</info_Format>
+	<info_FName>文件名称:</info_FName>
+	<info_FSize>文件大小t:</info_FSize>
+	<info_FHash>文件哈希值:</info_FHash>
+	<info_MapAFN>音效文件名称:</info_MapAFN>
+	<info_MapName>名字:</info_MapName>
+	<info_MapArtist>艺术家t:</info_MapArtist>
+	<info_MapSource>来源:</info_MapSource>
+	<info_MapCreator>创建者:</info_MapCreator>
+	<info_MapVersion>版本t:</info_MapVersion>
+	<info_MapID>图谱ID(beatmap ID):</info_MapID>
+	<info_MapSetID>图谱设定ID:</info_MapSetID>
+	<info_MapTags>标签:</info_MapTags>
+	<info_MapOD>OD值 (总体难度):</info_MapOD>
+	<info_MapAR>AR值(收缩圈速度):</info_MapAR>
+	<info_MapHP>生命值减少速度:</info_MapHP>
+	<info_MapCS>CS值(note的大小):</info_MapCS>
+	<info_MapComboColour>连击数</info_MapComboColour>
+	<info_MapTotalTime>总时间:</info_MapTotalTime>
+	<info_MapDrainTime>总时间(生命值会减少的时间):</info_MapDrainTime>
+	<info_RepMode>模式:</info_RepMode>
+	<info_RepPlayer>玩家:</info_RepPlayer>
+	<info_RepScore>玩家分数:</info_RepScore>
+	<info_RepCombo>玩家连击数:</info_RepCombo>
+	<info_Rep300Count>击打出300的总数:</info_Rep300Count>
+	<info_Rep100Count>击打出100的总数:</info_Rep100Count>
+	<info_Rep50Count>击打出50的总数:</info_Rep50Count>
+	<info_RepMissCount>miss总数(未击中):</info_RepMissCount>
+	<info_RepGekiCount>“激”的总数:</info_RepGekiCount>
+	<info_RepKatuCount>"喝“的总数:</info_RepKatuCount>
+	<info_RepMods>mods:</info_RepMods>
+	<info_UnstableRate>UR值(不稳定率):</info_UnstableRate>
+	<info_ErrorRate>击打误差值:</info_ErrorRate>
+	<info_OverallErrorRate>总击打误差值:</info_OverallErrorRate>
 </Language>

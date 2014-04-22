@@ -1,43 +1,48 @@
 <Language>
-	<info_osuClosed>o!RA a detectat că osu! nu e pornit \nVă rugăm să selectați directorul lui osu!.</info_osuClosed>
+	<info_osuClosed>o!RA a detectat că osu! nu e pornit. \nVă rugăm să selectați directorul lui osu!.</info_osuClosed>
 	<info_osuClosedMessageBoxTitle>Directorul lui osu!</info_osuClosedMessageBoxTitle>
 	<info_osuWrongDir>Directorul selectat nu conține directorul Songs sau Replays.\nVă rugăm să selectați directorul lui osu!.</info_osuWrongDir>
-	<info_RepLoadError>A apărut o eroare și replay-ul nu a putut fi încărcat.\nNotifica-l pe smoogipooo de următoarea erorare:\n</info_RepLoadError>
-	<info_PopReplays>Populăm replay-uri...</info_PopReplays>
+	<info_RepLoadError>A apărut o eroare și reluarea nu a putut fi încărcat.\nNotifica-l pe smoogipooo de următoarea erorare:\n</info_RepLoadError>
+	<info_PopReplays>Populăm reluarile...</info_PopReplays>
 	<info_PopBeatmaps>Populăm beatmap-uri...</info_PopBeatmaps>
-	<info_TimingWindows>Fereastra de sincronizare:</info_TimingWindows>
-	<info_Format>\tFormat:\t\t\t</info_Format>
-	<info_FName>\tNumele de fișier:\t\t</info_FName>
-	<info_FSize>\tDimensiunea de fișier:\t</info_FSize>
-	<info_FHash>\tHashul lui fișier:\t\t</info_FHash>
-	<info_MapAFN>\tNume de fișier audio:\t</info_MapAFN>
-	<info_MapName>\tNume:\t\t\t</info_MapName>
-	<info_MapArtist>\tArtist:\t\t\t</info_MapArtist>
-	<info_MapSource>\tSursă:\t\t\t</info_MapSource>
-	<info_MapCreator>\tCreator:\t\t\t</info_MapCreator>
-	<info_MapVersion>\tVersiunea:\t\t\t</info_MapVersion>
-	<info_MapID>\tBeatmap ID:\t\t</info_MapID>
-	<info_MapSetID>\tBeatmap set ID:\t\t</info_MapSetID>
-	<info_MapTags>\tTaguri:\t\t\t</info_MapTags>
-	<info_MapOD>\tDificultatea pe ansamblu:\t</info_MapOD>
-	<info_MapAR>\tRata de apropriare:\t</info_MapAR>
-	<info_MapHP>\tRata de drena HP:\t\t</info_MapHP>
-	<info_MapCS>\tDimensiunea cercuilor:\t\t</info_MapCS>
-	<info_MapComboColour>\tCombo</info_MapComboColour>
-	<info_MapTotalTime>\tTotal timp:\t\t</info_MapTotalTime>
-	<info_MapDrainTime>\tTimp de drena:\t\t</info_MapDrainTime>
-	<info_RepMode>\tMod:\t\t\t</info_RepMode>
-	<info_RepPlayer>\tJucător:\t\t\t</info_RepPlayer>
-	<info_RepScore>\tScorul de jucător:\t\t</info_RepScore>
-	<info_RepCombo>\tCombo-ul de jucător:\t\t</info_RepCombo>
-	<info_Rep300Count>\tNumăr de hit-uri 300:\t\t</info_Rep300Count>
-	<info_Rep100Count>\tNumăr de hit-uri 100:\t\t</info_Rep100Count>
-	<info_Rep50Count>\tNumăr de hit-uri 50:\t\t</info_Rep50Count>
-	<info_RepMissCount>\tNumăr de ratări:\t\t</info_RepMissCount>
-	<info_RepGekiCount>\tNumăr de Geki:\t\t</info_RepGekiCount>
-	<info_RepKatuCount>\tNumăr de Katu:\t\t</info_RepKatuCount>
-	<info_RepMods>\tMods:\t\t\t</info_RepMods>
-	<info_UnstableRate>\tRata instabilă:\t\t</info_UnstableRate>
-	<info_ErrorRate>\tRata de eroare:\t\t</info_ErrorRate>
-	<info_OverallErrorRate>\tRata globală de eroare:\t</info_OverallErrorRate>
+	<text_TimingWindow>Fereastra de Sincronizare</text_TimingWindow>
+	<info_Format>Format:</info_Format>
+	<info_FName>Numele de fișier:</info_FName>
+	<info_FSize>Dimensiunea de fișier:</info_FSize>
+	<info_FHash>Hashul lui fișier:</info_FHash>
+	<info_MapAFN>Nume de fișier audio:</info_MapAFN>
+	<info_MapName>Nume:</info_MapName>
+	<info_MapArtist>Artist:</info_MapArtist>
+	<info_MapSource>Sursă:</info_MapSource>
+	<info_MapCreator>Creator:</info_MapCreator>
+	<info_MapVersion>Versiunea:</info_MapVersion>
+	<info_MapID>Beatmap ID:</info_MapID>
+	<info_MapSetID>Beatmap set ID:</info_MapSetID>
+	<info_MapTags>Taguri:</info_MapTags>
+	<info_MapOD>Dificultatea pe ansamblu:</info_MapOD>
+	<info_MapAR>Rata de apropriare:</info_MapAR>
+	<info_MapHP>Rata de drena HP:</info_MapHP>
+	<info_MapCS>Dimensiunea cercuilor:</info_MapCS>
+	<info_MapComboColour>Combo</info_MapComboColour>
+	<info_MapTotalTime>Total timp:</info_MapTotalTime>
+	<info_MapDrainTime>Timp de drena:</info_MapDrainTime>
+	<info_RepMode>Mod:</info_RepMode>
+	<info_RepPlayer>Jucător:</info_RepPlayer>
+	<info_RepScore>Scorul de jucător:</info_RepScore>
+	<info_RepCombo>Combo-ul de jucător:</info_RepCombo>
+	<info_Rep300Count>Număr de hit-uri 300:</info_Rep300Count>
+	<info_Rep100Count>Număr de hit-uri 100:</info_Rep100Count>
+	<info_Rep50Count>Număr de hit-uri 50:</info_Rep50Count>
+	<info_RepMissCount>Număr de ratări:</info_RepMissCount>
+	<info_RepGekiCount>Număr de Geki:</info_RepGekiCount>
+	<info_RepKatuCount>Număr de Katu:</info_RepKatuCount>
+	<info_RepMods>Mods:</info_RepMods>
+	<info_UnstableRate>Rata instabilă:</info_UnstableRate>
+	<info_ErrorRate>Rata de eroare:</info_ErrorRate>
+	<info_OverallErrorRate>Rata globală de eroare:</info_OverallErrorRate>
+	<info_TotalHitObjects>Global number de hitobjects:</info_TotalHitObjects>
+	<text_bytes>octeți</text_bytes>
+	<info_ReplayFrames>Număr de rame in reluare:</info_ReplayFrames>
+	<text_Spinner>Torcător</text_Spinner>
+	<info_OperationsCompleted>Toate operațile sau completat.</info_OperationsCompleted>
 </Language>

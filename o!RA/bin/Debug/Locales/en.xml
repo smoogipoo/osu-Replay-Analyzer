@@ -5,39 +5,48 @@
 	<info_RepLoadError>An error occurred and the replay could not be loaded.\nNotify smoogipooo of the following error message:\n</info_RepLoadError>
 	<info_PopReplays>Populating replays...</info_PopReplays>
 	<info_PopBeatmaps>Populating beatmaps...</info_PopBeatmaps>
-	<info_TimingWindows>Timing windows:</info_TimingWindows>
-	<info_Format>\tFormat:\t\t\t</info_Format>
-	<info_FName>\tFile name:\t\t</info_FName>
-	<info_FSize>\tFile size:\t\t\t</info_FSize>
-	<info_FHash>\tFile hash:\t\t</info_FHash>
-	<info_MapAFN>\tAudio file name:\t\t</info_MapAFN>
-	<info_MapName>\tName:\t\t\t</info_MapName>
-	<info_MapArtist>\tArtist:\t\t\t</info_MapArtist>
-	<info_MapSource>\tSource:\t\t\t</info_MapSource>
-	<info_MapCreator>\tCreator:\t\t\t</info_MapCreator>
-	<info_MapVersion>\tVersion:\t\t\t</info_MapVersion>
-	<info_MapID>\tBeatmap ID:\t\t</info_MapID>
-	<info_MapSetID>\tBeatmap set ID:\t\t</info_MapSetID>
-	<info_MapTags>\tTags:\t\t\t</info_MapTags>
-	<info_MapOD>\tOverall difficulty:\t\t</info_MapOD>
-	<info_MapAR>\tApproachRate:\t\t</info_MapAR>
-	<info_MapHP>\tHP drain rate:\t\t</info_MapHP>
-	<info_MapCS>\tCircle size:\t\t</info_MapCS>
-	<info_MapComboColour>\tCombo</info_MapComboColour>
-	<info_MapTotalTime>\tTotal time:\t\t</info_MapTotalTime>
-	<info_MapDrainTime>\tDrain time:\t\t</info_MapDrainTime>
-	<info_RepMode>\tMode:\t\t\t</info_RepMode>
-	<info_RepPlayer>\tPlayer:\t\t\t</info_RepPlayer>
-	<info_RepScore>\tPlayer score:\t\t</info_RepScore>
-	<info_RepCombo>\tPlayer combo:\t\t</info_RepCombo>
-	<info_Rep300Count>\tHit 300 count:\t\t</info_Rep300Count>
-	<info_Rep100Count>\tHit 100 count:\t\t</info_Rep100Count>
-	<info_Rep50Count>\tHit 50 count:\t\t</info_Rep50Count>
-	<info_RepMissCount>\tMiss count:\t\t</info_RepMissCount>
-	<info_RepGekiCount>\tGeki count:\t\t</info_RepGekiCount>
-	<info_RepKatuCount>\tKatu count:\t\t</info_RepKatuCount>
-	<info_RepMods>\tMods:\t\t\t</info_RepMods>
-	<info_UnstableRate>\tUnstable rate:\t\t</info_UnstableRate>
-	<info_ErrorRate>\tError rate:\t\t</info_ErrorRate>
-	<info_OverallErrorRate>\tOverall error rate:\t\t</info_OverallErrorRate>
+	<text_TimingWindow>Timing Window</text_TimingWindow>
+	<info_Format>Format:</info_Format>
+	<info_FName>File name:</info_FName>
+	<info_FSize>File size:</info_FSize>
+	<info_FHash>File hash:</info_FHash>
+	<info_MapAFN>Audio file name:</info_MapAFN>
+	<info_MapName>Name:</info_MapName>
+	<info_MapArtist>Artist:</info_MapArtist>
+	<info_MapSource>Source:</info_MapSource>
+	<info_MapCreator>Creator:</info_MapCreator>
+	<info_MapVersion>Version:</info_MapVersion>
+	<info_MapID>Beatmap ID:</info_MapID>
+	<info_MapSetID>Beatmap set ID:</info_MapSetID>
+	<info_MapTags>Tags:</info_MapTags>
+	<info_MapOD>Overall difficulty:</info_MapOD>
+	<info_MapAR>ApproachRate:</info_MapAR>
+	<info_MapHP>HP drain rate:</info_MapHP>
+	<info_MapCS>Circle size:</info_MapCS>
+	<info_MapComboColour>Combo</info_MapComboColour>
+	<info_MapTotalTime>Total time:</info_MapTotalTime>
+	<info_MapDrainTime>Drain time:</info_MapDrainTime>
+	<info_RepMode>Mode:</info_RepMode>
+	<info_RepPlayer>Player:</info_RepPlayer>
+	<info_RepScore>Player score:</info_RepScore>
+	<info_RepCombo>Player combo:</info_RepCombo>
+	<info_Rep300Count>Hit 300 count:</info_Rep300Count>
+	<info_Rep100Count>Hit 100 count:</info_Rep100Count>
+	<info_Rep50Count>Hit 50 count:</info_Rep50Count>
+	<info_RepMissCount>Miss count:</info_RepMissCount>
+	<info_RepGekiCount>Geki count:</info_RepGekiCount>
+	<info_RepKatuCount>Katu count:</info_RepKatuCount>
+	<info_RepMods>Mods:</info_RepMods>
+	<info_UnstableRate>Unstable rate:</info_UnstableRate>
+	<info_ErrorRate>Error rate:</info_ErrorRate>
+	<info_OverallErrorRate>Overall error rate:</info_OverallErrorRate>
+	<info_TotalHitObjects>Total hitobjects:</info_TotalHitObjects>
+	<text_bytes>bytes</text_bytes>
+	<info_ReplayFrames>Replay frames:</info_ReplayFrames>
+	<text_Spinner>Spinner</text_Spinner>
+	<info_OperationsCompleted>All operations completed.</info_OperationsCompleted>
+	<tab_TimingWindows>Timing Windows</tab_TimingWindows>
+	<tab_SpinnerRPM>Spinner RPM</tab_SpinnerRPM>
+	<tab_BeatmapInformation>Beatmap Information</tab_BeatmapInformation>
+	<tab_ReplayInformation>Replay Information</tab_ReplayInformation>
 </Language>

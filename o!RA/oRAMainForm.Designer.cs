@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend9 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend10 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.ReplaySelectPanel = new System.Windows.Forms.Panel();
             this.Progress = new System.Windows.Forms.ProgressBar();
             this.ReplaysList = new System.Windows.Forms.TreeView();
@@ -44,9 +44,10 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.SRPMChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.MapInfoTB = new System.Windows.Forms.RichTextBox();
+            this.MapInfoLV = new System.Windows.Forms.ListView();
+            this.Property = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Information = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.ReplayInfoTB = new System.Windows.Forms.RichTextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.ReplayTimelineLB = new System.Windows.Forms.ListBox();
             this.ChartToolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -61,6 +62,9 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.ReplayInfoLV = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ReplaySelectPanel.SuspendLayout();
             this.MainContainer.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -138,32 +142,32 @@
             // 
             // TWChart
             // 
-            chartArea1.AxisY.MinorGrid.Enabled = true;
-            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea1.CursorX.IsUserSelectionEnabled = true;
-            chartArea1.Name = "ChartArea1";
-            this.TWChart.ChartAreas.Add(chartArea1);
+            chartArea9.AxisY.MinorGrid.Enabled = true;
+            chartArea9.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea9.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea9.CursorX.IsUserSelectionEnabled = true;
+            chartArea9.Name = "ChartArea1";
+            this.TWChart.ChartAreas.Add(chartArea9);
             this.TWChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.Alignment = System.Drawing.StringAlignment.Center;
-            legend1.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            legend1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            legend1.IsTextAutoFit = false;
-            legend1.Name = "Legend1";
-            this.TWChart.Legends.Add(legend1);
+            legend9.Alignment = System.Drawing.StringAlignment.Center;
+            legend9.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            legend9.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            legend9.IsTextAutoFit = false;
+            legend9.Name = "Legend1";
+            this.TWChart.Legends.Add(legend9);
             this.TWChart.Location = new System.Drawing.Point(3, 3);
             this.TWChart.Name = "TWChart";
             this.TWChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Timing Window";
-            series2.ChartArea = "ChartArea1";
-            series2.IsVisibleInLegend = false;
-            series2.Legend = "Legend1";
-            series2.Name = "Caret";
-            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            this.TWChart.Series.Add(series1);
-            this.TWChart.Series.Add(series2);
+            series9.ChartArea = "ChartArea1";
+            series9.Legend = "Legend1";
+            series9.Name = "Timing Window";
+            series10.ChartArea = "ChartArea1";
+            series10.IsVisibleInLegend = false;
+            series10.Legend = "Legend1";
+            series10.Name = "Caret";
+            series10.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            this.TWChart.Series.Add(series9);
+            this.TWChart.Series.Add(series10);
             this.TWChart.Size = new System.Drawing.Size(964, 464);
             this.TWChart.TabIndex = 9;
             this.TWChart.Text = "chart1";
@@ -182,17 +186,17 @@
             // 
             // SRPMChart
             // 
-            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea2.CursorX.IsUserSelectionEnabled = true;
-            chartArea2.Name = "ChartArea1";
-            this.SRPMChart.ChartAreas.Add(chartArea2);
+            chartArea10.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea10.CursorX.IsUserSelectionEnabled = true;
+            chartArea10.Name = "ChartArea1";
+            this.SRPMChart.ChartAreas.Add(chartArea10);
             this.SRPMChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend2.Alignment = System.Drawing.StringAlignment.Center;
-            legend2.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            legend2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            legend2.IsTextAutoFit = false;
-            legend2.Name = "Legend1";
-            this.SRPMChart.Legends.Add(legend2);
+            legend10.Alignment = System.Drawing.StringAlignment.Center;
+            legend10.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            legend10.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            legend10.IsTextAutoFit = false;
+            legend10.Name = "Legend1";
+            this.SRPMChart.Legends.Add(legend10);
             this.SRPMChart.Location = new System.Drawing.Point(0, 0);
             this.SRPMChart.Name = "SRPMChart";
             this.SRPMChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
@@ -204,30 +208,39 @@
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.MapInfoTB);
+            this.tabPage3.Controls.Add(this.MapInfoLV);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(970, 470);
             this.tabPage3.TabIndex = 3;
-            this.tabPage3.Text = "Map Information";
+            this.tabPage3.Text = "Beatmap Information";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // MapInfoTB
+            // MapInfoLV
             // 
-            this.MapInfoTB.BackColor = System.Drawing.Color.White;
-            this.MapInfoTB.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.MapInfoTB.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MapInfoTB.Location = new System.Drawing.Point(0, 0);
-            this.MapInfoTB.Margin = new System.Windows.Forms.Padding(10);
-            this.MapInfoTB.Name = "MapInfoTB";
-            this.MapInfoTB.ReadOnly = true;
-            this.MapInfoTB.Size = new System.Drawing.Size(970, 470);
-            this.MapInfoTB.TabIndex = 0;
-            this.MapInfoTB.Text = "";
+            this.MapInfoLV.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.Property,
+            this.Information});
+            this.MapInfoLV.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MapInfoLV.Location = new System.Drawing.Point(0, 0);
+            this.MapInfoLV.Name = "MapInfoLV";
+            this.MapInfoLV.Size = new System.Drawing.Size(970, 470);
+            this.MapInfoLV.TabIndex = 0;
+            this.MapInfoLV.UseCompatibleStateImageBehavior = false;
+            // 
+            // Property
+            // 
+            this.Property.Text = "Property";
+            this.Property.Width = 250;
+            // 
+            // Information
+            // 
+            this.Information.Text = "Information";
+            this.Information.Width = 600;
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.ReplayInfoTB);
+            this.tabPage4.Controls.Add(this.ReplayInfoLV);
             this.tabPage4.ForeColor = System.Drawing.SystemColors.ControlText;
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
@@ -236,18 +249,6 @@
             this.tabPage4.TabIndex = 2;
             this.tabPage4.Text = "Replay Information";
             this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // ReplayInfoTB
-            // 
-            this.ReplayInfoTB.BackColor = System.Drawing.Color.White;
-            this.ReplayInfoTB.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ReplayInfoTB.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ReplayInfoTB.Location = new System.Drawing.Point(0, 0);
-            this.ReplayInfoTB.Name = "ReplayInfoTB";
-            this.ReplayInfoTB.ReadOnly = true;
-            this.ReplayInfoTB.Size = new System.Drawing.Size(970, 470);
-            this.ReplayInfoTB.TabIndex = 0;
-            this.ReplayInfoTB.Text = "";
             // 
             // panel1
             // 
@@ -308,7 +309,7 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -324,13 +325,13 @@
             // languageToolStripMenuItem
             // 
             this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
-            this.languageToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.languageToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.languageToolStripMenuItem.Text = "Language";
             // 
             // preferencesToolStripMenuItem
             // 
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.preferencesToolStripMenuItem.Text = "Preferences";
             // 
             // PluginsMenuItem
@@ -365,8 +366,30 @@
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem1.Text = "About";
+            // 
+            // ReplayInfoLV
+            // 
+            this.ReplayInfoLV.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.ReplayInfoLV.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ReplayInfoLV.Location = new System.Drawing.Point(0, 0);
+            this.ReplayInfoLV.Name = "ReplayInfoLV";
+            this.ReplayInfoLV.Size = new System.Drawing.Size(970, 470);
+            this.ReplayInfoLV.TabIndex = 1;
+            this.ReplayInfoLV.UseCompatibleStateImageBehavior = false;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Property";
+            this.columnHeader1.Width = 250;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Information";
+            this.columnHeader2.Width = 600;
             // 
             // oRAMainForm
             // 
@@ -405,9 +428,7 @@
         private System.Windows.Forms.TabControl MainContainer;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.RichTextBox ReplayInfoTB;
         private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.RichTextBox MapInfoTB;
         private System.Windows.Forms.DataVisualization.Charting.Chart TWChart;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ListBox ReplayTimelineLB;
@@ -425,6 +446,12 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ListView MapInfoLV;
+        private System.Windows.Forms.ColumnHeader Property;
+        private System.Windows.Forms.ColumnHeader Information;
+        private System.Windows.Forms.ListView ReplayInfoLV;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
     }
 }
 

@@ -317,7 +317,7 @@ namespace o_RA
                 if (file.Key != null)
                 {
                     beatmap = new Beatmap(file.Key);
-
+                    oRAData.UpdateStatus(replay, beatmap);
 
                     /* Start Timing Windows tab */
                     //Determine the timing windows for 300,100,50

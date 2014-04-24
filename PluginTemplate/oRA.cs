@@ -67,6 +67,7 @@ namespace PluginTemplate
         {
             //Add your custom initialization procedure here
         }
+
         public void Dispose()
         {
             //Add your custom disposal here

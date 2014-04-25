@@ -37,9 +37,9 @@ namespace o_RA
             {
                 listView1.Items.Add(li);
             }
-            if (oRAMainForm.settings.ContainsSetting("DisabledPlugins"))
+            if (oRAMainForm.Settings.ContainsSetting("DisabledPlugins"))
             {
-                foreach (ListViewItem li in oRAMainForm.settings.GetSetting("DisabledPlugins").Split(new[] {'|'}).Where(s => s != "").Select(s => new ListViewItem(new [] { s.Substring(s.LastIndexOf(@"\", StringComparison.InvariantCulture) + 1, s.LastIndexOf(".", StringComparison.InvariantCulture) - (s.LastIndexOf(@"\", StringComparison.InvariantCulture) + 1)), "Description Unavailable", "0.0.0", s }, listView1.Groups[1])))
+                foreach (ListViewItem li in oRAMainForm.Settings.GetSetting("DisabledPlugins").Split(new[] {'|'}).Where(s => s != "").Select(s => new ListViewItem(new [] { s.Substring(s.LastIndexOf(@"\", StringComparison.InvariantCulture) + 1, s.LastIndexOf(".", StringComparison.InvariantCulture) - (s.LastIndexOf(@"\", StringComparison.InvariantCulture) + 1)), "Description Unavailable", "0.0.0", s }, listView1.Groups[1])))
                 {
                     listView1.Items.Add(li);
                 }
@@ -89,20 +89,20 @@ namespace o_RA
                 {
                     case "EPG":
                         oRAMainForm.Plugins.UnloadPlugin(listView1.SelectedItems[0].SubItems[3].Text);
-                        if (!oRAMainForm.settings.ContainsSetting("DisabledPlugins") || oRAMainForm.settings.GetSetting("DisabledPlugins") == "")
+                        if (!oRAMainForm.Settings.ContainsSetting("DisabledPlugins") || oRAMainForm.Settings.GetSetting("DisabledPlugins") == "")
                         {
-                            oRAMainForm.settings.AddSetting("DisabledPlugins", oRAMainForm.settings.GetSetting("DisabledPlugins") + listView1.SelectedItems[0].SubItems[3].Text);
+                            oRAMainForm.Settings.AddSetting("DisabledPlugins", oRAMainForm.Settings.GetSetting("DisabledPlugins") + listView1.SelectedItems[0].SubItems[3].Text);
                         }                
                         else
                         {
-                            oRAMainForm.settings.AddSetting("DisabledPlugins", oRAMainForm.settings.GetSetting("DisabledPlugins") + "|" + listView1.SelectedItems[0].SubItems[3].Text);
+                            oRAMainForm.Settings.AddSetting("DisabledPlugins", oRAMainForm.Settings.GetSetting("DisabledPlugins") + "|" + listView1.SelectedItems[0].SubItems[3].Text);
                         }
-                        oRAMainForm.settings.Save();
+                        oRAMainForm.Settings.Save();
                         listView1.SelectedItems[0].Group = listView1.Groups[1];
                         break;
                     case "DPG":
-                        oRAMainForm.settings.AddSetting("DisabledPlugins", oRAMainForm.settings.GetSetting("DisabledPlugins").Replace(listView1.SelectedItems[0].SubItems[3].Text, ""));
-                        oRAMainForm.settings.Save();
+                        oRAMainForm.Settings.AddSetting("DisabledPlugins", oRAMainForm.Settings.GetSetting("DisabledPlugins").Replace(listView1.SelectedItems[0].SubItems[3].Text, ""));
+                        oRAMainForm.Settings.Save();
                         label1.Visible = true;
                         ChangeStateCMSItem.Text = @"Enable Plugin";
                         ChangeStateCMSItem.Enabled = true;

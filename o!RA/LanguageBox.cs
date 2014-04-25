@@ -48,8 +48,8 @@ namespace o_RA
 
         private void LanguageBox_Click(object sender, EventArgs e)
         {
-            oRAMainForm.settings.AddSetting("ApplicationLocale", v_locale);
-            oRAMainForm.settings.Save();
+            oRAMainForm.Settings.AddSetting("ApplicationLocale", v_locale);
+            oRAMainForm.Settings.Save();
             var findForm = FindForm();
             if (findForm != null)
                 findForm.Close();

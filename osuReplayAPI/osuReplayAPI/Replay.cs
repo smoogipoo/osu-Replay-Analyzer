@@ -11,25 +11,25 @@ namespace ReplayAPI
 {
     public class Replay
     {
-        public GameMode gameMode;
-        public int fileFormat;
-        public string mapHash;
-        public string playerName;
-        public string replayHash;
-        public int totalScore;
-        public int count_300;
-        public int count_100;
-        public int count_50;
-        public int count_geki;
-        public int count_katu;
-        public int count_miss;
+        public GameModes GameMode;
+        public int FileFormat;
+        public string MapHash;
+        public string PlayerName;
+        public string ReplayHash;
+        public int TotalScore;
+        public int Count_300;
+        public int Count_100;
+        public int Count_50;
+        public int Count_Geki;
+        public int Count_Katu;
+        public int Count_Miss;
 
-        public int maxCombo;
-        public int isPerfect;
-        public Modifications mods;
-        public List<LifeInfo> lifeData = new List<LifeInfo>();
-        public List<ReplayInfo> replayData = new List<ReplayInfo>();
-        public List<ReplayInfo> clicks = new List<ReplayInfo>();
+        public int MaxCombo;
+        public int IsPerfect;
+        public Modifications Mods;
+        public List<LifeInfo> LifeData = new List<LifeInfo>();
+        public List<ReplayInfo> ReplayData = new List<ReplayInfo>();
+        public List<ReplayInfo> Clicks = new List<ReplayInfo>();
 
         public Replay(string replayFile)
         {
@@ -41,33 +41,33 @@ namespace ReplayAPI
             using (FileStream fs = new FileStream(replayFile, FileMode.Open))
             using (BinaryReader br = new BinaryReader(fs))
             {
-                gameMode = (GameMode)Enum.Parse(typeof(GameMode), br.ReadByte().ToString());
+                GameMode = (GameModes)Enum.Parse(typeof(GameModes), br.ReadByte().ToString());
 
-                fileFormat = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
-
-                br.ReadByte();
-                mapHash = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br))); //Hash type: MD5
+                FileFormat = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
 
                 br.ReadByte();
-                playerName = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br)));
+                MapHash = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br))); //Hash type: MD5
 
                 br.ReadByte();
-                replayHash = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br))); //Hash type: MD5
+                PlayerName = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br)));
 
-                count_300 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                count_100 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                count_50 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                count_geki = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                count_katu = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                count_miss = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
+                br.ReadByte();
+                ReplayHash = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br))); //Hash type: MD5
 
-                totalScore = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
+                Count_300 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
+                Count_100 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
+                Count_50 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
+                Count_Geki = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
+                Count_Katu = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
+                Count_Miss = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
 
-                maxCombo = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
+                TotalScore = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
 
-                isPerfect = br.ReadByte();
+                MaxCombo = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
 
-                mods = (Modifications)Enum.Parse(typeof(Modifications), int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber).ToString(CultureInfo.InvariantCulture));
+                IsPerfect = br.ReadByte();
+
+                Mods = (Modifications)Enum.Parse(typeof(Modifications), int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber).ToString(CultureInfo.InvariantCulture));
                 br.ReadByte();
 
                 long currentpos = br.BaseStream.Position;
@@ -83,7 +83,7 @@ namespace ReplayAPI
                         LifeInfo tempLife = new LifeInfo();
                         tempLife.Time = Convert.ToInt32(tempStr.SubString(0, tempStr.nthDexOf("|", 0)));
                         tempLife.Percentage = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1));
-                        lifeData.Add(tempLife);
+                        LifeData.Add(tempLife);
                     }
 
                     string s = GetReversedString(br, 8);
@@ -134,7 +134,7 @@ namespace ReplayAPI
                             tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
                             tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
                             tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
-                            replayData.Add(tempInfo);
+                            ReplayData.Add(tempInfo);
                         }
                     }
                 }
@@ -183,7 +183,7 @@ namespace ReplayAPI
                             tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
                             tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
                             tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
-                            replayData.Add(tempInfo);
+                            ReplayData.Add(tempInfo);
                         }
                     }
                 }
@@ -210,7 +210,7 @@ namespace ReplayAPI
             return chunkLength;
         }
 
-        public enum GameMode
+        public enum GameModes
         {
             osu = 0,
             Taiko = 1,

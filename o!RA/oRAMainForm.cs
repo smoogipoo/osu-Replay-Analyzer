@@ -258,8 +258,11 @@ namespace o_RA
 
         private void ReplayCreated(object sender, FileSystemEventArgs e)
         {
-            ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.Insert(0, e.Name)));
-            
+            ReplaysList.BeginInvoke((MethodInvoker)delegate
+            {
+                ReplaysList.Nodes.Insert(0, e.Name);
+                ReplaysList.SelectedNode = ReplaysList.Nodes[0];
+            });
         }
         private void ReplayDeleted(object sender, FileSystemEventArgs e)
         {
@@ -543,6 +546,8 @@ namespace o_RA
         private void ReplayTimelineLB_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.DrawBackground();
+            if (e.Index == -1)
+                return;
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             string text = ReplayTimelineLB.Items[e.Index].ToString();
             e.Graphics.DrawImageUnscaled(TimelineFrameImg, e.Bounds.Left + 1, e.Bounds.Height + 1);

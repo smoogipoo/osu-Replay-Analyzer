@@ -1,5 +1,4 @@
 ﻿Ideas:
 	(*) Distance from center of circle
 	(*) Acc per % of song
-	(*) Cursor tracer
 	(*) Compare replays

@@ -16,7 +16,8 @@ namespace o_RA
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new oRAMainForm());
+            // Application.Run(new oRAMainForm());
+            Application.Run(new Form1());
         }
     }
 }

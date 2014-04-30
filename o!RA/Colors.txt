@@ -1,0 +1,8 @@
+Background_Panel0: 43,43,43
+Background_Panel1: 26,26,26
+Background_Main: 232,232,232
+
+Text_Normal: 109,109,109
+Text_Selected: 232,232,232
+
+Highlights: 255,255,255 (Important stuff)

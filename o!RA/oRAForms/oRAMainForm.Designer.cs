@@ -29,9 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.ReplaySelectPanel = new System.Windows.Forms.Panel();
-            this.Progress = new System.Windows.Forms.ProgressBar();
-            this.ReplaysList = new System.Windows.Forms.TreeView();
             this.ChartToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,46 +42,11 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.ReplayTimelineLB = new System.Windows.Forms.ListBox();
+            this.ReplaysList = new System.Windows.Forms.TreeView();
+            this.Progress = new o_RA.oRAProgressBar();
             this.MainContainer = new o_RA.oRATabControl();
-            this.ReplaySelectPanel.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // ReplaySelectPanel
-            // 
-            this.ReplaySelectPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.ReplaySelectPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
-            this.ReplaySelectPanel.Controls.Add(this.Progress);
-            this.ReplaySelectPanel.Controls.Add(this.ReplaysList);
-            this.ReplaySelectPanel.Location = new System.Drawing.Point(0, 27);
-            this.ReplaySelectPanel.Name = "ReplaySelectPanel";
-            this.ReplaySelectPanel.Size = new System.Drawing.Size(297, 706);
-            this.ReplaySelectPanel.TabIndex = 3;
-            // 
-            // Progress
-            // 
-            this.Progress.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Progress.Location = new System.Drawing.Point(0, 680);
-            this.Progress.Name = "Progress";
-            this.Progress.Size = new System.Drawing.Size(297, 26);
-            this.Progress.TabIndex = 1;
-            this.Progress.MouseEnter += new System.EventHandler(this.Progress_MouseEnter);
-            this.Progress.MouseLeave += new System.EventHandler(this.Progress_MouseLeave);
-            // 
-            // ReplaysList
-            // 
-            this.ReplaysList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ReplaysList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
-            this.ReplaysList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ReplaysList.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReplaysList.Location = new System.Drawing.Point(0, 0);
-            this.ReplaysList.Name = "ReplaysList";
-            this.ReplaysList.Size = new System.Drawing.Size(297, 680);
-            this.ReplaysList.TabIndex = 0;
-            this.ReplaysList.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ReplaysList_AfterSelect);
             // 
             // ChartToolTip
             // 
@@ -183,19 +145,51 @@
             // 
             // ReplayTimelineLB
             // 
-            this.ReplayTimelineLB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.ReplayTimelineLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ReplayTimelineLB.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.ReplayTimelineLB.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ReplayTimelineLB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.ReplayTimelineLB.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
             this.ReplayTimelineLB.FormattingEnabled = true;
             this.ReplayTimelineLB.IntegralHeight = false;
             this.ReplayTimelineLB.ItemHeight = 11;
-            this.ReplayTimelineLB.Location = new System.Drawing.Point(306, 507);
+            this.ReplayTimelineLB.Location = new System.Drawing.Point(301, 507);
             this.ReplayTimelineLB.Name = "ReplayTimelineLB";
             this.ReplayTimelineLB.Size = new System.Drawing.Size(715, 222);
             this.ReplayTimelineLB.TabIndex = 15;
+            this.ReplayTimelineLB.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ReplayTimelineLB_DrawItem);
+            this.ReplayTimelineLB.SelectedIndexChanged += new System.EventHandler(this.ReplayTimelineLB_SelectedIndexChanged);
+            // 
+            // ReplaysList
+            // 
+            this.ReplaysList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.ReplaysList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.ReplaysList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ReplaysList.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawAll;
+            this.ReplaysList.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ReplaysList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
+            this.ReplaysList.Location = new System.Drawing.Point(4, 27);
+            this.ReplaysList.Name = "ReplaysList";
+            this.ReplaysList.Size = new System.Drawing.Size(293, 662);
+            this.ReplaysList.TabIndex = 16;
+            this.ReplaysList.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.ReplaysList_DrawNode);
+            this.ReplaysList.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ReplaysList_AfterSelect);
+            // 
+            // Progress
+            // 
+            this.Progress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Progress.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.Progress.Location = new System.Drawing.Point(4, 693);
+            this.Progress.Maximum = 100;
+            this.Progress.Minimum = 0;
+            this.Progress.Name = "Progress";
+            this.Progress.Size = new System.Drawing.Size(293, 36);
+            this.Progress.TabIndex = 17;
+            this.Progress.Value = 0;
+            this.Progress.MouseEnter += new System.EventHandler(this.Progress_MouseEnter);
+            this.Progress.MouseLeave += new System.EventHandler(this.Progress_MouseLeave);
             // 
             // MainContainer
             // 
@@ -203,11 +197,10 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.MainContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
-            this.MainContainer.Location = new System.Drawing.Point(306, 27);
+            this.MainContainer.Location = new System.Drawing.Point(301, 27);
             this.MainContainer.Name = "MainContainer";
-            this.MainContainer.Size = new System.Drawing.Size(975, 476);
+            this.MainContainer.Size = new System.Drawing.Size(976, 476);
             this.MainContainer.TabIndex = 14;
-            this.MainContainer.Load += new System.EventHandler(this.MainContainer_Load);
             // 
             // oRAMainForm
             // 
@@ -215,15 +208,15 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
             this.ClientSize = new System.Drawing.Size(1281, 733);
+            this.Controls.Add(this.Progress);
+            this.Controls.Add(this.ReplaysList);
             this.Controls.Add(this.ReplayTimelineLB);
             this.Controls.Add(this.MainContainer);
-            this.Controls.Add(this.ReplaySelectPanel);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "oRAMainForm";
             this.Text = "o!RA";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.ReplaySelectPanel.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -233,9 +226,6 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel ReplaySelectPanel;
-        private System.Windows.Forms.TreeView ReplaysList;
-        private System.Windows.Forms.ProgressBar Progress;
         private System.Windows.Forms.ToolTip ChartToolTip;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
@@ -250,6 +240,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private oRATabControl MainContainer;
         private System.Windows.Forms.ListBox ReplayTimelineLB;
+        private System.Windows.Forms.TreeView ReplaysList;
+        private oRAProgressBar Progress;
     }
 }
 

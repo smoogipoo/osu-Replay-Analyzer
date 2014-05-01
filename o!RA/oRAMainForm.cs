@@ -34,92 +34,19 @@ namespace o_RA
 
         public static readonly PluginServices Plugins = new PluginServices();
         private readonly Bitmap TimelineFrameImg = new Bitmap(18, 18);
+        internal Chart TWChart = new Chart();
+        internal Chart SRPMChart = new Chart();
+        internal ListView ReplayInfoLV = new ListView();
+        internal ListView MapInfoLV = new ListView();
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            oRAData = new DataClass();
-            oRAControls = new ControlsClass();
-            oRAData.Replays = new List<TreeNode>();
-            oRAData.BeatmapHashes = new Dictionary<string, string>();
-            oRAData.TimingWindows = new double[3];
-            oRAControls.ProgressToolTip = new ToolTip();
-            oRAControls.FrameTimeline = ReplayTimelineLB;
-            oRAControls.MainTabControl = MainContainer;
-            oRAControls.Progress = Progress;
-
-            //Load Plugins
-            if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
-            {
-                foreach (string pluginFile in Directory.GetDirectories(Environment.CurrentDirectory + @"\Plugins\").SelectMany(dir => Directory.GetFiles(dir, "*.dll").Where(file => !Settings.ContainsSetting("DisabledPlugins") || !Settings.GetSetting("DisabledPlugins").Split(new[] { '|' }).Contains(file))))
-                {
-                    Plugin p = Plugins.LoadPlugin(pluginFile);
-                    if (p == null)
-                        continue;
-                    p.Instance.p_Data = oRAData;
-                    p.Instance.p_Controls = oRAControls;
-                    if (p.Instance.p_PluginTabItem != null)
-                    {
-                        TabPage newTabPage = new TabPage(p.Instance.p_Name);
-                        newTabPage.Controls.Add(p.Instance.p_PluginTabItem);
-                        p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
-                        MainContainer.TabPages.Add(newTabPage);
-                    }
-                    if (p.Instance.p_PluginMenuItem != null)
-                    {
-                        PluginsMenuItem.DropDownItems.Add(p.Instance.p_PluginMenuItem);
-                    }
-                }
-            }
-
+            InitializeLocale();
+            InitializeControls();
+            InitializePlugins();
 
             ReplayTimelineLB.ItemHeight = 20;
 
-            if (!Settings.ContainsSetting("ApplicationLocale") || Settings.GetSetting("ApplicationLocale") == "")
-            {
-                LocaleSelectForm lsf = new LocaleSelectForm();
-                lsf.ShowDialog();
-            }
-            try
-            {
-                Locale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml"));
-            }
-            catch (FileNotFoundException)
-            {
-                MessageBox.Show(@"Selected locale does not exist. Application will now exit.");
-                Environment.Exit(1);
-            }
-            while (Locale.Read())
-            {
-                    string n = Locale.Name;
-                    Locale.Read();
-                    if (!Language.ContainsKey(n))
-                        Language.Add(n, Locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
-            }
-            if (Settings.GetSetting("ApplicationLocale") != "en")
-            {
-                XmlReader enLocale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\en.xml"));
-                while (enLocale.Read())
-                {
-                    string n = enLocale.Name;
-                    enLocale.Read();
-                    if (!Language.ContainsKey(n))
-                        Language.Add(n, enLocale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
-                }
-            }
-
-            MapInfoLV.FullRowSelect = true;
-            MapInfoLV.View = View.Details;
-            MapInfoLV.AllowColumnReorder = false;
-            MapInfoLV.GridLines = true;
-            ReplayInfoLV.FullRowSelect = true;
-            ReplayInfoLV.View = View.Details;
-            ReplayInfoLV.AllowColumnReorder = false;
-            ReplayInfoLV.GridLines = true;
-            TWChart.Series[0].Name = Language["text_TimingWindow"];
-            tabPage1.Text = Language["tab_TimingWindows"];
-            tabPage2.Text = Language["tab_SpinnerRPM"];
-            tabPage3.Text = Language["tab_BeatmapInformation"];
-            tabPage4.Text = Language["tab_ReplayInformation"];
 
             Process[] procs = Process.GetProcessesByName("osu!");
             if (procs.Length != 0)
@@ -180,6 +107,192 @@ namespace o_RA
 
             replayWatcher.EnableRaisingEvents = true;
             beatmapWatcher.EnableRaisingEvents = true;
+        }
+
+        private void InitializeLocale()
+        {
+            if (!Settings.ContainsSetting("ApplicationLocale") || Settings.GetSetting("ApplicationLocale") == "")
+            {
+                LocaleSelectForm lsf = new LocaleSelectForm();
+                lsf.ShowDialog();
+            }
+            try
+            {
+                Locale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml"));
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show(@"Selected locale does not exist. Application will now exit.");
+                Environment.Exit(1);
+            }
+            while (Locale.Read())
+            {
+                string n = Locale.Name;
+                Locale.Read();
+                if (!Language.ContainsKey(n))
+                    Language.Add(n, Locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
+            }
+            if (Settings.GetSetting("ApplicationLocale") != "en")
+            {
+                XmlReader enLocale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\en.xml"));
+                while (enLocale.Read())
+                {
+                    string n = enLocale.Name;
+                    enLocale.Read();
+                    if (!Language.ContainsKey(n))
+                        Language.Add(n, enLocale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
+                }
+            }
+        }
+
+        private void InitializeControls()
+        {
+            //Timing Windows Chart
+            ChartArea chartArea1 = new ChartArea();
+            ChartArea chartArea2 = new ChartArea();
+            Legend legend1 = new Legend();
+            Legend legend2 = new Legend();
+            Series series1 = new Series();
+            Series series2 = new Series();
+            oRAPage tabPage1 = new oRAPage();
+            oRAPage tabPage2 = new oRAPage();
+            oRAPage tabPage3 = new oRAPage();
+            oRAPage tabPage4 = new oRAPage();
+            chartArea1.AxisY.MinorGrid.Enabled = true;
+            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.CursorX.IsUserSelectionEnabled = true;
+            chartArea1.Name = "ChartArea1";
+            legend1.Alignment = StringAlignment.Center;
+            legend1.Docking = Docking.Bottom;
+            legend1.Font = oRAFonts.Font_Description;
+            legend1.IsTextAutoFit = false;
+            legend1.Name = "Legend1";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = Language["text_TimingWindow"];
+            series2.ChartArea = "ChartArea1";
+            series2.IsVisibleInLegend = false;
+            series2.Legend = "Legend1";
+            series2.Name = "Caret";
+            series2.XValueType = ChartValueType.Int32;
+            TWChart.ChartAreas.Add(chartArea1);
+            TWChart.Dock = DockStyle.Fill;
+            TWChart.Legends.Add(legend1);
+            TWChart.Name = "TWChart";
+            TWChart.Palette = ChartColorPalette.None;
+            TWChart.Series.Add(series1);
+            TWChart.Series.Add(series2);
+            TWChart.TabIndex = 9;
+            TWChart.Text = "Timing Windows Chart";
+            TWChart.MouseDown += TWChart_MouseDown;
+            TWChart.MouseMove += TWChart_MouseMove;
+            tabPage1.Name = Language["tab_TimingWindows"];
+            tabPage1.Description = "";
+            tabPage1.Contents = TWChart;
+            //Spinner RPM Chart
+            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea2.CursorX.IsUserSelectionEnabled = true;
+            chartArea2.Name = "ChartArea2";
+            SRPMChart.ChartAreas.Add(chartArea2);
+            SRPMChart.Dock = DockStyle.Fill;
+            legend2.Alignment = StringAlignment.Center;
+            legend2.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            legend2.Font = oRAFonts.Font_Description;
+            legend2.IsTextAutoFit = false;
+            legend2.Name = "Legend2";
+            SRPMChart.Legends.Add(legend2);
+            SRPMChart.Name = "SRPMChart";
+            SRPMChart.Palette = ChartColorPalette.None;
+            SRPMChart.TabIndex = 10;
+            SRPMChart.Text = "Spinner RPM Chart";
+            SRPMChart.MouseDown += SRPMChart_MouseDown;
+            SRPMChart.MouseMove += SRPMChart_MouseMove;
+            tabPage2.Name = Language["tab_SpinnerRPM"];
+            tabPage2.Contents = SRPMChart;
+            //Replay Info ListView
+            ColumnHeader columnHeader1 = new ColumnHeader();
+            ColumnHeader columnHeader2 = new ColumnHeader();
+            ColumnHeader PropertyHeader = new ColumnHeader();
+            ColumnHeader InfoHeader = new ColumnHeader();
+            columnHeader1.Text = "Property";
+            columnHeader1.Width = 250;
+            columnHeader2.Text = "Information";
+            columnHeader2.Width = 600;
+            PropertyHeader.Text = "Property";
+            PropertyHeader.Width = 250;
+            InfoHeader.Text = "Information";
+            InfoHeader.Width = 600;
+            ReplayInfoLV.Location = new System.Drawing.Point(0, 0);
+            ReplayInfoLV.Columns.AddRange(new[] { columnHeader1, columnHeader2 });
+            ReplayInfoLV.Dock = DockStyle.Fill;
+            ReplayInfoLV.Name = "ReplayInfoLV";
+            ReplayInfoLV.TabIndex = 1;
+            ReplayInfoLV.UseCompatibleStateImageBehavior = false;
+            ReplayInfoLV.FullRowSelect = true;
+            ReplayInfoLV.View = View.Details;
+            ReplayInfoLV.AllowColumnReorder = false;
+            ReplayInfoLV.GridLines = true;
+            tabPage4.Name = Language["tab_ReplayInformation"];
+            tabPage4.Contents = ReplayInfoLV;
+            //Beatmap Info ListView
+            MapInfoLV.Columns.AddRange(new[] { PropertyHeader , InfoHeader });
+            MapInfoLV.Dock = DockStyle.Fill;
+            MapInfoLV.Name = "MapInfoLV";
+            MapInfoLV.TabIndex = 0;
+            MapInfoLV.UseCompatibleStateImageBehavior = false;
+            MapInfoLV.FullRowSelect = true;
+            MapInfoLV.View = View.Details;
+            MapInfoLV.AllowColumnReorder = false;
+            MapInfoLV.GridLines = true;
+            tabPage3.Name = Language["tab_BeatmapInformation"];
+            tabPage3.Contents = MapInfoLV;
+
+            MainContainer.TabPages.Add(tabPage1);
+            MainContainer.TabPages.Add(tabPage2);
+            MainContainer.TabPages.Add(tabPage3);
+            MainContainer.TabPages.Add(tabPage4);
+
+        }
+
+        private void InitializePlugins()
+        {
+
+            //Initialize plugin interface
+            oRAData = new DataClass();
+            oRAControls = new ControlsClass();
+            oRAData.Replays = new List<TreeNode>();
+            oRAData.BeatmapHashes = new Dictionary<string, string>();
+            oRAData.TimingWindows = new double[3];
+            oRAControls.ProgressToolTip = new ToolTip();
+            oRAControls.FrameTimeline = ReplayTimelineLB;
+            oRAControls.Progress = Progress;
+
+            //Load Plugins
+            if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
+            {
+                foreach (string pluginFile in Directory.GetDirectories(Environment.CurrentDirectory + @"\Plugins\").SelectMany(dir => Directory.GetFiles(dir, "*.dll").Where(file => !Settings.ContainsSetting("DisabledPlugins") || !Settings.GetSetting("DisabledPlugins").Split(new[] { '|' }).Contains(file))))
+                {
+                    Plugin p = Plugins.LoadPlugin(pluginFile);
+                    if (p == null)
+                        continue;
+                    p.Instance.p_Data = oRAData;
+                    p.Instance.p_Controls = oRAControls;
+                    if (p.Instance.p_PluginTabItem != null)
+                    {
+                        p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
+                        oRAPage page = new oRAPage();
+                        page.Description = p.Instance.p_Description;
+                        page.Name = p.Instance.p_Name;
+                        page.Contents = p.Instance.p_PluginTabItem;
+                        MainContainer.TabPages.Add(page);
+                    }
+                    if (p.Instance.p_PluginMenuItem != null)
+                    {
+                        PluginsMenuItem.DropDownItems.Add(p.Instance.p_PluginMenuItem);
+                    }
+                }
+            }
         }
 
         private void PopulateLists()
@@ -666,6 +779,11 @@ namespace o_RA
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void MainContainer_Load(object sender, EventArgs e)
+        {
+
         }
 
     }

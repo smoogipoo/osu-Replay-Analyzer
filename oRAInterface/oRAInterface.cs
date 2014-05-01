@@ -49,7 +49,6 @@ namespace oRAInterface
 
     public class ControlsClass
     {
-        public TabControl MainTabControl { get; set; }
         public ListBox FrameTimeline { get; set; }
         public ProgressBar Progress { get; set; }
         public ToolTip ProgressToolTip { get; set; }

@@ -15,7 +15,7 @@ namespace o_RA
         public oRATabControl()
         {
             InitializeComponent();
-            TabPages.TabContainer = Container;
+            TabPages.TabContainer = TabContainer;
         }
 
         public void Add(oRAPage page)
@@ -72,23 +72,33 @@ namespace o_RA
             l.AutoSize = false;
             l.Height = 60;
             l.Width = 60;
-            l.BackColor = oRAColours.Colour_BG_P1;
+            l.BackColor = oRAColours.Colour_BG_P0;
             l.Image = Page.Icon;
-            l.Location = new Point(0, TotalHeight);
+            l.Location = new Point(1, TotalHeight);
             l.MouseDown += ChangeTab;
             l.Tag = Pages.Count - 1;
             Controls.Add(l);
+
+            if (Pages.Count == 1)
+            {
+                TabContainer.Controls.Add((Control)Page.Contents);
+                    l.BackColor = oRAColours.Colour_Item_Select;
+            }
             TotalHeight += 60;
         }
         private void ChangeTab(object sender, EventArgs e)
         {
+            if (((Label)sender).BackColor == oRAColours.Colour_Item_Select)
+            {
+                return;
+            }
             TabContainer.Controls.Clear();
-            TabContainer.Controls.Add((UserControl)pages[Convert.ToInt32(((Label)sender).Tag)].Contents);
+            TabContainer.Controls.Add((Control)pages[Convert.ToInt32(((Label)sender).Tag)].Contents);
             foreach (Label l in Controls)
             {
-                l.BackColor = oRAColours.Colour_BG_P1;
+                l.BackColor = oRAColours.Colour_BG_P0;
             }
-            ((Label)sender).BackColor = oRAColours.Colour_BG_P0;
+            ((Label)sender).BackColor = oRAColours.Colour_Item_Select;
         }
 
         public oRAPage[] GetPages()

@@ -28,22 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.Container = new System.Windows.Forms.Panel();
+            this.TabContainer = new System.Windows.Forms.Panel();
             this.TabPages = new o_RA.PageCollection();
-            this.Pages = new o_RA.PageCollection();
             this.SuspendLayout();
             // 
-            // Container
+            // TabContainer
             // 
-            this.Container.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Container.Location = new System.Drawing.Point(0, 0);
-            this.Container.Name = "Container";
-            this.Container.Size = new System.Drawing.Size(680, 421);
-            this.Container.TabIndex = 1;
+            this.TabContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.TabContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TabContainer.Location = new System.Drawing.Point(0, 0);
+            this.TabContainer.Name = "TabContainer";
+            this.TabContainer.Size = new System.Drawing.Size(680, 421);
+            this.TabContainer.TabIndex = 1;
             // 
             // TabPages
             // 
-            this.TabPages.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.TabPages.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
             this.TabPages.Dock = System.Windows.Forms.DockStyle.Right;
             this.TabPages.Location = new System.Drawing.Point(680, 0);
             this.TabPages.Name = "TabPages";
@@ -51,21 +51,12 @@
             this.TabPages.TabContainer = null;
             this.TabPages.TabIndex = 0;
             // 
-            // Pages
-            // 
-            this.Pages.Dock = System.Windows.Forms.DockStyle.Right;
-            this.Pages.Location = new System.Drawing.Point(681, 0);
-            this.Pages.Name = "Pages";
-            this.Pages.Size = new System.Drawing.Size(60, 421);
-            this.Pages.TabContainer = null;
-            this.Pages.TabIndex = 0;
-            // 
             // oRATabControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
-            this.Controls.Add(this.Container);
+            this.Controls.Add(this.TabContainer);
             this.Controls.Add(this.TabPages);
             this.Name = "oRATabControl";
             this.Size = new System.Drawing.Size(741, 421);
@@ -75,9 +66,8 @@
 
         #endregion
 
-        private PageCollection TabPages;
-        private PageCollection Pages;
-        private System.Windows.Forms.Panel Container;
+        public PageCollection TabPages;
+        private System.Windows.Forms.Panel TabContainer;
 
     }
 }

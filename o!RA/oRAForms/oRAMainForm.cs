@@ -176,7 +176,7 @@ namespace o_RA
             series2.ChartArea = "ChartArea1";
             series2.IsVisibleInLegend = false;
             series2.Legend = "Legend1";
-            series2.Name = "Caret";
+            series2.Name = "Caret"; //Todo: localize
             series2.XValueType = ChartValueType.Int32;
             TWChart.BackColor = oRAColours.Colour_BG_Main;
             TWChart.ChartAreas.Add(chartArea1);
@@ -187,7 +187,7 @@ namespace o_RA
             TWChart.Series.Add(series1);
             TWChart.Series.Add(series2);
             TWChart.TabIndex = 9;
-            TWChart.Text = "Timing Windows Chart";
+            TWChart.Text = @"Timing Windows Chart";
             TWChart.MouseDown += TWChart_MouseDown;
             TWChart.MouseMove += TWChart_MouseMove;
             tabPage1.Name = Language["tab_TimingWindows"];
@@ -211,7 +211,7 @@ namespace o_RA
             SRPMChart.Name = "SRPMChart";
             SRPMChart.Palette = ChartColorPalette.None;
             SRPMChart.TabIndex = 10;
-            SRPMChart.Text = "Spinner RPM Chart";
+            SRPMChart.Text = @"Spinner RPM Chart";
             SRPMChart.MouseDown += SRPMChart_MouseDown;
             SRPMChart.MouseMove += SRPMChart_MouseMove;
             tabPage2.Name = Language["tab_SpinnerRPM"];
@@ -221,13 +221,13 @@ namespace o_RA
             ColumnHeader columnHeader2 = new ColumnHeader();
             ColumnHeader PropertyHeader = new ColumnHeader();
             ColumnHeader InfoHeader = new ColumnHeader();
-            columnHeader1.Text = "Property";
+            columnHeader1.Text = @"Property"; //Todo: localize
             columnHeader1.Width = 250;
-            columnHeader2.Text = "Information";
+            columnHeader2.Text = @"Information"; //Todo: localize
             columnHeader2.Width = 600;
-            PropertyHeader.Text = "Property";
+            PropertyHeader.Text = @"Property"; //Todo: localize
             PropertyHeader.Width = 250;
-            InfoHeader.Text = "Information";
+            InfoHeader.Text = @"Information"; //Todo: localize
             InfoHeader.Width = 600;
             ReplayInfoLV.Location = new Point(0, 0);
             ReplayInfoLV.Columns.AddRange(new[] { columnHeader1, columnHeader2 });

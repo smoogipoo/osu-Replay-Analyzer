@@ -1,0 +1,5 @@
+C:\Projects\Repos\o!RA\o!RA\DLLs\PluginTemplate.dll
+C:\Projects\Repos\o!RA\o!RA\DLLs\PluginTemplate.pdb
+C:\Projects\Repos\o!RA\PluginTemplate\obj\Debug\PluginTemplate.csprojResolveAssemblyReference.cache
+C:\Projects\Repos\o!RA\PluginTemplate\obj\Debug\PluginTemplate.dll
+C:\Projects\Repos\o!RA\PluginTemplate\obj\Debug\PluginTemplate.pdb

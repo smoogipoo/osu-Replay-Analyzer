@@ -57,8 +57,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Globals\oRAColours.cs" />
-    <Compile Include="Globals\oRAFonts.cs" />
     <Compile Include="oRAControls\oRAListView.cs">
       <SubType>Component</SubType>
     </Compile>

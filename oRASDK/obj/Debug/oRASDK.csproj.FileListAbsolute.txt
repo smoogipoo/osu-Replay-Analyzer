@@ -1,0 +1,8 @@
+C:\Projects\Repos\o!RA\o!RA\DLLs\oRASDK.dll
+C:\Projects\Repos\o!RA\o!RA\DLLs\oRASDK.pdb
+C:\Projects\Repos\o!RA\PluginTemplate\obj\Debug\oRASDK.csprojResolveAssemblyReference.cache
+C:\Projects\Repos\o!RA\PluginTemplate\obj\Debug\oRASDK.dll
+C:\Projects\Repos\o!RA\PluginTemplate\obj\Debug\oRASDK.pdb
+C:\Projects\Repos\o!RA\oRASDK\obj\Debug\oRASDK.csprojResolveAssemblyReference.cache
+C:\Projects\Repos\o!RA\oRASDK\obj\Debug\oRASDK.dll
+C:\Projects\Repos\o!RA\oRASDK\obj\Debug\oRASDK.pdb

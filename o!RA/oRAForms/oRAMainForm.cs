@@ -243,6 +243,7 @@ namespace o_RA
             ReplayInfoLV.OwnerDraw = true;
             ReplayInfoLV.DrawColumnHeader += ListView_DrawColumnHeader;
             ReplayInfoLV.DrawSubItem += ListView_DrawItem;
+            ReplayInfoLV.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
             tabPage4.Name = Language["tab_ReplayInformation"];
             tabPage4.Contents = ReplayInfoLV;
             //Beatmap Info ListView
@@ -259,6 +260,7 @@ namespace o_RA
             MapInfoLV.OwnerDraw = true;
             MapInfoLV.DrawColumnHeader += ListView_DrawColumnHeader;
             MapInfoLV.DrawSubItem += ListView_DrawItem;
+            MapInfoLV.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
             tabPage3.Name = Language["tab_BeatmapInformation"];
             tabPage3.Contents = MapInfoLV;
 
@@ -274,6 +276,7 @@ namespace o_RA
             //Initialize plugin interface
             oRAData = new DataClass();
             oRAControls = new ControlsClass();
+            oRAData.Settings = Settings;
             oRAData.Replays = new List<TreeNode>();
             oRAData.BeatmapHashes = new Dictionary<string, string>();
             oRAData.TimingWindows = new double[3];

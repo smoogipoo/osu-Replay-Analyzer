@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using oRAInterface;
 
-namespace o_RA
+namespace o_RA.Globals
 {
     #region "Updater"
     public class Updater

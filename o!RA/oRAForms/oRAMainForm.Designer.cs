@@ -1,4 +1,6 @@
-﻿namespace o_RA
+﻿using o_RA.oRAControls;
+
+namespace o_RA.oRAForms
 {
     partial class oRAMainForm
     {
@@ -44,7 +46,7 @@
             this.ReplayTimelineLB = new System.Windows.Forms.ListBox();
             this.ReplaysList = new System.Windows.Forms.TreeView();
             this.Progress = new o_RA.oRAProgressBar();
-            this.MainContainer = new o_RA.oRATabControl();
+            this.MainContainer = new oRATabControl();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 

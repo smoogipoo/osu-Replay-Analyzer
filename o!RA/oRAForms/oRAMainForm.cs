@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
-using System.Security.Cryptography;
 using System.Windows.Forms.DataVisualization.Charting;
-using ReplayAPI;
-using BMAPI;
 using System.Xml;
+using BMAPI;
 using oRAInterface;
+using o_RA.Globals;
+using o_RA.oRAControls;
+using ReplayAPI;
 
-namespace o_RA
+namespace o_RA.oRAForms
 {
     public partial class oRAMainForm : Form
     {
@@ -36,8 +37,6 @@ namespace o_RA
         private readonly Bitmap TimelineFrameImg = new Bitmap(18, 18);
         internal Chart TWChart = new Chart();
         internal Chart SRPMChart = new Chart();
-        internal oRAListView ReplayInfoLV = new oRAListView();
-        internal oRAListView MapInfoLV = new oRAListView();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -481,9 +480,10 @@ namespace o_RA
                     }
                     oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
                     oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
+                    oRAData.ErrorAverage = (negErrCount != 0 || posErrCount != 0) ? oRAData.ErrorAverage / (negErrCount + posErrCount) : 0;
 
                     ReplayTimelineLB.Items.Clear();
-                    ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10? "\t\t" : "\t") + "{X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray());
+                    ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10? "\t\t" : "\t") + "{X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
                     ReplayTimelineLB.SelectedIndex = 0;
                     /* End Timing Windows tab */
 
@@ -527,7 +527,7 @@ namespace o_RA
                         {
                             valueAmnt += frame.Value;
                             count += 1;
-                            spinnerSeries.Points.AddXY(frame.Key, valueAmnt / count);
+                            spinnerSeries.Points.AddXY(frame.Key, Convert.ToInt32(valueAmnt / count));
                         }
                         SRPMChart.Series.Add(spinnerSeries);
                         currentSpinnerNumber += 1;
@@ -689,28 +689,6 @@ namespace o_RA
             }
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             e.Graphics.DrawString(e.Node.Text, oRAFonts.Font_SubDescription, e.State.HasFlag(TreeNodeStates.Selected) ? new SolidBrush(oRAColours.Colour_Text_H) : new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + 22, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Node.Text, oRAFonts.Font_SubDescription).Height / 2);
-        }
-
-        private static void ListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
-        {
-            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_Main), e.Bounds);
-            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), new Rectangle(e.Bounds.X + e.Bounds.Width - 1, e.Bounds.Y, 1, e.Bounds.Height));
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            e.Graphics.DrawString(e.Header.Text, oRAFonts.Font_Description, new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + e.Bounds.Width / 2 - e.Graphics.MeasureString(e.Header.Text, oRAFonts.Font_Description).Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Header.Text, oRAFonts.Font_Description).Height / 2);
-        }
-
-        private static void ListView_DrawItem(object sender, DrawListViewSubItemEventArgs e)
-        {
-            if (e.ItemIndex == -1)
-                return;
-            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);
-            if (e.ItemState.HasFlag(ListViewItemStates.Selected))
-            {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.Bounds);
-                e.Graphics.DrawRectangle(new Pen(oRAColours.Colour_Item_BG_0), e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-            }
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            e.Graphics.DrawString(e.Item.Text, oRAFonts.Font_SubDescription, e.ItemState.HasFlag(ListViewItemStates.Selected) ? new SolidBrush(oRAColours.Colour_Text_H) : new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + 22, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Item.Text, oRAFonts.Font_SubDescription).Height / 2);
         }
 
     }

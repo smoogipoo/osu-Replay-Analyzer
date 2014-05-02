@@ -1,4 +1,6 @@
-﻿namespace o_RA
+﻿using o_RA.oRAControls;
+
+namespace o_RA.oRAForms
 {
     partial class LocaleSelectForm
     {
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.languageBox1 = new o_RA.LanguageBox();
+            this.languageBox1 = new LanguageBox();
             this.SuspendLayout();
             // 
             // languageBox1

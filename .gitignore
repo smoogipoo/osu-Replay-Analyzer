@@ -185,3 +185,14 @@ ReplayInfoPlugin/bin/debug/osu!ReplayAPI.dll
 ReplayInfoPlugin/bin/debug/osu!ReplayAPI.pdb
 ReplayInfoPlugin/bin/debug/ReplayInfoPlugin.dll
 ReplayInfoPlugin/bin/debug/ReplayInfoPlugin.pdb
+o!RA/obj/Debug/o_RA.oRAControls.LanguageBox.resources
+o!RA/obj/Debug/o_RA.oRAControls.oRATabControl.resources
+o!RA/obj/Debug/o_RA.oRAForms.LocaleSelectForm.resources
+o!RA/obj/Debug/o_RA.oRAForms.oRAMainForm.resources
+o!RA/obj/Debug/o_RA.oRAForms.PluginSettingsForm.resources
+oRASDK/obj/Debug/oRASDK.csprojResolveAssemblyReference.cache
+oRASDK/obj/Debug/oRASDK.dll
+oRASDK/obj/Debug/oRASDK.pdb
+oRASDK/obj/Debug/oRASDK.csprojResolveAssemblyReference.cache
+oRASDK/obj/Debug/oRASDK.dll
+oRASDK/obj/Debug/oRASDK.pdb

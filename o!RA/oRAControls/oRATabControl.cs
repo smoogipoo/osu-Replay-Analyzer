@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace o_RA
+namespace o_RA.oRAControls
 {
     public partial class oRATabControl : UserControl
     {

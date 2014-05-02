@@ -9,15 +9,15 @@
 	<info_Format>Format:</info_Format>
 	<info_FName>Numele de fișier:</info_FName>
 	<info_FSize>Dimensiunea de fișier:</info_FSize>
-	<info_FHash>Hashul lui fișier:</info_FHash>
+	<info_FHash>Haș-ul lui fișier:</info_FHash>
 	<info_MapAFN>Nume de fișier audio:</info_MapAFN>
 	<info_MapName>Nume:</info_MapName>
 	<info_MapArtist>Artist:</info_MapArtist>
 	<info_MapSource>Sursă:</info_MapSource>
-	<info_MapCreator>Creator:</info_MapCreator>
-	<info_MapVersion>Versiunea:</info_MapVersion>
+	<info_MapCreator>Creatorul:</info_MapCreator>
+	<info_MapVersion>Versiune:</info_MapVersion>
 	<info_MapID>Beatmap ID:</info_MapID>
-	<info_MapSetID>Beatmap set ID:</info_MapSetID>
+	<info_MapSetID>Beatmap serie ID:</info_MapSetID>
 	<info_MapTags>Taguri:</info_MapTags>
 	<info_MapOD>Dificultatea pe ansamblu:</info_MapOD>
 	<info_MapAR>Rata de apropriare:</info_MapAR>
@@ -45,4 +45,10 @@
 	<info_ReplayFrames>Număr de rame in reluare:</info_ReplayFrames>
 	<text_Spinner>Torcător</text_Spinner>
 	<info_OperationsCompleted>Toate operațile sau completat.</info_OperationsCompleted>
+	<tab_TimingWindows>Ferestre de Sincronizari</tab_TimingWindows>
+	<tab_SpinnerRPM>RPM de Torcător</tab_SpinnerRPM>
+	<tab_BeatmapInformation>Beatmap informație</tab_BeatmapInformation>
+	<tab_ReplayInformation>Informație de reluare</tab_ReplayInformation>
+	<header_Property>Proprietate</header_Property>
+	<header_Information>Informație</header_Information>
 </Language>

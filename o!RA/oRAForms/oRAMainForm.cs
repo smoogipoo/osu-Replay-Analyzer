@@ -36,8 +36,8 @@ namespace o_RA
         private readonly Bitmap TimelineFrameImg = new Bitmap(18, 18);
         internal Chart TWChart = new Chart();
         internal Chart SRPMChart = new Chart();
-        internal ListView ReplayInfoLV = new ListView();
-        internal ListView MapInfoLV = new ListView();
+        internal oRAListView ReplayInfoLV = new oRAListView();
+        internal oRAListView MapInfoLV = new oRAListView();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -176,7 +176,7 @@ namespace o_RA
             series2.ChartArea = "ChartArea1";
             series2.IsVisibleInLegend = false;
             series2.Legend = "Legend1";
-            series2.Name = "Caret"; //Todo: localize
+            series2.Name = "Caret";
             series2.XValueType = ChartValueType.Int32;
             TWChart.BackColor = oRAColours.Colour_BG_Main;
             TWChart.ChartAreas.Add(chartArea1);
@@ -221,13 +221,13 @@ namespace o_RA
             ColumnHeader columnHeader2 = new ColumnHeader();
             ColumnHeader PropertyHeader = new ColumnHeader();
             ColumnHeader InfoHeader = new ColumnHeader();
-            columnHeader1.Text = @"Property"; //Todo: localize
+            columnHeader1.Text = Language["header_Property"];
             columnHeader1.Width = 250;
-            columnHeader2.Text = @"Information"; //Todo: localize
+            columnHeader2.Text = Language["header_Information"];
             columnHeader2.Width = 600;
-            PropertyHeader.Text = @"Property"; //Todo: localize
+            PropertyHeader.Text = Language["header_Property"];
             PropertyHeader.Width = 250;
-            InfoHeader.Text = @"Information"; //Todo: localize
+            InfoHeader.Text = Language["header_Information"];
             InfoHeader.Width = 600;
             ReplayInfoLV.Location = new Point(0, 0);
             ReplayInfoLV.Columns.AddRange(new[] { columnHeader1, columnHeader2 });
@@ -239,7 +239,7 @@ namespace o_RA
             ReplayInfoLV.View = View.Details;
             ReplayInfoLV.AllowColumnReorder = false;
             ReplayInfoLV.GridLines = false;
-            ReplayInfoLV.BackColor = oRAColours.Colour_BG_Main;
+            ReplayInfoLV.BackColor = oRAColours.Colour_BG_P1;
             ReplayInfoLV.OwnerDraw = true;
             ReplayInfoLV.DrawColumnHeader += ListView_DrawColumnHeader;
             ReplayInfoLV.DrawSubItem += ListView_DrawItem;
@@ -255,7 +255,7 @@ namespace o_RA
             MapInfoLV.View = View.Details;
             MapInfoLV.AllowColumnReorder = false;
             MapInfoLV.GridLines = false;
-            MapInfoLV.BackColor = oRAColours.Colour_BG_Main;
+            MapInfoLV.BackColor = oRAColours.Colour_BG_P1;
             MapInfoLV.OwnerDraw = true;
             MapInfoLV.DrawColumnHeader += ListView_DrawColumnHeader;
             MapInfoLV.DrawSubItem += ListView_DrawItem;
@@ -776,14 +776,11 @@ namespace o_RA
         {
             if (e.Index == -1)
                 return;
+            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);
             if (e.State.HasFlag(DrawItemState.Selected))
             {
                 e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.Bounds);
                 e.Graphics.DrawRectangle(new Pen((new SolidBrush(oRAColours.Colour_Item_BG_0))), e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-            }
-            else
-            {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);                
             }
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             string text = ReplayTimelineLB.Items[e.Index].ToString();
@@ -802,14 +799,11 @@ namespace o_RA
         {
             if (e.Node.Index == -1)
                 return;
+            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);                
             if (e.State.HasFlag(TreeNodeStates.Selected))
             {
                 e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.Bounds);
                 e.Graphics.DrawRectangle(new Pen(oRAColours.Colour_Item_BG_0), e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-            }
-            else
-            {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);                
             }
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             e.Graphics.DrawString(e.Node.Text, oRAFonts.Font_SubDescription, e.State.HasFlag(TreeNodeStates.Selected) ? new SolidBrush(oRAColours.Colour_Text_H) : new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + 22, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Node.Text, oRAFonts.Font_SubDescription).Height / 2);
@@ -818,22 +812,20 @@ namespace o_RA
         private static void ListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
             e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_Main), e.Bounds);
+            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), new Rectangle(e.Bounds.X + e.Bounds.Width - 1, e.Bounds.Y, 1, e.Bounds.Height));
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            e.Graphics.DrawString(e.Header.Text, oRAFonts.Font_Description, new SolidBrush(oRAColours.Colour_BG_P1), e.Bounds.Left + e.Bounds.Width / 2 - e.Graphics.MeasureString(e.Header.Text, oRAFonts.Font_Description).Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Header.Text, oRAFonts.Font_Description).Height / 2);
+            e.Graphics.DrawString(e.Header.Text, oRAFonts.Font_Description, new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + e.Bounds.Width / 2 - e.Graphics.MeasureString(e.Header.Text, oRAFonts.Font_Description).Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Header.Text, oRAFonts.Font_Description).Height / 2);
         }
 
         private static void ListView_DrawItem(object sender, DrawListViewSubItemEventArgs e)
         {
             if (e.ItemIndex == -1)
                 return;
+            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);
             if (e.ItemState.HasFlag(ListViewItemStates.Selected))
             {
                 e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.Bounds);
                 e.Graphics.DrawRectangle(new Pen(oRAColours.Colour_Item_BG_0), e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-            }
-            else
-            {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);
             }
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             e.Graphics.DrawString(e.Item.Text, oRAFonts.Font_SubDescription, e.ItemState.HasFlag(ListViewItemStates.Selected) ? new SolidBrush(oRAColours.Colour_Text_H) : new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + 22, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Item.Text, oRAFonts.Font_SubDescription).Height / 2);

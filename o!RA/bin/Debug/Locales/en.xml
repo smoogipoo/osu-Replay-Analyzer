@@ -49,4 +49,6 @@
 	<tab_SpinnerRPM>Spinner RPM</tab_SpinnerRPM>
 	<tab_BeatmapInformation>Beatmap Information</tab_BeatmapInformation>
 	<tab_ReplayInformation>Replay Information</tab_ReplayInformation>
+	<header_Property>Property</header_Property>
+	<header_Information>Information</header_Information>
 </Language>

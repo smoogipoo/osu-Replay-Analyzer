@@ -147,6 +147,7 @@ namespace o_RA
 
         private void InitializeControls()
         {
+
             //Timing Windows Chart
             ChartArea chartArea1 = new ChartArea();
             ChartArea chartArea2 = new ChartArea();
@@ -156,8 +157,6 @@ namespace o_RA
             Series series2 = new Series();
             oRAPage tabPage1 = new oRAPage();
             oRAPage tabPage2 = new oRAPage();
-            oRAPage tabPage3 = new oRAPage();
-            oRAPage tabPage4 = new oRAPage();
             chartArea1.AxisY.MinorGrid.Enabled = true;
             chartArea1.AxisY.MinorGrid.LineColor = oRAColours.Colour_BG_P0;
             chartArea1.BackColor = oRAColours.Colour_BG_Main;
@@ -193,6 +192,7 @@ namespace o_RA
             tabPage1.Name = Language["tab_TimingWindows"];
             tabPage1.Description = "";
             tabPage1.Contents = TWChart;
+
             //Spinner RPM Chart
             chartArea2.BackColor = oRAColours.Colour_BG_Main;
             chartArea2.CursorX.IsUserSelectionEnabled = true;
@@ -216,58 +216,9 @@ namespace o_RA
             SRPMChart.MouseMove += SRPMChart_MouseMove;
             tabPage2.Name = Language["tab_SpinnerRPM"];
             tabPage2.Contents = SRPMChart;
-            //Replay Info ListView
-            ColumnHeader columnHeader1 = new ColumnHeader();
-            ColumnHeader columnHeader2 = new ColumnHeader();
-            ColumnHeader PropertyHeader = new ColumnHeader();
-            ColumnHeader InfoHeader = new ColumnHeader();
-            columnHeader1.Text = Language["header_Property"];
-            columnHeader1.Width = 250;
-            columnHeader2.Text = Language["header_Information"];
-            columnHeader2.Width = 600;
-            PropertyHeader.Text = Language["header_Property"];
-            PropertyHeader.Width = 250;
-            InfoHeader.Text = Language["header_Information"];
-            InfoHeader.Width = 600;
-            ReplayInfoLV.Location = new Point(0, 0);
-            ReplayInfoLV.Columns.AddRange(new[] { columnHeader1, columnHeader2 });
-            ReplayInfoLV.Dock = DockStyle.Fill;
-            ReplayInfoLV.Name = "ReplayInfoLV";
-            ReplayInfoLV.TabIndex = 1;
-            ReplayInfoLV.UseCompatibleStateImageBehavior = false;
-            ReplayInfoLV.FullRowSelect = true;
-            ReplayInfoLV.View = View.Details;
-            ReplayInfoLV.AllowColumnReorder = false;
-            ReplayInfoLV.GridLines = false;
-            ReplayInfoLV.BackColor = oRAColours.Colour_BG_P1;
-            ReplayInfoLV.OwnerDraw = true;
-            ReplayInfoLV.DrawColumnHeader += ListView_DrawColumnHeader;
-            ReplayInfoLV.DrawSubItem += ListView_DrawItem;
-            ReplayInfoLV.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-            tabPage4.Name = Language["tab_ReplayInformation"];
-            tabPage4.Contents = ReplayInfoLV;
-            //Beatmap Info ListView
-            MapInfoLV.Columns.AddRange(new[] { PropertyHeader , InfoHeader });
-            MapInfoLV.Dock = DockStyle.Fill;
-            MapInfoLV.Name = "MapInfoLV";
-            MapInfoLV.TabIndex = 0;
-            MapInfoLV.UseCompatibleStateImageBehavior = false;
-            MapInfoLV.FullRowSelect = true;
-            MapInfoLV.View = View.Details;
-            MapInfoLV.AllowColumnReorder = false;
-            MapInfoLV.GridLines = false;
-            MapInfoLV.BackColor = oRAColours.Colour_BG_P1;
-            MapInfoLV.OwnerDraw = true;
-            MapInfoLV.DrawColumnHeader += ListView_DrawColumnHeader;
-            MapInfoLV.DrawSubItem += ListView_DrawItem;
-            MapInfoLV.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-            tabPage3.Name = Language["tab_BeatmapInformation"];
-            tabPage3.Contents = MapInfoLV;
 
             MainContainer.TabPages.Add(tabPage1);
             MainContainer.TabPages.Add(tabPage2);
-            MainContainer.TabPages.Add(tabPage3);
-            MainContainer.TabPages.Add(tabPage4);
         }
 
         private void InitializePlugins()
@@ -276,7 +227,7 @@ namespace o_RA
             //Initialize plugin interface
             oRAData = new DataClass();
             oRAControls = new ControlsClass();
-            oRAData.Settings = Settings;
+            oRAData.Language = Language;
             oRAData.Replays = new List<TreeNode>();
             oRAData.BeatmapHashes = new Dictionary<string, string>();
             oRAData.TimingWindows = new double[3];
@@ -330,11 +281,11 @@ namespace o_RA
             {
                 oRAData.Replays.Add(new TreeNode(file.Name));
                 try
-                { 
+                {
                     Progress.BeginInvoke((MethodInvoker)delegate
                     {
                         Progress.Value += 1;
-                    });                  
+                    });
                 }
                 catch
                 {
@@ -346,14 +297,14 @@ namespace o_RA
             oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
 
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-            
+
             try
             {
                 Progress.BeginInvoke((MethodInvoker)delegate
                 {
                     Progress.Value = 0;
                     Progress.Maximum = beatmapFiles.Length;
-                });                
+                });
             }
             catch
             {
@@ -371,7 +322,7 @@ namespace o_RA
                             Progress.BeginInvoke((MethodInvoker)delegate
                             {
                                 Progress.Value += 1;
-                            });        
+                            });
                         }
                     }
                     catch { }
@@ -409,7 +360,7 @@ namespace o_RA
                 using (var stream = File.OpenRead(e.FullPath))
                 {
                     oRAData.BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
-                }             
+                }
             }
         }
         private static void BeatmapDeleted(object sender, FileSystemEventArgs e)
@@ -498,9 +449,9 @@ namespace o_RA
                         }
                     }
 
-                    double posErrAvg = 0, negErrAvg = 0, errAvg = 0;
-                    int posErrCount = 0, negErrCount = 0;
                     int inc = 0;
+                    int posErrCount = 0;
+                    int negErrCount = 0;
                     TWChart.Series[0].Points.Clear();
 
                     //Match up beatmap objects to replay clicks
@@ -514,25 +465,30 @@ namespace o_RA
                         {
                             iteratedObjects.Add(c);
                             TWChart.Series[0].Points.AddXY(inc, c.Time - hitObject.StartTime);
-                            errAvg += c.Time - hitObject.StartTime;
+                            oRAData.ErrorAverage += c.Time - hitObject.StartTime;
                             if (c.Time - hitObject.StartTime > 0)
                             {
-                                posErrAvg += c.Time - hitObject.StartTime;
+                                oRAData.PositiveErrorAverage += c.Time - hitObject.StartTime;
                                 posErrCount += 1;
                             }
                             else
                             {
-                                negErrAvg += c.Time - hitObject.StartTime;
+                                oRAData.NegativeErrorAverage += c.Time - hitObject.StartTime;
                                 negErrCount += 1;
                             }
                             inc += 1;
                         }
                     }
+                    oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
+                    oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
+
                     ReplayTimelineLB.Items.Clear();
                     ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10? "\t\t" : "\t") + "{X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray());
                     ReplayTimelineLB.SelectedIndex = 0;
                     /* End Timing Windows tab */
 
+                    oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
+                    oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
 
                     /* Start Spinner RPM tab */
                     SRPMChart.Series.Clear();
@@ -576,83 +532,6 @@ namespace o_RA
                         SRPMChart.Series.Add(spinnerSeries);
                         currentSpinnerNumber += 1;
                     }
-
-
-                    /* End Spinner RPM tab */
-
-                    /* Start Info tabs */
-                    int uRate = TWChart.Series[0].Points.Count != 0 ? Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0] - TWChart.Series[0].Points.FindMinByValue().YValues[0]) : 0;
-                    posErrAvg = posErrCount != 0 ? posErrAvg / posErrCount : 0;
-                    negErrAvg = negErrCount != 0 ? negErrAvg / negErrCount : 0;
-                    errAvg = (negErrCount != 0 || posErrCount != 0) ? errAvg / (negErrCount + posErrCount) : 0;
-
-                    //Map Info
-                    MapInfoLV.Items.Clear();
-                    MapInfoLV.Items.Add(new ListViewItem());
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_Format"], Beatmap.Format.ToString() }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_FName"], Beatmap.Filename }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_FSize"], File.OpenRead(Beatmap.Filename).Length + " bytes" }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_FHash"], file.Value }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_TotalHitObjects"], Beatmap.AudioFilename }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapAFN"], Beatmap.HitObjects.Count.ToString(CultureInfo.InvariantCulture) }));
-                    MapInfoLV.Items.Add(new ListViewItem());
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapName"], Beatmap.Title + (!string.IsNullOrEmpty(Beatmap.TitleUnicode) && Beatmap.TitleUnicode != Beatmap.Title ? "(" + Beatmap.TitleUnicode + ")" : "") }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapArtist"], Beatmap.Artist + (!string.IsNullOrEmpty(Beatmap.ArtistUnicode) && Beatmap.ArtistUnicode != Beatmap.Artist ? "(" + Beatmap.ArtistUnicode + ")" : "") }));
-                    if (Beatmap.Source != null)
-                        MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapSource"], Beatmap.Source }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapCreator"], Beatmap.Creator }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapVersion"], Beatmap.Version }));
-                    if (Beatmap.BeatmapID != null)
-                        MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapID"], Beatmap.BeatmapID.ToString() }));
-                    if (Beatmap.BeatmapID != null)
-                        MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapSetID"], Beatmap.BeatmapSetID.ToString() }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapTags"], string.Join(", ", Beatmap.Tags) }));
-                    MapInfoLV.Items.Add(new ListViewItem());
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapOD"], Beatmap.OverallDifficulty.ToString(".00").Substring(Beatmap.OverallDifficulty.ToString(".00").LastIndexOf(".", StringComparison.InvariantCulture) + 1) == "00" ? Beatmap.OverallDifficulty.ToString(CultureInfo.InvariantCulture) : Beatmap.OverallDifficulty.ToString(".00") }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapAR"], Beatmap.ApproachRate.ToString(".00").Substring(Beatmap.ApproachRate.ToString(".00").LastIndexOf(".", StringComparison.InvariantCulture) + 1) == "00" ? Beatmap.ApproachRate.ToString(CultureInfo.InvariantCulture) : Beatmap.CircleSize.ToString(".00") }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapHP"], Beatmap.HPDrainRate.ToString(".00").Substring(Beatmap.HPDrainRate.ToString(".00").LastIndexOf(".", StringComparison.InvariantCulture) + 1) == "00" ? Beatmap.HPDrainRate.ToString(CultureInfo.InvariantCulture) : Beatmap.HPDrainRate.ToString(".00") }));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapCS"], Beatmap.CircleSize.ToString(".00").Substring(Beatmap.CircleSize.ToString(".00").LastIndexOf(".", StringComparison.InvariantCulture) + 1) == "00" ? Beatmap.CircleSize.ToString(CultureInfo.InvariantCulture) : Beatmap.CircleSize.ToString(".00") }));
-                    foreach (ComboInfo combo in Beatmap.ComboColours)
-                    {
-                        ListViewItem li = new ListViewItem(Language["info_MapComboColour"] + " " + combo.ComboNumber + ":");
-                        ListViewItem.ListViewSubItem colorItem = new ListViewItem.ListViewSubItem();
-                        colorItem.Text = combo.Colour.R + @", " + combo.Colour.G + @", " + combo.Colour.B;
-                        colorItem.ForeColor = Color.FromArgb(255, combo.Colour.R, combo.Colour.G, combo.Colour.B);
-                        li.SubItems.Add(colorItem);
-                        MapInfoLV.Items.Add(li);
-                    }
-                    MapInfoLV.Items.Add(new ListViewItem());
-                    int totalTime = Beatmap.HitObjects[Beatmap.HitObjects.Count - 1].StartTime - Beatmap.HitObjects[0].StartTime;
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapTotalTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
-                    totalTime = Beatmap.Events.Where(brk => brk.GetType() == typeof (BreakInfo)).Aggregate(totalTime, (current, brk) => current - (((BreakInfo) brk).EndTime - brk.StartTime));
-                    MapInfoLV.Items.Add(new ListViewItem(new[] { Language["info_MapDrainTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
-
-
-                    //Replay Info
-                    ReplayInfoLV.Items.Clear();
-                    ReplayInfoLV.Items.Add(new ListViewItem());
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_Format"], Replay.FileFormat.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_FName"], oRAData.ReplayDirectory + "\\" + e.Node.Text }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_FSize"], File.OpenRead(oRAData.ReplayDirectory + "\\" + e.Node.Text).Length + " " + Language["text_bytes"] }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_FHash"], Replay.ReplayHash }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_ReplayFrames"], Replay.ReplayData.Count.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem());
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepMode"], Replay.GameMode.ToString() }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepPlayer"], Replay.PlayerName }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepScore"], Replay.TotalScore.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepCombo"], Replay.MaxCombo.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_Rep300Count"], Replay.Count_300.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_Rep100Count"], Replay.Count_100.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_Rep50Count"], Replay.Count_50.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepMissCount"], Replay.Count_Miss.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepGekiCount"], Replay.Count_Geki.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepKatuCount"], Replay.Count_Katu.ToString(CultureInfo.InvariantCulture) }));
-                    ReplayInfoLV.Items.Add(new ListViewItem());
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_RepMods"], Replay.Mods.ToString() }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_UnstableRate"], uRate + "ms" }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_ErrorRate"], Math.Abs(negErrAvg).ToString(".00") + "ms - " + "+" + posErrAvg.ToString(".00") + "ms" }));
-                    ReplayInfoLV.Items.Add(new ListViewItem(new[] { Language["info_OverallErrorRate"], Math.Abs(errAvg).ToString(".00") + "ms" }));
-                    /* End Info tabs */
                 }
             }
             catch { }

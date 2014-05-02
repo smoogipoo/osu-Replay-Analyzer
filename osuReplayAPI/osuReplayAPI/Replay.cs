@@ -12,6 +12,7 @@ namespace ReplayAPI
     public class Replay
     {
         public GameModes GameMode;
+        public string Filename;
         public int FileFormat;
         public string MapHash;
         public string PlayerName;
@@ -38,6 +39,7 @@ namespace ReplayAPI
 
         public void Parse(string replayFile)
         {
+            Filename = replayFile;
             using (FileStream fs = new FileStream(replayFile, FileMode.Open))
             using (BinaryReader br = new BinaryReader(fs))
             {

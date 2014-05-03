@@ -128,7 +128,7 @@ namespace o_RA.oRAForms
             // settingsToolStripMenuItem1
             // 
             this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
-            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
             this.settingsToolStripMenuItem1.Text = "Settings";
             this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.settingsToolStripMenuItem1_Click);
             this.settingsToolStripMenuItem1.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
@@ -137,7 +137,7 @@ namespace o_RA.oRAForms
             // 
             this.toolStripSeparator1.BackColor = System.Drawing.SystemColors.Control;
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(113, 6);
             // 
             // aboutToolStripMenuItem
             // 
@@ -229,6 +229,7 @@ namespace o_RA.oRAForms
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "oRAMainForm";
             this.Text = "o!RA";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.oRAMainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

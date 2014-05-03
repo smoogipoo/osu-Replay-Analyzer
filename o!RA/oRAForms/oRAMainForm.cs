@@ -51,8 +51,15 @@ namespace o_RA.oRAForms
             if (procs.Length != 0)
             {
                 string gameDir = procs[0].Modules[0].FileName.Substring(0,procs[0].Modules[0].FileName.LastIndexOf("\\", StringComparison.Ordinal));
-                oRAData.ReplayDirectory = gameDir + "\\Replays";
-                oRAData.BeatmapDirectory = gameDir + "\\Songs";
+                if (Directory.Exists(gameDir + "\\Replays") && Directory.Exists(gameDir + "\\Songs"))
+                {
+                    oRAData.ReplayDirectory = gameDir + "\\Replays";
+                    oRAData.BeatmapDirectory = gameDir + "\\Songs";
+                }
+                else
+                {
+                    MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
+                }
             }
             else
             {
@@ -713,6 +720,15 @@ namespace o_RA.oRAForms
                 SizeF stringSize = e.Graphics.MeasureString(((ToolStripMenuItem)sender).Text, oRAFonts.Font_SubDescription);
                 e.Graphics.DrawString(((ToolStripMenuItem)sender).Text, oRAFonts.Font_SubDescription, new SolidBrush(oRAColours.Colour_Text_N), new PointF(e.ClipRectangle.X + e.ClipRectangle.Width / 2 - stringSize.Width / 2, e.ClipRectangle.Y + e.ClipRectangle.Height / 2 - stringSize.Height / 2));
             }
+        }
+
+        private void oRAMainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            foreach (Plugin pS in Plugins.PluginCollection.ToArray())
+            {
+                Plugins.UnloadPlugin(pS.AssemblyFile);
+            }
+            Application.ExitThread();
         }
     }
 }

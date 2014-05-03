@@ -177,11 +177,13 @@ namespace o_RA.oRAForms
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = Language["text_TimingWindow"];
+            series1.Color = oRAColours.Colour_BG_P1;
             series2.ChartArea = "ChartArea1";
             series2.IsVisibleInLegend = false;
             series2.Legend = "Legend1";
             series2.Name = "Caret";
             series2.XValueType = ChartValueType.Int32;
+            series2.Color = oRAColours.Colour_Item_BG_0;
             TWChart.BackColor = oRAColours.Colour_BG_Main;
             TWChart.ChartAreas.Add(chartArea1);
             TWChart.Dock = DockStyle.Fill;
@@ -305,6 +307,7 @@ namespace o_RA.oRAForms
             }
 
             ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.AddRange(oRAData.Replays.ToArray())));
+
             oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
 
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
@@ -341,6 +344,15 @@ namespace o_RA.oRAForms
             }
             Progress.Value = 0;
             oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];
+
+            ReplaysList.BeginInvoke((MethodInvoker)delegate
+            {
+                if (oRAData.Replays.Count > 0 && ReplaysList.SelectedNode == null)
+                {
+                    ReplaysList.SelectedNode = ReplaysList.Nodes[0];
+                    ReplaysList.Select();
+                }
+            });
         }
 
         private void ReplayCreated(object sender, FileSystemEventArgs e)
@@ -364,7 +376,7 @@ namespace o_RA.oRAForms
             });
         }
 
-        private void BeatmapCreated(object sender, FileSystemEventArgs e)
+        private static void BeatmapCreated(object sender, FileSystemEventArgs e)
         {
             using (var md5 = MD5.Create())
             {
@@ -707,6 +719,7 @@ namespace o_RA.oRAForms
         private void ToolStripMenuItem_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.ClipRectangle);
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             if (((ToolStripMenuItem)sender).Selected)
             {
                 e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.ClipRectangle);

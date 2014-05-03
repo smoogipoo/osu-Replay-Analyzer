@@ -1,2 +1,17 @@
 <Language>
+	<info_osuClosed>osu! Verzeichnis</info_osuClosed>
+	<info_osuClosedMessageBoxTitle>Dateiname:</info_osuClosedMessageBoxTitle>
+	<info_osuWrongDir>Dateigröße:</info_osuWrongDir>
+	<info_RepLoadError>Dateihash:</info_RepLoadError>
+	<info_PopReplays>Name der Audiodatei:</info_PopReplays>
+	<info_PopBeatmaps>Name:</info_PopBeatmaps>
+	<text_TimingWindow>Künstler:</text_TimingWindow>
+	<info_Format>Quelle:</info_Format>
+	<info_FName>Ersteller:</info_FName>
+	<info_FSize>Version:</info_FSize>
+	<info_FHash>Beatmap ID:</info_FHash>
+	<info_MapAFN>Beatmap set ID:</info_MapAFN>
+	<info_MapName>Tags:</info_MapName>
+	<info_MapArtist>Combo:</info_MapArtist>
+	<info_MapSource>Spieler:</info_MapSource>
 </Language>

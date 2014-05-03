@@ -26,7 +26,6 @@ namespace o_RA.oRAForms
         private XmlReader Locale;
         public static Settings Settings = new Settings();
 
-
         Replay Replay;
         Beatmap Beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
@@ -46,50 +45,8 @@ namespace o_RA.oRAForms
 
             ReplayTimelineLB.ItemHeight = 20;
 
+            InitializeGameDirs();
 
-            Process[] procs = Process.GetProcessesByName("osu!");
-            if (procs.Length != 0)
-            {
-                string gameDir = procs[0].Modules[0].FileName.Substring(0,procs[0].Modules[0].FileName.LastIndexOf("\\", StringComparison.Ordinal));
-                if (Directory.Exists(gameDir + "\\Replays") && Directory.Exists(gameDir + "\\Songs"))
-                {
-                    oRAData.ReplayDirectory = gameDir + "\\Replays";
-                    oRAData.BeatmapDirectory = gameDir + "\\Songs";
-                }
-                else
-                {
-                    MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
-                }
-            }
-            else
-            {
-
-                if (MessageBox.Show(Language["info_osuClosed"], Language["info_osuClosedMessageBoxTitle"]) == DialogResult.OK)
-                {
-                   using (FolderBrowserDialog fd = new FolderBrowserDialog())
-                   {
-                       while (oRAData.ReplayDirectory == null)
-                       {
-                           if (fd.ShowDialog() == DialogResult.OK)
-                           {
-                               if (Directory.Exists(fd.SelectedPath + "\\Replays") && Directory.Exists(fd.SelectedPath + "\\Songs"))
-                               {
-                                   oRAData.ReplayDirectory = fd.SelectedPath + "\\Replays";
-                                   oRAData.BeatmapDirectory = fd.SelectedPath + "\\Songs";
-                               }
-                               else
-                               {
-                                   MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
-                               }
-                           }
-                           else
-                           {
-                               Environment.Exit(0);
-                           }
-                       }
-                   }
-                }
-            }
             oRAControls.ProgressToolTip.Tag = Language["info_PopReplays"];
 
             Thread populateListsThread = new Thread(PopulateLists);
@@ -272,6 +229,62 @@ namespace o_RA.oRAForms
                     }
                 }
             }
+        }
+
+        private void InitializeGameDirs()
+        {
+            if (!Settings.ContainsSetting("GameDir") || Settings.GetSetting("GameDir") == "")
+            {
+                Process[] procs = Process.GetProcessesByName("osu!");
+                if (procs.Length != 0)
+                {
+                    string gameDir = Path.GetDirectoryName(procs[0].Modules[0].FileName);
+                    if (IsOsuPath(gameDir))
+                    {
+                        Settings.AddSetting("GameDir", gameDir);
+                        Settings.Save();
+                    }
+                    else
+                    {
+                        MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
+                    }
+                }
+                else
+                {
+                    if (MessageBox.Show(Language["info_osuClosed"], Language["info_osuClosedMessageBoxTitle"]) == DialogResult.OK)
+                    {
+                        using (FolderBrowserDialog fd = new FolderBrowserDialog())
+                        {
+                            while (!IsOsuPath(fd.SelectedPath))
+                            {
+                                if (fd.ShowDialog() == DialogResult.OK)
+                                {
+                                    if (IsOsuPath(fd.SelectedPath))
+                                    {
+                                        Settings.AddSetting("GameDir", fd.SelectedPath);
+                                        Settings.Save();
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
+                                    }
+                                }
+                                else
+                                {
+                                    Environment.Exit(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            oRAData.ReplayDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Replays");
+            oRAData.BeatmapDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Songs");
+        }
+
+        private bool IsOsuPath(string gameDir)
+        {
+            return Directory.Exists(Path.Combine(gameDir, "Replays")) && Directory.Exists(Path.Combine(gameDir, "Songs"));
         }
 
         private void PopulateLists()
@@ -507,7 +520,7 @@ namespace o_RA.oRAForms
                     oRAData.ErrorAverage = (negErrCount != 0 || posErrCount != 0) ? oRAData.ErrorAverage / (negErrCount + posErrCount) : 0;
 
                     ReplayTimelineLB.Items.Clear();
-                    ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10? "\t\t" : "\t") + "{X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
+                    ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10 ? "\t\t" : "\t") + "{X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
                     ReplayTimelineLB.SelectedIndex = 0;
                     /* End Timing Windows tab */
 
@@ -519,7 +532,7 @@ namespace o_RA.oRAForms
                     int currentSpinnerNumber = 1;
                     foreach (var spinner in Beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
                     {
-                        PointInfo currentPosition = new PointInfo(-500,-500);
+                        PointInfo currentPosition = new PointInfo(-500, -500);
                         Dictionary<double, int> RPMCount = new Dictionary<double, int>();
                         double currentTime = 0;
                         foreach (ReplayInfo repPoint in Replay.ReplayData.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).EndTime && repPoint.Time > spinner.StartTime))
@@ -705,7 +718,7 @@ namespace o_RA.oRAForms
         {
             if (e.Node.Index == -1)
                 return;
-            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);                
+            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);
             if (e.State.HasFlag(TreeNodeStates.Selected))
             {
                 e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.Bounds);

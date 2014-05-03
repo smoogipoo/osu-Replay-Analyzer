@@ -46,7 +46,7 @@ namespace o_RA.oRAForms
             this.ReplayTimelineLB = new System.Windows.Forms.ListBox();
             this.ReplaysList = new System.Windows.Forms.TreeView();
             this.Progress = new o_RA.oRAProgressBar();
-            this.MainContainer = new oRATabControl();
+            this.MainContainer = new o_RA.oRAControls.oRATabControl();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,6 +64,7 @@ namespace o_RA.oRAForms
             this.settingsToolStripMenuItem,
             this.PluginsMenuItem,
             this.aboutToolStripMenuItem});
+            this.menuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1281, 24);
@@ -78,6 +79,7 @@ namespace o_RA.oRAForms
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
+            this.fileToolStripMenuItem.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // exitToolStripMenuItem
             // 
@@ -85,6 +87,7 @@ namespace o_RA.oRAForms
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // settingsToolStripMenuItem
             // 
@@ -95,18 +98,21 @@ namespace o_RA.oRAForms
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // languageToolStripMenuItem
             // 
             this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
             this.languageToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.languageToolStripMenuItem.Text = "Language";
+            this.languageToolStripMenuItem.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // preferencesToolStripMenuItem
             // 
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
             this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.preferencesToolStripMenuItem.Text = "Preferences";
+            this.preferencesToolStripMenuItem.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // PluginsMenuItem
             // 
@@ -117,18 +123,21 @@ namespace o_RA.oRAForms
             this.PluginsMenuItem.Name = "PluginsMenuItem";
             this.PluginsMenuItem.Size = new System.Drawing.Size(58, 20);
             this.PluginsMenuItem.Text = "Plugins";
+            this.PluginsMenuItem.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // settingsToolStripMenuItem1
             // 
             this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
-            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
+            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.settingsToolStripMenuItem1.Text = "Settings";
             this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.settingsToolStripMenuItem1_Click);
+            this.settingsToolStripMenuItem1.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // toolStripSeparator1
             // 
+            this.toolStripSeparator1.BackColor = System.Drawing.SystemColors.Control;
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(113, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // aboutToolStripMenuItem
             // 
@@ -138,12 +147,14 @@ namespace o_RA.oRAForms
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.aboutToolStripMenuItem.Text = "Help";
+            this.aboutToolStripMenuItem.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
             this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem1.Text = "About";
+            this.aboutToolStripMenuItem1.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
             // ReplayTimelineLB
             // 

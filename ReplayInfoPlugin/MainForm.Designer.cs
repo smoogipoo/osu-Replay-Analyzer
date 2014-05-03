@@ -1,4 +1,4 @@
-﻿namespace MapInfoPlugin
+﻿namespace ReplayInfoPlugin
 {
     partial class MainForm
     {
@@ -30,7 +30,7 @@
         {
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.customListView1 = new MapInfoPlugin.CustomListView();
+            this.customListView1 = new CustomListView();
             this.PropertyHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.InformationHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();

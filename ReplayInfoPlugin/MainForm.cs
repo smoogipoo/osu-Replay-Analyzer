@@ -6,7 +6,7 @@ using BMAPI;
 using o_RA;
 using ReplayAPI;
 
-namespace MapInfoPlugin
+namespace ReplayInfoPlugin
 {
     public partial class MainForm : UserControl
     {

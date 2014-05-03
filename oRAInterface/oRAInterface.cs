@@ -18,6 +18,8 @@ namespace oRAInterface
 
         ToolStripMenuItem p_PluginMenuItem { get; }
         UserControl p_PluginTabItem { get; }
+        Bitmap p_PluginTabIcon_N { get; }
+        Bitmap p_PluginTabIcon_H { get; }
 
         DataClass p_Data { get; set; }
         ControlsClass p_Controls { get; set; }
@@ -62,16 +64,12 @@ namespace o_RA
 {
     public class oRAFonts
     {
-        public oRAFonts() { }
-
         public static Font Font_Title = new Font("Segoe UI", 12, FontStyle.Bold);
         public static Font Font_Description = new Font("Segoe UI", 10);
         public static Font Font_SubDescription = new Font("Segoe UI", 8);
     }
     public class oRAColours
     {
-        public oRAColours() { }
-
         public static Color Colour_BG_Main = Color.FromArgb(255, 232, 232, 232);
         public static Color Colour_BG_P0 = Color.FromArgb(255, 43, 43, 43);
         public static Color Colour_BG_P1 = Color.FromArgb(255, 26, 26, 26);

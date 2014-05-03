@@ -196,3 +196,5 @@ oRASDK/obj/Debug/oRASDK.pdb
 oRASDK/obj/Debug/oRASDK.csprojResolveAssemblyReference.cache
 oRASDK/obj/Debug/oRASDK.dll
 oRASDK/obj/Debug/oRASDK.pdb
+MapInfoPlugin/obj/Debug/MapInfoPlugin.Properties.Resources.resources
+MapInfoPlugin/obj/Debug/TempPE/Properties.Resources.Designer.cs.dll

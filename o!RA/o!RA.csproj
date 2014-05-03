@@ -136,6 +136,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
+    <None Include="Resources\SpinnerRPMGraph_N.png" />
+    <None Include="Resources\TimingGraph_H.png" />
+    <None Include="Resources\TimingGraph_N.png" />
+    <None Include="Resources\Menu_H.png" />
+    <None Include="Resources\Menu_N.png" />
+    <None Include="Resources\SpinnerRPMGraph_H.png" />
     <Content Include="ToDo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

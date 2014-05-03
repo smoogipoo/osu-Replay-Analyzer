@@ -1,8 +1,8 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 using oRAInterface;
-using o_RA;
 
-namespace PluginTemplate
+namespace oRASDK
 {
     public class oRA : IPlugin
     {
@@ -12,13 +12,15 @@ namespace PluginTemplate
         public static string Author = "Me!";
         public static string Version = "1.0.0";
         public static string HomePage = "";
+
+        public static ToolStripMenuItem PluginMenuItem;
+        public static UserControl PluginTabItem;
+        public static Bitmap PluginTabIcon_Normal;
+        public static Bitmap PluginTabIcon_Hot;
         #endregion
 
         #region Exposed items
         public object Host { get; set; }
-
-        public static ToolStripMenuItem PluginMenuItem;
-        public static UserControl PluginTabItem;
         public static DataClass Data;
         public static ControlsClass Controls;
         #endregion
@@ -51,6 +53,14 @@ namespace PluginTemplate
         public UserControl p_PluginTabItem
         {
             get { return PluginTabItem; }
+        }
+        public Bitmap p_PluginTabIcon_N
+        {
+            get { return PluginTabIcon_Normal; }
+        }
+        public Bitmap p_PluginTabIcon_H
+        {
+            get { return PluginTabIcon_Hot; }
         }
         public DataClass p_Data
         {

@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 using oRAInterface;
 
 namespace MapInfoPlugin
@@ -11,13 +12,16 @@ namespace MapInfoPlugin
         public static string Author = "smoogipooo";
         public static string Version = "1.0.0";
         public static string HomePage = "http://smgi.me";
+
+        public static ToolStripMenuItem PluginMenuItem;
+        public static UserControl PluginTabItem = new MainForm();
+        public static Bitmap PluginTabIcon_Normal = Properties.Resources.Icon_N;
+        public static Bitmap PluginTabIcon_Hot = Properties.Resources.Icon_H;
         #endregion
 
         #region Exposed items
         public object Host { get; set; }
 
-        public static ToolStripMenuItem PluginMenuItem;
-        public static UserControl PluginTabItem = new MainForm();
         public static DataClass Data;
         public static ControlsClass Controls;
         #endregion
@@ -51,6 +55,14 @@ namespace MapInfoPlugin
         {
             get { return PluginTabItem; }
         }
+        public Bitmap p_PluginTabIcon_N
+        {
+            get { return PluginTabIcon_Normal; }
+        }
+        public Bitmap p_PluginTabIcon_H
+        {
+            get { return PluginTabIcon_Hot; }
+        }
         public DataClass p_Data
         {
             get { return Data; }
@@ -61,11 +73,10 @@ namespace MapInfoPlugin
             get { return Controls; }
             set { Controls = value; }
         }
-        #endregion     
+        #endregion
 
         public void Initialize()
         {
-            //Add your custom initialization procedure here
         }
 
         public void Dispose()

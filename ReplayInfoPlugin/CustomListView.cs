@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Text;
-using System.Globalization;
-using System.IO;
-using System.Windows.Forms;
 using System.Linq;
+using System.Windows.Forms;
 using o_RA;
-using BMAPI;
-using ReplayAPI;
 
-namespace MapInfoPlugin
+namespace ReplayInfoPlugin
 {
     class CustomListView : ListView
     {

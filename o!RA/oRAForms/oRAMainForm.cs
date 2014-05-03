@@ -191,6 +191,8 @@ namespace o_RA.oRAForms
             tabPage1.Name = Language["tab_TimingWindows"];
             tabPage1.Description = "";
             tabPage1.Contents = TWChart;
+            tabPage1.Icon_Normal = Properties.Resources.TimingGraph_N;
+            tabPage1.Icon_Hot = Properties.Resources.TimingGraph_H;
 
             //Spinner RPM Chart
             chartArea2.BackColor = oRAColours.Colour_BG_Main;
@@ -215,6 +217,8 @@ namespace o_RA.oRAForms
             SRPMChart.MouseMove += SRPMChart_MouseMove;
             tabPage2.Name = Language["tab_SpinnerRPM"];
             tabPage2.Contents = SRPMChart;
+            tabPage2.Icon_Normal = Properties.Resources.SpinnerRPMGraph_N;
+            tabPage2.Icon_Hot = Properties.Resources.SpinnerRPMGraph_H;
 
             MainContainer.TabPages.Add(tabPage1);
             MainContainer.TabPages.Add(tabPage2);
@@ -250,6 +254,8 @@ namespace o_RA.oRAForms
                         page.Description = p.Instance.p_Description;
                         page.Name = p.Instance.p_Name;
                         page.Contents = p.Instance.p_PluginTabItem;
+                        page.Icon_Hot = p.Instance.p_PluginTabIcon_H;
+                        page.Icon_Normal = p.Instance.p_PluginTabIcon_N;
                         MainContainer.TabPages.Add(page);
                     }
                     if (p.Instance.p_PluginMenuItem != null)

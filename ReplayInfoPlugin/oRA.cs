@@ -1,12 +1,8 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
+﻿using System.Drawing;
 using System.Windows.Forms;
-using BMAPI;
 using oRAInterface;
-using ReplayAPI;
 
-namespace MapInfoPlugin
+namespace ReplayInfoPlugin
 {
     public class oRA : IPlugin
     {
@@ -16,13 +12,15 @@ namespace MapInfoPlugin
         public static string Author = "smoogipooo";
         public static string Version = "1.0.0";
         public static string HomePage = "http://smgi.me";
+
+        public static ToolStripMenuItem PluginMenuItem;
+        public static UserControl PluginTabItem = new MainForm();
+        public static Bitmap PluginTabIcon_Normal = Properties.Resources.Icon_N;
+        public static Bitmap PluginTabIcon_Hot = Properties.Resources.Icon_H;
         #endregion
 
         #region Exposed items
         public object Host { get; set; }
-
-        public static ToolStripMenuItem PluginMenuItem;
-        public static UserControl PluginTabItem = new MainForm();
         public static DataClass Data;
         public static ControlsClass Controls;
         #endregion
@@ -55,6 +53,14 @@ namespace MapInfoPlugin
         public UserControl p_PluginTabItem
         {
             get { return PluginTabItem; }
+        }
+        public Bitmap p_PluginTabIcon_N
+        {
+            get { return PluginTabIcon_Normal; }
+        }
+        public Bitmap p_PluginTabIcon_H
+        {
+            get { return PluginTabIcon_Hot; }
         }
         public DataClass p_Data
         {

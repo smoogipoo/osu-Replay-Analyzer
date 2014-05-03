@@ -151,6 +151,7 @@ namespace o_RA.oRAForms
             TWChart.Series.Add(series2);
             TWChart.TabIndex = 9;
             TWChart.Text = @"Timing Windows Chart";
+            TWChart.MouseClick += TWChart_MouseClick;
             TWChart.MouseDown += TWChart_MouseDown;
             TWChart.MouseMove += TWChart_MouseMove;
             tabPage1.Name = Language["tab_TimingWindows"];
@@ -178,6 +179,7 @@ namespace o_RA.oRAForms
             SRPMChart.Palette = ChartColorPalette.None;
             SRPMChart.TabIndex = 10;
             SRPMChart.Text = @"Spinner RPM Chart";
+            SRPMChart.MouseClick += SRPMChart_MouseClick;
             SRPMChart.MouseDown += SRPMChart_MouseDown;
             SRPMChart.MouseMove += SRPMChart_MouseMove;
             tabPage2.Name = Language["tab_SpinnerRPM"];
@@ -584,6 +586,15 @@ namespace o_RA.oRAForms
             oRAControls.ProgressToolTip.Hide(Progress);
         }
 
+        private void TWChart_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+                TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
+            }
+        }
+
         private void TWChart_MouseDown(object sender, MouseEventArgs e)
         {
             //Check for overflow and set the current position
@@ -606,6 +617,15 @@ namespace o_RA.oRAForms
             else
             {
                 ChartToolTip.Hide(TWChart);
+            }
+        }
+
+        private void SRPMChart_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                SRPMChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+                SRPMChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             }
         }
 

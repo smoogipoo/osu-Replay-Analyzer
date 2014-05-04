@@ -31,6 +31,7 @@ namespace o_RA.oRAForms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.ChartToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,11 +44,12 @@ namespace o_RA.oRAForms
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.ReplayTimelineLB = new System.Windows.Forms.ListBox();
             this.ReplaysList = new System.Windows.Forms.TreeView();
+            this.ReplayTimeline = new System.Windows.Forms.DataGridView();
             this.Progress = new o_RA.oRAProgressBar();
             this.MainContainer = new o_RA.oRAControls.oRATabControl();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplayTimeline)).BeginInit();
             this.SuspendLayout();
             // 
             // ChartToolTip
@@ -156,24 +158,6 @@ namespace o_RA.oRAForms
             this.aboutToolStripMenuItem1.Text = "About";
             this.aboutToolStripMenuItem1.Paint += new System.Windows.Forms.PaintEventHandler(this.ToolStripMenuItem_Paint);
             // 
-            // ReplayTimelineLB
-            // 
-            this.ReplayTimelineLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ReplayTimelineLB.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
-            this.ReplayTimelineLB.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ReplayTimelineLB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.ReplayTimelineLB.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
-            this.ReplayTimelineLB.FormattingEnabled = true;
-            this.ReplayTimelineLB.IntegralHeight = false;
-            this.ReplayTimelineLB.ItemHeight = 20;
-            this.ReplayTimelineLB.Location = new System.Drawing.Point(301, 507);
-            this.ReplayTimelineLB.Name = "ReplayTimelineLB";
-            this.ReplayTimelineLB.Size = new System.Drawing.Size(715, 222);
-            this.ReplayTimelineLB.TabIndex = 15;
-            this.ReplayTimelineLB.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ReplayTimelineLB_DrawItem);
-            this.ReplayTimelineLB.SelectedIndexChanged += new System.EventHandler(this.ReplayTimelineLB_SelectedIndexChanged);
-            // 
             // ReplaysList
             // 
             this.ReplaysList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -189,6 +173,38 @@ namespace o_RA.oRAForms
             this.ReplaysList.TabIndex = 16;
             this.ReplaysList.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.ReplaysList_DrawNode);
             this.ReplaysList.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ReplaysList_AfterSelect);
+            // 
+            // ReplayTimeline
+            // 
+            this.ReplayTimeline.AllowUserToAddRows = false;
+            this.ReplayTimeline.AllowUserToDeleteRows = false;
+            this.ReplayTimeline.AllowUserToResizeColumns = false;
+            this.ReplayTimeline.AllowUserToResizeRows = false;
+            this.ReplayTimeline.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ReplayTimeline.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.ReplayTimeline.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ReplayTimeline.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.ReplayTimeline.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            this.ReplayTimeline.ColumnHeadersHeight = 25;
+            this.ReplayTimeline.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.ReplayTimeline.EnableHeadersVisualStyles = false;
+            this.ReplayTimeline.Location = new System.Drawing.Point(301, 507);
+            this.ReplayTimeline.MultiSelect = false;
+            this.ReplayTimeline.Name = "ReplayTimeline";
+            this.ReplayTimeline.ReadOnly = true;
+            this.ReplayTimeline.RowHeadersVisible = false;
+            this.ReplayTimeline.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.ReplayTimeline.Size = new System.Drawing.Size(715, 222);
+            this.ReplayTimeline.TabIndex = 15;
+            this.ReplayTimeline.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.ReplayTimeline_RowStateChanged);
             // 
             // Progress
             // 
@@ -221,9 +237,9 @@ namespace o_RA.oRAForms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
             this.ClientSize = new System.Drawing.Size(1281, 733);
+            this.Controls.Add(this.ReplayTimeline);
             this.Controls.Add(this.Progress);
             this.Controls.Add(this.ReplaysList);
-            this.Controls.Add(this.ReplayTimelineLB);
             this.Controls.Add(this.MainContainer);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -233,6 +249,7 @@ namespace o_RA.oRAForms
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplayTimeline)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -253,9 +270,9 @@ namespace o_RA.oRAForms
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private oRATabControl MainContainer;
-        private System.Windows.Forms.ListBox ReplayTimelineLB;
         private System.Windows.Forms.TreeView ReplaysList;
         private oRAProgressBar Progress;
+        private System.Windows.Forms.DataGridView ReplayTimeline;
     }
 }
 

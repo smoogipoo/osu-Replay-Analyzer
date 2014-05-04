@@ -236,7 +236,7 @@ namespace o_RA.oRAForms
 
         private void InitializeGameDirs()
         {
-            if (!Settings.ContainsSetting("GameDir") || Settings.GetSetting("GameDir") == "")
+            if (!IsOsuPath(Settings.GetSetting("GameDir")))
             {
                 Process[] procs = Process.GetProcessesByName("osu!");
                 if (procs.Length != 0)

@@ -24,9 +24,6 @@ namespace ReplayInfoPlugin
         public void HandleReplayChanged(Replay r, Beatmap b)
         {
             customListView1.Items.Clear();
-
-            //Replay Info
-            customListView1.Items.Clear();
             customListView1.Items.Add(new ListViewItem());
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Format"], r.FileFormat.ToString(CultureInfo.InvariantCulture) }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FName"], r.Filename }));

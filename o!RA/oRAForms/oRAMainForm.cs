@@ -447,6 +447,8 @@ namespace o_RA.oRAForms
                     oRAData.TimingWindows[i] = Beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (Beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (Beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
                 }
 
+                if (Replay.ReplayData.Count == 0)
+                    return;
                 //Get a list of all the individual clicks
                 List<ReplayInfo> realClicks = new List<ReplayInfo>();
                 for (int i = 0; i < Replay.ReplayData.Count; i++)

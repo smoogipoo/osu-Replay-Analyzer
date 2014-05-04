@@ -108,7 +108,7 @@ namespace ReplayAPI
                     {
                         int v = ms.ReadByte();
                         if (v < 0)
-                            throw (new Exception("Can't Read 1"));
+                            break;
                         outSize |= ((long)(byte)v) << (8 * i);
                     }
                     long compressedSize = ms.Length - ms.Position;

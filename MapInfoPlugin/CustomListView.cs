@@ -40,8 +40,8 @@ namespace MapInfoPlugin
             string beatmapHash;
             oRA.Data.BeatmapHashes.TryGetValue(b.Filename, out beatmapHash);
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], beatmapHash }));
-            Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_TotalHitObjects"], b.AudioFilename }));
-            Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapAFN"], b.HitObjects.Count.ToString(CultureInfo.InvariantCulture) }));
+            Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_TotalHitObjects"], b.HitObjects.Count.ToString(CultureInfo.InvariantCulture) }));
+            Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapAFN"], b.AudioFilename }));
             Items.Add(new ListViewItem());
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapName"], b.Title + (!string.IsNullOrEmpty(b.TitleUnicode) && b.TitleUnicode != b.Title ? "(" + b.TitleUnicode + ")" : "") }));
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapArtist"], b.Artist + (!string.IsNullOrEmpty(b.ArtistUnicode) && b.ArtistUnicode != b.Artist ? "(" + b.ArtistUnicode + ")" : "") }));

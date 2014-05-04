@@ -50,6 +50,7 @@ namespace oRAInterface
         public double[] TimingWindows { get; set; }
         public double PositiveErrorAverage { get; set; }
         public double NegativeErrorAverage { get; set; }
+        public double UnstableRate { get; set; }
         public int TimingMax { get; set; }
         public int TimingMin { get; set; }
     }

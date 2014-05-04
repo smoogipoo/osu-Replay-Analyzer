@@ -448,6 +448,7 @@ namespace o_RA.oRAForms
                 oRAData.TimingMin = 0;
                 oRAData.PositiveErrorAverage = 0;
                 oRAData.NegativeErrorAverage = 0;
+                oRAData.UnstableRate = 0;
                 TWChart.Series[0].Points.Clear();
                 TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
                 TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
@@ -473,6 +474,7 @@ namespace o_RA.oRAForms
                             oRAData.NegativeErrorAverage += c.Time - hitObject.StartTime;
                             negErrCount += 1;
                         }
+                        oRAData.UnstableRate += c.Time - hitObject.StartTime;
                         inc += 1;
                     }
                 }
@@ -483,6 +485,20 @@ namespace o_RA.oRAForms
                     oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
                     oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
                 }
+                //Calculate unstable rate
+                oRAData.UnstableRate /= inc;
+                double temp = 0;
+                foreach (BaseCircle hitObject in Beatmap.HitObjects)
+                {
+                    ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
+                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
+                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
+                    if (c != null)
+                    {
+                        temp += Math.Pow(c.Time - hitObject.StartTime - oRAData.UnstableRate, 2);
+                    }
+                }
+                oRAData.UnstableRate = Math.Round(Math.Sqrt(temp / Replay.MaxCombo) * 10,2);
 
                 ReplayTimeline.DataSource = iteratedObjects;
                 if (ReplayTimeline.Rows.Count > 0)
@@ -573,7 +589,7 @@ namespace o_RA.oRAForms
                         point.Color = oRAColours.Colour_BG_P1;
                     TWChart.Series[0].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
                     ReplayTimeline.Rows[result.PointIndex].Selected = true;
-        }
+                }
             }
         }
 

@@ -472,6 +472,8 @@ namespace o_RA.oRAForms
                 int posErrCount = 0;
                 int negErrCount = 0;
                 TWChart.Series[0].Points.Clear();
+                TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+                TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
 
                 //Match up beatmap objects to replay clicks
                 List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();

@@ -110,8 +110,35 @@ namespace o_RA.oRAForms
             ChartArea chartArea2 = new ChartArea();
             Legend legend1 = new Legend();
             Legend legend2 = new Legend();
-            Series series1 = new Series();
-            Series series2 = new Series();
+            Series series1 = new Series("50 Hit Region")
+            {
+                ChartArea = "ChartArea1",
+                ChartType = SeriesChartType.Range,
+                Color = oRAColours.Colour_50_Region,
+                IsVisibleInLegend = false
+            };
+            Series series2 = new Series("100 Hit Region")
+            {
+                ChartArea = "ChartArea1",
+                ChartType = SeriesChartType.Range,
+                Color = oRAColours.Colour_100_Region,
+                IsVisibleInLegend = false
+            };
+            Series series3 = new Series("300 Hit Region")
+            {
+                ChartArea = "ChartArea1",
+                ChartType = SeriesChartType.Range,
+                Color = oRAColours.Colour_300_Region,
+                IsVisibleInLegend = false
+            };
+            Series series4 = new Series()
+            {
+                ChartArea = "ChartArea1",
+                ChartType = SeriesChartType.StackedColumn,
+                Color = oRAColours.Colour_BG_P1,
+                Legend = "Legend1",
+                Name = Language["text_TimingWindow"]
+            };
             oRAPage tabPage1 = new oRAPage();
             oRAPage tabPage2 = new oRAPage();
             chartArea1.AxisX.Title = "Clicks";
@@ -128,11 +155,7 @@ namespace o_RA.oRAForms
             legend1.BackColor = oRAColours.Colour_BG_Main;
             legend1.ForeColor = oRAColours.Colour_BG_P1;
             legend1.Name = "Legend1";
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = SeriesChartType.StackedColumn;
-            series1.Color = oRAColours.Colour_BG_P1;
-            series1.Legend = "Legend1";
-            series1.Name = Language["text_TimingWindow"];
+
             TWChart.BackColor = oRAColours.Colour_BG_Main;
             TWChart.ChartAreas.Add(chartArea1);
             TWChart.Dock = DockStyle.Fill;
@@ -140,6 +163,9 @@ namespace o_RA.oRAForms
             TWChart.Name = "TWChart";
             TWChart.Palette = ChartColorPalette.None;
             TWChart.Series.Add(series1);
+            TWChart.Series.Add(series2);
+            TWChart.Series.Add(series3);
+            TWChart.Series.Add(series4);
             TWChart.TabIndex = 9;
             TWChart.Text = @"Timing Windows Chart";
             TWChart.MouseClick += TWChart_MouseClick;
@@ -183,7 +209,6 @@ namespace o_RA.oRAForms
 
         private void InitializePlugins()
         {
-
             //Initialize plugin interface
             oRAData = new DataClass();
             oRAControls = new ControlsClass();
@@ -451,7 +476,7 @@ namespace o_RA.oRAForms
                 oRAData.PositiveErrorAverage = 0;
                 oRAData.NegativeErrorAverage = 0;
                 oRAData.UnstableRate = 0;
-                TWChart.Series[0].Points.Clear();
+                TWChart.Series[Language["text_TimingWindow"]].Points.Clear();
                 TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
                 TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
 
@@ -465,7 +490,7 @@ namespace o_RA.oRAForms
                     if (c != null)
                     {
                         iteratedObjects.Add(c);
-                        TWChart.Series[0].Points.AddXY(inc, c.Time - hitObject.StartTime);
+                        TWChart.Series[Language["text_TimingWindow"]].Points.AddXY(inc, c.Time - hitObject.StartTime);
                         if (c.Time - hitObject.StartTime > 0)
                         {
                             oRAData.PositiveErrorAverage += c.Time - hitObject.StartTime;
@@ -482,10 +507,10 @@ namespace o_RA.oRAForms
                 }
                 oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
                 oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
-                if (TWChart.Series[0].Points.Count > 0)
+                if (TWChart.Series[Language["text_TimingWindow"]].Points.Count > 0)
                 {
-                    oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
-                    oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
+                    oRAData.TimingMax = Convert.ToInt32(TWChart.Series[Language["text_TimingWindow"]].Points.FindMaxByValue().YValues[0]);
+                    oRAData.TimingMin = Convert.ToInt32(TWChart.Series[Language["text_TimingWindow"]].Points.FindMinByValue().YValues[0]);
                 }
                 //Calculate unstable rate
                 oRAData.UnstableRate /= inc;
@@ -500,7 +525,17 @@ namespace o_RA.oRAForms
                         temp += Math.Pow(c.Time - hitObject.StartTime - oRAData.UnstableRate, 2);
                     }
                 }
-                oRAData.UnstableRate = Math.Round(Math.Sqrt(temp / Replay.MaxCombo) * 10,2);
+                oRAData.UnstableRate = Math.Round(Math.Sqrt(temp / Replay.MaxCombo) * 10, 2);
+
+                TWChart.Series["50 Hit Region"].Points.Clear();
+                TWChart.Series["50 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[2], -oRAData.TimingWindows[2]);
+                TWChart.Series["50 Hit Region"].Points.AddXY(iteratedObjects.Count, oRAData.TimingWindows[2], -oRAData.TimingWindows[2]);
+                TWChart.Series["100 Hit Region"].Points.Clear();
+                TWChart.Series["100 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[1], -oRAData.TimingWindows[1]);
+                TWChart.Series["100 Hit Region"].Points.AddXY(iteratedObjects.Count, oRAData.TimingWindows[1], -oRAData.TimingWindows[1]);
+                TWChart.Series["300 Hit Region"].Points.Clear();
+                TWChart.Series["300 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[0], -oRAData.TimingWindows[0]);
+                TWChart.Series["300 Hit Region"].Points.AddXY(iteratedObjects.Count, oRAData.TimingWindows[0], -oRAData.TimingWindows[0]);
 
                 ReplayTimeline.DataSource = iteratedObjects;
                 if (ReplayTimeline.Rows.Count > 0)
@@ -559,10 +594,10 @@ namespace o_RA.oRAForms
             if (e.StateChanged != DataGridViewElementStates.Selected) return;
             if (e.Row.Index != -1)
             {
-                var point = TWChart.Series[0].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
+                var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
                 if (point != null)
                     point.Color = oRAColours.Colour_BG_P1;
-                TWChart.Series[0].Points[e.Row.Index].Color = oRAColours.Colour_Item_BG_0;
+                TWChart.Series[Language["text_TimingWindow"]].Points[e.Row.Index].Color = oRAColours.Colour_Item_BG_0;
             }
         }
 
@@ -588,10 +623,10 @@ namespace o_RA.oRAForms
                 HitTestResult result = TWChart.HitTest(e.X, e.Y);
                 if (result.ChartElementType == ChartElementType.DataPoint)
                 {
-                    var point = TWChart.Series[0].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
+                    var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
                     if (point != null)
                         point.Color = oRAColours.Colour_BG_P1;
-                    TWChart.Series[0].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
+                    TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
                     ReplayTimeline.Rows[result.PointIndex].Selected = true;
                 }
             }
@@ -601,12 +636,12 @@ namespace o_RA.oRAForms
         {
             HitTestResult result = TWChart.HitTest(e.X, e.Y);
 
-            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < TWChart.Series[0].Points.Count)
+            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < TWChart.Series[Language["text_TimingWindow"]].Points.Count)
             {
-                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)TWChart.Series[0].Points[result.PointIndex].XValue)
+                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].XValue)
                 {
-                    ChartToolTip.Tag = (int)TWChart.Series[0].Points[result.PointIndex].XValue;
-                    ChartToolTip.SetToolTip(TWChart, TWChart.Series[0].Points[result.PointIndex].YValues[0] + "ms");
+                    ChartToolTip.Tag = (int)TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].XValue;
+                    ChartToolTip.SetToolTip(TWChart, TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].YValues[0] + "ms");
                 }
             }
             else

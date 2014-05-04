@@ -79,5 +79,8 @@ namespace o_RA
         public static Color Colour_Highlight = Color.FromArgb(255, 255, 255, 255);
         public static Color Colour_Item_BG_0 = Color.FromArgb(255, 0, 120, 255);
         public static Color Colour_Item_BG_1 = Color.FromArgb(127, 0, 120, 255);
+        public static Color Colour_50_Region = Color.FromArgb(60, 40,25,180);
+        public static Color Colour_100_Region = Color.FromArgb(50, 50, 220, 60);
+        public static Color Colour_300_Region = Color.FromArgb(40, 230, 170, 80);
     }
 }

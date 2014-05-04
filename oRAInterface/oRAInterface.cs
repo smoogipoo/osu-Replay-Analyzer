@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Drawing;
-using BMAPI;
 using ReplayAPI;
+using BMAPI;
 
 namespace oRAInterface
 {
@@ -42,7 +43,7 @@ namespace oRAInterface
         public Dictionary<string, string> Language { get; set; }
         public Replay CurrentReplay { get; set; }
         public Beatmap CurrentBeatmap { get; set; }
-        public Dictionary<string,string> BeatmapHashes { get; set; }
+        public ConcurrentDictionary<string, string> BeatmapHashes { get; set; }
         public List<TreeNode> Replays { get; set; }
         public string ReplayDirectory { get; set; }
         public string BeatmapDirectory { get; set; }

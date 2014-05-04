@@ -2,14 +2,14 @@
 	<info_osuClosed>o!RA hat entdeckt, dass osu! nicht geöffnet ist.\nBitte wähle das osu! Verzechnis.</info_osuClosed>
 	<info_osuClosedMessageBoxTitle>osu! Verzeichnis</info_osuClosedMessageBoxTitle>
 	<info_osuWrongDir>Das gewählte Verzeichnis enthält nicht die osu! Songs und/oder Replays Ordner.\nBitte wähle das osu! Verzechnis.</info_osuWrongDir>
-	<info_RepLoadError>Dateihash:</info_RepLoadError>
+	<info_RepLoadError>Es ist ein Fehler aufgetreten und das Replay konnte nicht geladen werden.\nNimm Kontakt auf mit smoogipooo mit der folgenden Fehlernachricht:\n</info_RepLoadError>
 	<info_PopReplays>Lade Replays...</info_PopReplays>
 	<info_PopBeatmaps>Lade Beatmaps...</info_PopBeatmaps>
 	<text_TimingWindow>Timing Fenster</text_TimingWindow>
 	<info_Format>Format:</info_Format>
 	<info_FName>Dateiname:</info_FName>
 	<info_FSize>Dateigröße:</info_FSize>
-	<info_FHash>Datei-Hash:</info_FHash>
+	<info_FHash>Dateihash:</info_FHash>
 	<info_MapAFN>Name der Audiodatei:</info_MapAFN>
 	<info_MapName>Name:</info_MapName>
 	<info_MapArtist>Künstler:</info_MapArtist>
@@ -17,15 +17,15 @@
 	<info_MapCreator>Ersteller:</info_MapCreator>
 	<info_MapVersion>Version:</info_MapVersion>
 	<info_MapID>Beatmap ID:</info_MapID>
-	<info_MapSetID>Beatmap Set ID:</info_MapSetID>
-	<info_MapTags>Stichworte:</info_MapTags>
+	<info_MapSetID>Beatmap set ID:</info_MapSetID>
+	<info_MapTags>Tags:</info_MapTags>
 	<info_MapOD>Beatmap OD:</info_MapOD>
 	<info_MapAR>Beatmap AR:</info_MapAR>
 	<info_MapHP>HP Drain Rate:</info_MapHP>
 	<info_MapCS>Hit-Objektgröße:</info_MapCS>
-	<info_MapComboColour>??</info_MapComboColour>
+	<info_MapComboColour>Combo:</info_MapComboColour>
 	<info_MapTotalTime>Gesamtzeit:</info_MapTotalTime>
-	<info_MapDrainTime>Drain-Zeit:</info_MapDrainTime>
+	<info_MapDrainTime>Drainzeit:</info_MapDrainTime>
 	<info_RepMode>Spielmodus:</info_RepMode>
 	<info_RepPlayer>Spieler:</info_RepPlayer>
 	<info_RepScore>Spielerpunkte:</info_RepScore>

@@ -51,7 +51,7 @@ namespace ReplayInfoPlugin
             if (Columns.Count == 0)
                 return;
             int columnWidth = Columns.Cast<ColumnHeader>().Sum(cH => cH.Width);
-            int widthDifference = Width - columnWidth - 5;
+            int widthDifference = Width - columnWidth - 1;
 
             if (widthDifference > 0 || widthDifference < 0)
             {

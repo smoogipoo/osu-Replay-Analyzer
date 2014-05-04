@@ -14,6 +14,7 @@ using oRAInterface;
 using o_RA.Globals;
 using o_RA.oRAControls;
 using ReplayAPI;
+using System.Collections.Concurrent;
 
 namespace o_RA.oRAForms
 {
@@ -199,7 +200,7 @@ namespace o_RA.oRAForms
             oRAControls = new ControlsClass();
             oRAData.Language = Language;
             oRAData.Replays = new List<TreeNode>();
-            oRAData.BeatmapHashes = new Dictionary<string, string>();
+            oRAData.BeatmapHashes = new ConcurrentDictionary<string, string>();
             oRAData.TimingWindows = new double[3];
             oRAControls.ProgressToolTip = new ToolTip();
             oRAControls.FrameTimeline = ReplayTimelineLB;
@@ -294,31 +295,17 @@ namespace o_RA.oRAForms
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] files = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
-            try
+            Progress.BeginInvoke((MethodInvoker)delegate
             {
-                Progress.BeginInvoke((MethodInvoker)delegate
-                {
-                    Progress.Maximum = files.Length;
-                });
-            }
-            catch
-            {
-                return;
-            }
+                Progress.Maximum = files.Length;
+            });
             foreach (FileInfo file in files)
             {
                 oRAData.Replays.Add(new TreeNode(file.Name));
-                try
+                Progress.BeginInvoke((MethodInvoker)delegate
                 {
-                    Progress.BeginInvoke((MethodInvoker)delegate
-                    {
-                        Progress.Value += 1;
-                    });
-                }
-                catch
-                {
-                    return;
-                }
+                    Progress.Value += 1;
+                });
             }
 
             ReplaysList.BeginInvoke((MethodInvoker)(() => ReplaysList.Nodes.AddRange(oRAData.Replays.ToArray())));
@@ -327,18 +314,11 @@ namespace o_RA.oRAForms
 
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
 
-            try
+            Progress.BeginInvoke((MethodInvoker)delegate
             {
-                Progress.BeginInvoke((MethodInvoker)delegate
-                {
-                    Progress.Value = 0;
-                    Progress.Maximum = beatmapFiles.Length;
-                });
-            }
-            catch
-            {
-                return;
-            }
+                Progress.Value = 0;
+                Progress.Maximum = beatmapFiles.Length;
+            });
             using (var md5 = MD5.Create())
             {
                 foreach (string file in beatmapFiles)
@@ -347,7 +327,7 @@ namespace o_RA.oRAForms
                     {
                         using (var stream = File.OpenRead(file))
                         {
-                            oRAData.BeatmapHashes.Add(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                            oRAData.BeatmapHashes.TryAdd(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                             Progress.BeginInvoke((MethodInvoker)delegate
                             {
                                 Progress.Value += 1;
@@ -397,22 +377,24 @@ namespace o_RA.oRAForms
             {
                 using (var stream = File.OpenRead(e.FullPath))
                 {
-                    oRAData.BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    oRAData.BeatmapHashes.TryAdd(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                 }
             }
         }
         private static void BeatmapDeleted(object sender, FileSystemEventArgs e)
         {
-            oRAData.BeatmapHashes.Remove(e.FullPath);
+            string s;
+            oRAData.BeatmapHashes.TryRemove(e.FullPath, out s);
         }
         private static void BeatmapRenamed(object sender, RenamedEventArgs e)
         {
-            oRAData.BeatmapHashes.Remove(e.OldFullPath);
+            string s;
+            oRAData.BeatmapHashes.TryRemove(e.OldFullPath, out s);
             using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(e.FullPath))
                 {
-                    oRAData.BeatmapHashes.Add(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    oRAData.BeatmapHashes.TryAdd(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
                 }
             }
         }
@@ -428,152 +410,151 @@ namespace o_RA.oRAForms
                 MessageBox.Show(Language["info_RepLoadError"] + ex);
                 return;
             }
-            try //Todo: I don't know how
+
+            var file = oRAData.BeatmapHashes.FirstOrDefault(kvp => kvp.Value.Contains(Replay.MapHash));
+            if (file.Key != null)
             {
-                var file = oRAData.BeatmapHashes.ToList().FirstOrDefault(kvp => kvp.Value.Contains(Replay.MapHash));
-                if (file.Key != null)
+                Beatmap = new Beatmap(file.Key);
+                oRAData.UpdateStatus(Replay, Beatmap);
+
+                /* Start Timing Windows tab */
+                //Determine the timing windows for 300,100,50
+                if ((Replay.Mods & Modifications.HardRock) == Modifications.HardRock)
                 {
-                    Beatmap = new Beatmap(file.Key);
-                    oRAData.UpdateStatus(Replay, Beatmap);
-
-                    /* Start Timing Windows tab */
-                    //Determine the timing windows for 300,100,50
-                    if ((Replay.Mods & Modifications.HardRock) == Modifications.HardRock)
-                    {
-                        Beatmap.OverallDifficulty = Math.Min(Beatmap.OverallDifficulty *= 1.4, 10);
-                        Beatmap.CircleSize = (int)(Beatmap.CircleSize * 1.4);
-                        foreach (BaseCircle hitObject in Beatmap.HitObjects)
-                        {
-                            Beatmap.HitObjects[Beatmap.HitObjects.IndexOf(hitObject)].Radius = 40 - 4 * (Beatmap.CircleSize - 2);
-                        }
-                        Beatmap.CircleSize = Beatmap.CircleSize * 1.4;
-                    }
-                    if ((Replay.Mods & Modifications.DoubleTime) == Modifications.DoubleTime)
-                    {
-                        Beatmap.OverallDifficulty = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * Beatmap.OverallDifficulty, 11);
-                        Beatmap.ApproachRate = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * Beatmap.ApproachRate, 11);
-                    }
-                    if ((Replay.Mods & Modifications.HalfTime) == Modifications.HalfTime)
-                    {
-                        Beatmap.OverallDifficulty = (3.0 / 2.0) * Beatmap.OverallDifficulty - 13.0 / 2.0;
-                        Beatmap.ApproachRate = (3.0 / 2.0) * Beatmap.ApproachRate - 13.0 / 2.0;
-                    }
-                    if ((Replay.Mods & Modifications.Easy) == Modifications.Easy)
-                    {
-                        Beatmap.OverallDifficulty = Beatmap.OverallDifficulty / 2;
-                    }
-
-                    //Timing windows are determined by linear interpolation
-                    for (int i = 2; i >= 0; i--)
-                    {
-                        oRAData.TimingWindows[i] = Beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (Beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (Beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
-                    }
-
-                    //Get a list of all the individual clicks
-                    List<ReplayInfo> realClicks = new List<ReplayInfo>();
-                    for (int i = 0; i < Replay.ReplayData.Count; i++)
-                    {
-                        if (Replay.ReplayData[i].Keys != KeyData.None)
-                        {
-                            realClicks.Add(Replay.ReplayData[i]);
-                        }
-                        for (int n = i; n < Replay.ReplayData.Count; n++)
-                        {
-                            if (Replay.ReplayData[n].Keys != Replay.ReplayData[i].Keys)
-                            {
-                                i = n;
-                                break;
-                            }
-                        }
-                    }
-
-                    int inc = 0;
-                    int posErrCount = 0;
-                    int negErrCount = 0;
-                    TWChart.Series[0].Points.Clear();
-
-                    //Match up beatmap objects to replay clicks
-                    List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
+                    Beatmap.OverallDifficulty = Math.Min(Beatmap.OverallDifficulty *= 1.4, 10);
+                    Beatmap.CircleSize = (int)(Beatmap.CircleSize * 1.4);
                     foreach (BaseCircle hitObject in Beatmap.HitObjects)
                     {
-                        ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
-                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
-                                        realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
-                        if (c != null)
-                        {
-                            iteratedObjects.Add(c);
-                            TWChart.Series[0].Points.AddXY(inc, c.Time - hitObject.StartTime);
-                            oRAData.ErrorAverage += c.Time - hitObject.StartTime;
-                            if (c.Time - hitObject.StartTime > 0)
-                            {
-                                oRAData.PositiveErrorAverage += c.Time - hitObject.StartTime;
-                                posErrCount += 1;
-                            }
-                            else
-                            {
-                                oRAData.NegativeErrorAverage += c.Time - hitObject.StartTime;
-                                negErrCount += 1;
-                            }
-                            inc += 1;
-                        }
+                        Beatmap.HitObjects[Beatmap.HitObjects.IndexOf(hitObject)].Radius = 40 - 4 * (Beatmap.CircleSize - 2);
                     }
-                    oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
-                    oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
-                    oRAData.ErrorAverage = (negErrCount != 0 || posErrCount != 0) ? oRAData.ErrorAverage / (negErrCount + posErrCount) : 0;
+                    Beatmap.CircleSize = Beatmap.CircleSize * 1.4;
+                }
+                if ((Replay.Mods & Modifications.DoubleTime) == Modifications.DoubleTime)
+                {
+                    Beatmap.OverallDifficulty = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * Beatmap.OverallDifficulty, 11);
+                    Beatmap.ApproachRate = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * Beatmap.ApproachRate, 11);
+                }
+                if ((Replay.Mods & Modifications.HalfTime) == Modifications.HalfTime)
+                {
+                    Beatmap.OverallDifficulty = (3.0 / 2.0) * Beatmap.OverallDifficulty - 13.0 / 2.0;
+                    Beatmap.ApproachRate = (3.0 / 2.0) * Beatmap.ApproachRate - 13.0 / 2.0;
+                }
+                if ((Replay.Mods & Modifications.Easy) == Modifications.Easy)
+                {
+                    Beatmap.OverallDifficulty = Beatmap.OverallDifficulty / 2;
+                }
 
-                    ReplayTimelineLB.Items.Clear();
-                    ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10 ? "\t\t" : "\t") + "{Time: " + t.TimeInSeconds + "s; X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
-                    ReplayTimelineLB.SelectedIndex = 0;
-                    /* End Timing Windows tab */
+                //Timing windows are determined by linear interpolation
+                for (int i = 2; i >= 0; i--)
+                {
+                    oRAData.TimingWindows[i] = Beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (Beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (Beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
+                }
 
-                    oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
-                    oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
-
-                    /* Start Spinner RPM tab */
-                    SRPMChart.Series.Clear();
-                    int currentSpinnerNumber = 1;
-                    foreach (var spinner in Beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
+                //Get a list of all the individual clicks
+                List<ReplayInfo> realClicks = new List<ReplayInfo>();
+                for (int i = 0; i < Replay.ReplayData.Count; i++)
+                {
+                    if (Replay.ReplayData[i].Keys != KeyData.None)
                     {
-                        PointInfo currentPosition = new PointInfo(-500, -500);
-                        Dictionary<double, int> RPMCount = new Dictionary<double, int>();
-                        double currentTime = 0;
-                        foreach (ReplayInfo repPoint in Replay.ReplayData.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).EndTime && repPoint.Time > spinner.StartTime))
+                        realClicks.Add(Replay.ReplayData[i]);
+                    }
+                    for (int n = i; n < Replay.ReplayData.Count; n++)
+                    {
+                        if (Replay.ReplayData[n].Keys != Replay.ReplayData[i].Keys)
                         {
-                            if ((int)currentPosition.X == -500)
-                            {
-                                currentPosition.X = repPoint.X;
-                                currentPosition.Y = repPoint.Y;
-                            }
-                            else
-                            {
-                                currentTime += repPoint.TimeDiff;
-                                double ptsDist = currentPosition.DistanceTo(new PointInfo(repPoint.X, repPoint.Y));
-                                double p1CDist = currentPosition.DistanceTo(spinner.Location);
-                                double p2CDist = new PointInfo(repPoint.X, repPoint.Y).DistanceTo(spinner.Location);
-                                double travelDegrees = Math.Acos((Math.Pow(p1CDist, 2) + Math.Pow(p2CDist, 2) - Math.Pow(ptsDist, 2)) / (2 * p1CDist * p2CDist)) * (180 / Math.PI);
-                                RPMCount.Add(currentTime, (int)Math.Min((travelDegrees / (0.006 * repPoint.TimeDiff)), 477));
-                                currentPosition.X = repPoint.X;
-                                currentPosition.Y = repPoint.Y;
-                            }
+                            i = n;
+                            break;
                         }
-                        int count = 0;
-                        int valueAmnt = 0;
-                        Series spinnerSeries = new Series();
-                        spinnerSeries.ChartType = SeriesChartType.Spline;
-                        spinnerSeries.BorderWidth = 2;
-                        spinnerSeries.Name = Language["text_Spinner"] + " " + currentSpinnerNumber;
-                        foreach (var frame in RPMCount)
-                        {
-                            valueAmnt += frame.Value;
-                            count += 1;
-                            spinnerSeries.Points.AddXY(frame.Key, Convert.ToInt32(valueAmnt / count));
-                        }
-                        SRPMChart.Series.Add(spinnerSeries);
-                        currentSpinnerNumber += 1;
                     }
                 }
+
+                int inc = 0;
+                int posErrCount = 0;
+                int negErrCount = 0;
+                TWChart.Series[0].Points.Clear();
+
+                //Match up beatmap objects to replay clicks
+                List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
+                foreach (BaseCircle hitObject in Beatmap.HitObjects)
+                {
+                    ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
+                                    realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
+                                    realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
+                    if (c != null)
+                    {
+                        iteratedObjects.Add(c);
+                        TWChart.Series[0].Points.AddXY(inc, c.Time - hitObject.StartTime);
+                        oRAData.ErrorAverage += c.Time - hitObject.StartTime;
+                        if (c.Time - hitObject.StartTime > 0)
+                        {
+                            oRAData.PositiveErrorAverage += c.Time - hitObject.StartTime;
+                            posErrCount += 1;
+                        }
+                        else
+                        {
+                            oRAData.NegativeErrorAverage += c.Time - hitObject.StartTime;
+                            negErrCount += 1;
+                        }
+                        inc += 1;
+                    }
+                }
+                oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
+                oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
+                oRAData.ErrorAverage = (negErrCount != 0 || posErrCount != 0) ? oRAData.ErrorAverage / (negErrCount + posErrCount) : 0;
+
+                ReplayTimelineLB.Items.Clear();
+                ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10 ? "\t\t" : "\t") + "{Time: " + t.TimeInSeconds + "s; X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
+                ReplayTimelineLB.SelectedIndex = 0;
+                /* End Timing Windows tab */
+
+                oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
+                oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
+
+                /* Start Spinner RPM tab */
+                SRPMChart.Series.Clear();
+                int currentSpinnerNumber = 1;
+                foreach (var spinner in Beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
+                {
+                    PointInfo currentPosition = new PointInfo(-500, -500);
+                    Dictionary<double, int> RPMCount = new Dictionary<double, int>();
+                    double currentTime = 0;
+                    foreach (ReplayInfo repPoint in Replay.ReplayData.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).EndTime && repPoint.Time > spinner.StartTime))
+                    {
+                        if ((int)currentPosition.X == -500)
+                        {
+                            currentPosition.X = repPoint.X;
+                            currentPosition.Y = repPoint.Y;
+                        }
+                        else
+                        {
+                            currentTime += repPoint.TimeDiff;
+                            if (RPMCount.Keys.Contains(currentTime))
+                                continue;
+                            double ptsDist = currentPosition.DistanceTo(new PointInfo(repPoint.X, repPoint.Y));
+                            double p1CDist = currentPosition.DistanceTo(spinner.Location);
+                            double p2CDist = new PointInfo(repPoint.X, repPoint.Y).DistanceTo(spinner.Location);
+                            double travelDegrees = Math.Acos((Math.Pow(p1CDist, 2) + Math.Pow(p2CDist, 2) - Math.Pow(ptsDist, 2)) / (2 * p1CDist * p2CDist)) * (180 / Math.PI);
+                            RPMCount.Add(currentTime, (int)Math.Min((travelDegrees / (0.006 * repPoint.TimeDiff)), 477));
+                            currentPosition.X = repPoint.X;
+                            currentPosition.Y = repPoint.Y;
+                        }
+                    }
+                    int count = 0;
+                    int valueAmnt = 0;
+                    Series spinnerSeries = new Series();
+                    spinnerSeries.ChartType = SeriesChartType.Spline;
+                    spinnerSeries.BorderWidth = 2;
+                    spinnerSeries.Name = Language["text_Spinner"] + " " + currentSpinnerNumber;
+                    foreach (var frame in RPMCount)
+                    {
+                        valueAmnt += frame.Value;
+                        count += 1;
+                        spinnerSeries.Points.AddXY(frame.Key, Convert.ToInt32(valueAmnt / count));
+                    }
+                    SRPMChart.Series.Add(spinnerSeries);
+                    currentSpinnerNumber += 1;
+                }
             }
-            catch { }
         }
 
         private void Progress_MouseEnter(object sender, EventArgs e)

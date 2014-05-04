@@ -48,6 +48,7 @@
             // customListView1
             // 
             this.customListView1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.customListView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.customListView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.PropertyHeader,
             this.InformationHeader});
@@ -76,6 +77,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.Controls.Add(this.customListView1);
             this.Name = "MainForm";
             this.Size = new System.Drawing.Size(886, 431);

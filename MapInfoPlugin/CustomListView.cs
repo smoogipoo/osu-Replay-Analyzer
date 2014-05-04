@@ -37,7 +37,9 @@ namespace MapInfoPlugin
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Format"], b.Format.ToString() }));
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FName"], b.Filename }));
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FSize"], File.OpenRead(b.Filename).Length + " bytes" }));
-            Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], oRA.Data.BeatmapHashes[b.Filename] }));
+            string beatmapHash;
+            oRA.Data.BeatmapHashes.TryGetValue(b.Filename, out beatmapHash);
+            Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], beatmapHash }));
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_TotalHitObjects"], b.AudioFilename }));
             Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapAFN"], b.HitObjects.Count.ToString(CultureInfo.InvariantCulture) }));
             Items.Add(new ListViewItem());
@@ -99,7 +101,7 @@ namespace MapInfoPlugin
             if (Columns.Count == 0)
                 return;
             int columnWidth = Columns.Cast<ColumnHeader>().Sum(cH => cH.Width);
-            int widthDifference = Width - columnWidth - 5;
+            int widthDifference = Width - columnWidth - 1;
 
             if (widthDifference > 0 || widthDifference < 0)
             {

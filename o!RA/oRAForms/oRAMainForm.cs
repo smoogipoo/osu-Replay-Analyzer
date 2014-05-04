@@ -114,6 +114,8 @@ namespace o_RA.oRAForms
             Series series2 = new Series();
             oRAPage tabPage1 = new oRAPage();
             oRAPage tabPage2 = new oRAPage();
+            chartArea1.AxisX.Title = "Time (s)";
+            chartArea1.AxisY.Title = "Error rate (ms)";
             chartArea1.AxisY.MinorGrid.Enabled = true;
             chartArea1.AxisY.MinorGrid.LineColor = oRAColours.Colour_BG_P0;
             chartArea1.BackColor = oRAColours.Colour_BG_Main;

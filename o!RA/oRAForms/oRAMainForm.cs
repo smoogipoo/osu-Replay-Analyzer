@@ -128,15 +128,10 @@ namespace o_RA.oRAForms
             legend1.ForeColor = oRAColours.Colour_BG_P1;
             legend1.Name = "Legend1";
             series1.ChartArea = "ChartArea1";
+            series1.ChartType = SeriesChartType.StackedColumn;
+            series1.Color = oRAColours.Colour_BG_P1;
             series1.Legend = "Legend1";
             series1.Name = Language["text_TimingWindow"];
-            series1.Color = oRAColours.Colour_BG_P1;
-            series2.ChartArea = "ChartArea1";
-            series2.IsVisibleInLegend = false;
-            series2.Legend = "Legend1";
-            series2.Name = "Caret";
-            series2.XValueType = ChartValueType.Int32;
-            series2.Color = oRAColours.Colour_Item_BG_0;
             TWChart.BackColor = oRAColours.Colour_BG_Main;
             TWChart.ChartAreas.Add(chartArea1);
             TWChart.Dock = DockStyle.Fill;
@@ -144,11 +139,9 @@ namespace o_RA.oRAForms
             TWChart.Name = "TWChart";
             TWChart.Palette = ChartColorPalette.None;
             TWChart.Series.Add(series1);
-            TWChart.Series.Add(series2);
             TWChart.TabIndex = 9;
             TWChart.Text = @"Timing Windows Chart";
             TWChart.MouseClick += TWChart_MouseClick;
-            TWChart.MouseDown += TWChart_MouseDown;
             TWChart.MouseMove += TWChart_MouseMove;
             tabPage1.Name = Language["tab_TimingWindows"];
             tabPage1.Description = "";
@@ -198,7 +191,7 @@ namespace o_RA.oRAForms
             oRAData.BeatmapHashes = new ConcurrentDictionary<string, string>();
             oRAData.TimingWindows = new double[3];
             oRAControls.ProgressToolTip = new ToolTip();
-            oRAControls.FrameTimeline = ReplayTimelineLB;
+            oRAControls.FrameTimeline = ReplayTimeline;
 
             //Load Plugins
             if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
@@ -490,10 +483,13 @@ namespace o_RA.oRAForms
                 oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
                 oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
 
-                ReplayTimelineLB.Items.Clear();
-                ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10 ? "\t\t" : "\t") + "{Time: " + t.TimeInSeconds + "s; X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
-                if (ReplayTimelineLB.Items.Count > 0)
-                    ReplayTimelineLB.SelectedIndex = 0;
+                ReplayTimeline.DataSource = iteratedObjects;
+                if (ReplayTimeline.Rows.Count > 0)
+                    ReplayTimeline.Rows[0].Selected = true;
+                /* End Timing Windows tab */
+
+                oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
+                oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
 
                 SRPMChart.Series.Clear();
                 int currentSpinnerNumber = 1;
@@ -540,6 +536,17 @@ namespace o_RA.oRAForms
                 }
             }
         }
+        private void ReplayTimeline_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)
+        {
+            if (e.StateChanged != DataGridViewElementStates.Selected) return;
+            if (e.Row.Index != -1)
+            {
+                var point = TWChart.Series[0].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
+                if (point != null)
+                    point.Color = oRAColours.Colour_BG_P1;
+                TWChart.Series[0].Points[e.Row.Index].Color = oRAColours.Colour_Item_BG_0;
+            }
+        }
 
         private void Progress_MouseEnter(object sender, EventArgs e)
         {
@@ -558,13 +565,18 @@ namespace o_RA.oRAForms
                 TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
                 TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             }
+            else if (e.Button == MouseButtons.Left)
+            {
+                HitTestResult result = TWChart.HitTest(e.X, e.Y);
+                if (result.ChartElementType == ChartElementType.DataPoint)
+                {
+                    var point = TWChart.Series[0].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
+                    if (point != null)
+                        point.Color = oRAColours.Colour_BG_P1;
+                    TWChart.Series[0].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
+                    ReplayTimeline.Rows[result.PointIndex].Selected = true;
         }
-
-        private void TWChart_MouseDown(object sender, MouseEventArgs e)
-        {
-            //Check for overflow and set the current position
-            if ((int)TWChart.ChartAreas[0].AxisX.PixelPositionToValue(e.X) < ReplayTimelineLB.Items.Count && (int)TWChart.ChartAreas[0].AxisX.PixelPositionToValue(e.X) >= 0)
-                ReplayTimelineLB.SelectedIndex = (int)TWChart.ChartAreas[0].AxisX.PixelPositionToValue(e.X);
+            }
         }
 
         private void TWChart_MouseMove(object sender, MouseEventArgs e)
@@ -676,29 +688,6 @@ namespace o_RA.oRAForms
             Application.Exit();
         }
 
-        private void ReplayTimelineLB_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if (e.Index == -1)
-                return;
-            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);
-            if (e.State.HasFlag(DrawItemState.Selected))
-            {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.Bounds);
-                e.Graphics.DrawRectangle(new Pen((new SolidBrush(oRAColours.Colour_Item_BG_0))), e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-            }
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            string text = ReplayTimelineLB.Items[e.Index].ToString();
-            e.Graphics.DrawImageUnscaled(TimelineFrameImg, e.Bounds.Left + 1, e.Bounds.Height + 1);
-            e.Graphics.DrawString(text, oRAFonts.Font_SubDescription, (e.State & DrawItemState.Selected) == DrawItemState.Selected ? new SolidBrush(oRAColours.Colour_Text_H) : new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + 22, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(text, oRAFonts.Font_SubDescription).Height / 2);
-        }
-
-        private void ReplayTimelineLB_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            TWChart.Series[1].Points.Clear();
-            TWChart.Series[1].Points.AddXY(ReplayTimelineLB.SelectedIndex, TWChart.ChartAreas[0].AxisY.Maximum - 5);
-            TWChart.Series[1].Points.AddXY(ReplayTimelineLB.SelectedIndex, TWChart.ChartAreas[0].AxisY.Minimum + 5);
-        }
-
         private void ReplaysList_DrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             if (e.Node.Index == -1)
@@ -741,5 +730,7 @@ namespace o_RA.oRAForms
             }
             Application.ExitThread();
         }
+
+
     }
 }

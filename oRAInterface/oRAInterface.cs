@@ -56,7 +56,7 @@ namespace oRAInterface
 
     public class ControlsClass
     {
-        public ListBox FrameTimeline { get; set; }
+        public DataGridView FrameTimeline { get; set; }
         public ToolTip ProgressToolTip { get; set; }
     }
 }

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{772FF769-F3BD-4A86-901B-2928800C4548}</ProjectGuid>
+    <ProjectGuid>{99F251CF-D9C7-4C47-BD3F-D64CC6D5B6ED}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ReplayInfoPlugin</RootNamespace>

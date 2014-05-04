@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{772FF769-F3BD-4A86-901B-2928800C4548}</ProjectGuid>
+    <ProjectGuid>{3E99B92E-EB07-43EF-9D84-3C18D59683CA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MapInfoPlugin</RootNamespace>

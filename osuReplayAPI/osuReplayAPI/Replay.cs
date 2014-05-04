@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using smgiFuncs;
 
 namespace ReplayAPI
@@ -35,6 +36,7 @@ namespace ReplayAPI
 
         public Replay(string replayFile)
         {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US", false);
             Parse(replayFile);
         }
 

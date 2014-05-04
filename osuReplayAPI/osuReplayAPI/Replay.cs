@@ -43,7 +43,7 @@ namespace ReplayAPI
         public void Parse(string replayFile)
         {
             Filename = replayFile;
-            using (FileStream fs = new FileStream(replayFile, FileMode.Open))
+            using (FileStream fs = new FileStream(replayFile, FileMode.Open,FileAccess.Read))
             using (BinaryReader br = new BinaryReader(fs))
             {
                 GameMode = (GameModes)Enum.Parse(typeof(GameModes), br.ReadByte().ToString());

@@ -35,7 +35,6 @@ namespace o_RA.oRAForms
         static ControlsClass oRAControls;
 
         public static readonly PluginServices Plugins = new PluginServices();
-        private readonly Bitmap TimelineFrameImg = new Bitmap(18, 18);
         internal Chart TWChart = new Chart();
         internal Chart SRPMChart = new Chart();
 
@@ -480,16 +479,15 @@ namespace o_RA.oRAForms
                 }
                 oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
                 oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
-                oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
-                oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
+                if (TWChart.Series[0].Points.Count > 0)
+                {
+                    oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
+                    oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
+                }
 
                 ReplayTimeline.DataSource = iteratedObjects;
                 if (ReplayTimeline.Rows.Count > 0)
                     ReplayTimeline.Rows[0].Selected = true;
-                /* End Timing Windows tab */
-
-                oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
-                oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
 
                 SRPMChart.Series.Clear();
                 int currentSpinnerNumber = 1;

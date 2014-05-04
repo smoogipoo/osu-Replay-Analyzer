@@ -37,4 +37,19 @@
 	<info_RepGekiCount>Geki aantal:</info_RepGekiCount>
 	<info_RepKatuCount>Katu aantal:</info_RepKatuCount>
 	<info_RepMods>Mods:</info_RepMods>
+	<info_UnstableRate></info_UnstableRate>
+	<info_ErrorRate></info_ErrorRate>
+	<info_OverallErrorRate></info_OverallErrorRate>
+	<info_TotalHitObjects></info_TotalHitObjects>
+	<text_bytes></text_bytes>
+	<info_ReplayFrames></info_ReplayFrames>
+	<info_KeysPressed></info_KeysPressed>
+	<text_Spinner></text_Spinner>
+	<info_OperationsCompleted></info_OperationsCompleted>
+	<tab_TimingWindows></tab_TimingWindows>
+	<tab_SpinnerRPM></tab_SpinnerRPM>
+	<tab_BeatmapInformation></tab_BeatmapInformation>
+	<tab_ReplayInformation></tab_ReplayInformation>
+	<header_Property></header_Property>
+	<header_Information></header_Information>
 </Language>

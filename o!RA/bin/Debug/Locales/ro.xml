@@ -43,6 +43,7 @@
 	<info_TotalHitObjects>Global number de hitobjects:</info_TotalHitObjects>
 	<text_bytes>octeți</text_bytes>
 	<info_ReplayFrames>Număr de rame in reluare:</info_ReplayFrames>
+	<info_KeysPressed></info_KeysPressed>
 	<text_Spinner>Torcător</text_Spinner>
 	<info_OperationsCompleted>Toate operațile sau completat.</info_OperationsCompleted>
 	<tab_TimingWindows>Ferestre de Sincronizari</tab_TimingWindows>

@@ -88,7 +88,7 @@ namespace o_RA.oRAForms
             {
                 string n = Locale.Name;
                 Locale.Read();
-                if (!Language.ContainsKey(n))
+                if (!Language.ContainsKey(n) && Locale.Value != "")
                     Language.Add(n, Locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
             }
             if (Settings.GetSetting("ApplicationLocale") != "en")
@@ -447,25 +447,8 @@ namespace o_RA.oRAForms
                     oRAData.TimingWindows[i] = Beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (Beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (Beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
                 }
 
-                if (Replay.ReplayData.Count == 0)
+                if (Replay.ReplayFrames.Count == 0)
                     return;
-                //Get a list of all the individual clicks
-                List<ReplayInfo> realClicks = new List<ReplayInfo>();
-                for (int i = 0; i < Replay.ReplayData.Count; i++)
-                {
-                    if (Replay.ReplayData[i].Keys != KeyData.None)
-                    {
-                        realClicks.Add(Replay.ReplayData[i]);
-                    }
-                    for (int n = i; n < Replay.ReplayData.Count; n++)
-                    {
-                        if (Replay.ReplayData[n].Keys != Replay.ReplayData[i].Keys)
-                        {
-                            i = n;
-                            break;
-                        }
-                    }
-                }
 
                 int inc = 0;
                 int posErrCount = 0;
@@ -478,9 +461,9 @@ namespace o_RA.oRAForms
                 List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
                 foreach (BaseCircle hitObject in Beatmap.HitObjects)
                 {
-                    ReplayInfo c = realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
-                                    realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
-                                    realClicks.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
+                    ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
+                                    Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
+                                    Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
                     if (c != null)
                     {
                         iteratedObjects.Add(c);
@@ -520,7 +503,7 @@ namespace o_RA.oRAForms
                     PointInfo currentPosition = new PointInfo(-500, -500);
                     Dictionary<double, int> RPMCount = new Dictionary<double, int>();
                     double currentTime = 0;
-                    foreach (ReplayInfo repPoint in Replay.ReplayData.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).EndTime && repPoint.Time > spinner.StartTime))
+                    foreach (ReplayInfo repPoint in Replay.ReplayFrames.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).EndTime && repPoint.Time > spinner.StartTime))
                     {
                         if ((int)currentPosition.X == -500)
                         {

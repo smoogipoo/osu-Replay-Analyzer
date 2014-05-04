@@ -31,8 +31,8 @@ namespace ReplayAPI
         public List<LifeInfo> LifeData = new List<LifeInfo>();
         public DateTime PlayTime;
         public int ReplayLength;
-        public List<ReplayInfo> ReplayData = new List<ReplayInfo>();
-        public List<ReplayInfo> Clicks = new List<ReplayInfo>();
+        public List<ReplayInfo> ReplayFrames = new List<ReplayInfo>();
+        public List<ReplayInfo> ClickFrames = new List<ReplayInfo>();
 
         public Replay(string replayFile)
         {
@@ -43,7 +43,7 @@ namespace ReplayAPI
         public void Parse(string replayFile)
         {
             Filename = replayFile;
-            using (FileStream fs = new FileStream(replayFile, FileMode.Open,FileAccess.Read))
+            using (FileStream fs = new FileStream(replayFile, FileMode.Open, FileAccess.Read))
             using (BinaryReader br = new BinaryReader(fs))
             {
                 GameMode = (GameModes)Enum.Parse(typeof(GameModes), br.ReadByte().ToString());
@@ -137,7 +137,24 @@ namespace ReplayAPI
                         tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
                         tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
                         tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
-                        ReplayData.Add(tempInfo);
+                        ReplayFrames.Add(tempInfo);
+                    }
+                }
+
+                //Get a list of all the individual clicks
+                for (int i = 0; i < ReplayFrames.Count; i++)
+                {
+                    if (ReplayFrames[i].Keys != KeyData.None)
+                    {
+                        ClickFrames.Add(ReplayFrames[i]);
+                    }
+                    for (int n = i; n < ReplayFrames.Count; n++)
+                    {
+                        if (ReplayFrames[n].Keys != ReplayFrames[i].Keys)
+                        {
+                            i = n;
+                            break;
+                        }
                     }
                 }
             }

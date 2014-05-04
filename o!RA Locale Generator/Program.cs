@@ -45,21 +45,24 @@ namespace o_RA_Locale_Generator
                 cellQuery.MinimumRow = 2;
                 cellQuery.MinimumColumn = i;
                 cellQuery.MaximumColumn = i;
+                cellQuery.ReturnEmpty = ReturnEmptyCells.yes;
                 cellFeed = service.Query(cellQuery);
                 StringBuilder sB = new StringBuilder();
                 string language = "";
                 for (int c = 0; c < cellFeed.Entries.Count; c++)
                 {
+                    if (c > ProgramStrings.Count + 2)
+                        break;
                     switch (c)
                     {
                         case 0:
                             language = ((CellEntry)cellFeed.Entries[c]).Value;
                             sB.AppendLine("<Language>");
                             break;
-                        case 1:
+                        case 1: case 2:
                             break;
                         default:
-                            sB.AppendLine("\t<" + ProgramStrings[c - 2] + ">" + ((CellEntry)cellFeed.Entries[c]).Value + "</" + ProgramStrings[c - 2] + ">");
+                            sB.AppendLine("\t<" + ProgramStrings[c - 3] + ">" + ((CellEntry)cellFeed.Entries[c]).Value + "</" + ProgramStrings[c - 3] + ">");
                             break;
                     }
                 }

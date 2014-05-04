@@ -43,6 +43,7 @@
 	<info_TotalHitObjects>Total hitobjects:</info_TotalHitObjects>
 	<text_bytes>bytes</text_bytes>
 	<info_ReplayFrames>Replay frames:</info_ReplayFrames>
+	<info_KeysPressed>Keys pressed:</info_KeysPressed>
 	<text_Spinner>Spinner</text_Spinner>
 	<info_OperationsCompleted>All operations completed.</info_OperationsCompleted>
 	<tab_TimingWindows>Timing Windows</tab_TimingWindows>

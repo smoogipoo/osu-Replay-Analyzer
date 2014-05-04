@@ -24,11 +24,12 @@ namespace ReplayAPI
         public int Count_Geki;
         public int Count_Katu;
         public int Count_Miss;
-
         public int MaxCombo;
         public int IsPerfect;
         public Modifications Mods;
         public List<LifeInfo> LifeData = new List<LifeInfo>();
+        public DateTime PlayTime;
+        public int ReplayLength;
         public List<ReplayInfo> ReplayData = new List<ReplayInfo>();
         public List<ReplayInfo> Clicks = new List<ReplayInfo>();
 
@@ -70,11 +71,9 @@ namespace ReplayAPI
                 IsPerfect = br.ReadByte();
 
                 Mods = (Modifications)Enum.Parse(typeof(Modifications), int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber).ToString(CultureInfo.InvariantCulture));
-                br.ReadByte();
 
-                long currentpos = br.BaseStream.Position;
-
-                try
+                bool lifeExists = int.Parse(GetReversedString(br, 1), NumberStyles.HexNumber) == 0x0B;
+                if (lifeExists)
                 {
                     string tempLifeStr = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br)));
                     foreach (string splitStr in Regex.Split(tempLifeStr, ","))
@@ -87,106 +86,56 @@ namespace ReplayAPI
                         tempLife.Percentage = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1));
                         LifeData.Add(tempLife);
                     }
-
-                    string s = GetReversedString(br, 8);
-                    //     timeStamp = Int64.Parse(s, System.Globalization.NumberStyles.HexNumber);  WhatAmIDoing.jpg?
-
-                    int replayLength = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                    br.ReadBytes(2);
-
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        byte[] bytesToWrite = br.ReadBytes((int)br.BaseStream.Length);
-                        ms.Write(bytesToWrite, 0, bytesToWrite.Length);
-                        ms.Position = 0;
-
-                        byte[] properties = new byte[5];
-                        if (ms.Read(properties, 0, 5) != 5) { }
-                        SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder();
-                        decoder.SetDecoderProperties(properties);
-                        long outSize = 0;
-                        for (int i = 0; i < 8; i++)
-                        {
-                            int v = ms.ReadByte();
-                            if (v < 0)
-                                throw (new Exception("Can't Read 1"));
-                            outSize |= ((long)(byte)v) << (8 * i);
-                        }
-                        long compressedSize = ms.Length - ms.Position;
-                        MemoryStream outStream = new MemoryStream();
-                        decoder.Code(ms, outStream, compressedSize, outSize, null);
-                        outStream.Flush();
-                        outStream.Position = 0;
-
-                        string outString;
-                        using (StreamReader reader = new StreamReader(outStream))
-                        {
-                            outString = reader.ReadToEnd();
-                        }
-                        int lastTime = 0;
-                        foreach (string splitStr in Regex.Split(outString, ","))
-                        {
-                            if (splitStr == "")
-                                continue;
-                            sString tempStr = splitStr;
-                            ReplayInfo tempInfo = new ReplayInfo();
-                            tempInfo.TimeDiff = Convert.ToInt64(tempStr.SubString(0, tempStr.nthDexOf("|", 0)));
-                            lastTime += (int)tempInfo.TimeDiff;
-                            tempInfo.Time = lastTime;
-                            tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
-                            tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
-                            tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
-                            ReplayData.Add(tempInfo);
-                        }
-                    }
                 }
-                catch
+
+                long timeStamp = Int64.Parse(GetReversedString(br, 8), NumberStyles.HexNumber);
+                PlayTime = new DateTime(timeStamp);
+
+                ReplayLength = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
+
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    br.BaseStream.Position = currentpos + 12;
-                    using (MemoryStream ms = new MemoryStream())
+                    byte[] bytesToWrite = br.ReadBytes((int)br.BaseStream.Length);
+                    ms.Write(bytesToWrite, 0, bytesToWrite.Length);
+                    ms.Position = 0;
+
+                    byte[] properties = new byte[5];
+                    if (ms.Read(properties, 0, 5) != 5) { }
+                    SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder();
+                    decoder.SetDecoderProperties(properties);
+                    long outSize = 0;
+                    for (int i = 0; i < 8; i++)
                     {
-                        byte[] bytesToWrite = br.ReadBytes((int)br.BaseStream.Length);
-                        ms.Write(bytesToWrite, 0, bytesToWrite.Length);
-                        ms.Position = 0;
+                        int v = ms.ReadByte();
+                        if (v < 0)
+                            throw (new Exception("Can't Read 1"));
+                        outSize |= ((long)(byte)v) << (8 * i);
+                    }
+                    long compressedSize = ms.Length - ms.Position;
+                    MemoryStream outStream = new MemoryStream();
+                    decoder.Code(ms, outStream, compressedSize, outSize, null);
+                    outStream.Flush();
+                    outStream.Position = 0;
 
-                        byte[] properties = new byte[5];
-                        if (ms.Read(properties, 0, 5) != 5) { }
-                        SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder();
-                        decoder.SetDecoderProperties(properties);
-                        long outSize = 0;
-                        for (int i = 0; i < 8; i++)
-                        {
-                            int v = ms.ReadByte();
-                            if (v < 0)
-                                throw (new Exception("Can't Read 1"));
-                            outSize |= ((long)(byte)v) << (8 * i);
-                        }
-                        long compressedSize = ms.Length - ms.Position;
-                        MemoryStream outStream = new MemoryStream();
-                        decoder.Code(ms, outStream, compressedSize, outSize, null);
-                        outStream.Flush();
-                        outStream.Position = 0;
-
-                        string outString;
-                        using (StreamReader reader = new StreamReader(outStream))
-                        {
-                            outString = reader.ReadToEnd();
-                        }
-                        int lastTime = 0;
-                        foreach (string splitStr in Regex.Split(outString, ","))
-                        {
-                            if (splitStr == "")
-                                continue;
-                            sString tempStr = splitStr;
-                            ReplayInfo tempInfo = new ReplayInfo();
-                            tempInfo.TimeDiff = Convert.ToInt64(tempStr.SubString(0, tempStr.nthDexOf("|", 0)));
-                            lastTime += (int)tempInfo.TimeDiff;
-                            tempInfo.Time = lastTime;
-                            tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
-                            tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
-                            tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
-                            ReplayData.Add(tempInfo);
-                        }
+                    string outString;
+                    using (StreamReader reader = new StreamReader(outStream))
+                    {
+                        outString = reader.ReadToEnd();
+                    }
+                    int lastTime = 0;
+                    foreach (string splitStr in Regex.Split(outString, ","))
+                    {
+                        if (splitStr == "")
+                            continue;
+                        sString tempStr = splitStr;
+                        ReplayInfo tempInfo = new ReplayInfo();
+                        tempInfo.TimeDiff = Convert.ToInt64(tempStr.SubString(0, tempStr.nthDexOf("|", 0)));
+                        lastTime += (int)tempInfo.TimeDiff;
+                        tempInfo.Time = lastTime;
+                        tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
+                        tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
+                        tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
+                        ReplayData.Add(tempInfo);
                     }
                 }
             }

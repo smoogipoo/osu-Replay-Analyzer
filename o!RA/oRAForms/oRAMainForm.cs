@@ -504,7 +504,8 @@ namespace o_RA.oRAForms
 
                 ReplayTimelineLB.Items.Clear();
                 ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10 ? "\t\t" : "\t") + "{Time: " + t.TimeInSeconds + "s; X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
-                ReplayTimelineLB.SelectedIndex = 0;
+                if (ReplayTimelineLB.Items.Count > 0)
+                    ReplayTimelineLB.SelectedIndex = 0;
                 /* End Timing Windows tab */
 
                 oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);

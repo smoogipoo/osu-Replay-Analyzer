@@ -453,6 +453,10 @@ namespace o_RA.oRAForms
                 int inc = 0;
                 int posErrCount = 0;
                 int negErrCount = 0;
+                oRAData.TimingMax = 0;
+                oRAData.TimingMin = 0;
+                oRAData.PositiveErrorAverage = 0;
+                oRAData.NegativeErrorAverage = 0;
                 TWChart.Series[0].Points.Clear();
                 TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
                 TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
@@ -468,7 +472,6 @@ namespace o_RA.oRAForms
                     {
                         iteratedObjects.Add(c);
                         TWChart.Series[0].Points.AddXY(inc, c.Time - hitObject.StartTime);
-                        oRAData.ErrorAverage += c.Time - hitObject.StartTime;
                         if (c.Time - hitObject.StartTime > 0)
                         {
                             oRAData.PositiveErrorAverage += c.Time - hitObject.StartTime;
@@ -484,18 +487,14 @@ namespace o_RA.oRAForms
                 }
                 oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
                 oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
-                oRAData.ErrorAverage = (negErrCount != 0 || posErrCount != 0) ? oRAData.ErrorAverage / (negErrCount + posErrCount) : 0;
+                oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
+                oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
 
                 ReplayTimelineLB.Items.Clear();
                 ReplayTimelineLB.Items.AddRange(iteratedObjects.Select((t, i) => "Frame " + i + ":" + (i < 10 ? "\t\t" : "\t") + "{Time: " + t.TimeInSeconds + "s; X=" + t.X + ", Y=" + t.Y + "; Keys: " + t.Keys + "}").ToArray<object>());
                 if (ReplayTimelineLB.Items.Count > 0)
                     ReplayTimelineLB.SelectedIndex = 0;
-                /* End Timing Windows tab */
 
-                oRAData.TimingMax = Convert.ToInt32(TWChart.Series[0].Points.FindMaxByValue().YValues[0]);
-                oRAData.TimingMin = Convert.ToInt32(TWChart.Series[0].Points.FindMinByValue().YValues[0]);
-
-                /* Start Spinner RPM tab */
                 SRPMChart.Series.Clear();
                 int currentSpinnerNumber = 1;
                 foreach (var spinner in Beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))

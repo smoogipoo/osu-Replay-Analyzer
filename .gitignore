@@ -199,3 +199,7 @@ oRASDK/obj/Debug/oRASDK.pdb
 MapInfoPlugin/obj/Debug/MapInfoPlugin.Properties.Resources.resources
 MapInfoPlugin/obj/Debug/TempPE/Properties.Resources.Designer.cs.dll
 o!RA.v12.suo
+SpinnerRPMPlugin/obj/Debug/SpinnerRPMPlugin.csproj.FileListAbsolute.txt
+SpinnerRPMPlugin/obj/Debug/SpinnerRPMPlugin.csprojResolveAssemblyReference.cache
+SpinnerRPMPlugin/obj/Debug/SpinnerRPMPlugin.dll
+SpinnerRPMPlugin/obj/Debug/SpinnerRPMPlugin.pdb

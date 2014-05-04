@@ -44,7 +44,7 @@ namespace ReplayInfoPlugin
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepKatuCount"], r.Count_Katu.ToString(CultureInfo.InvariantCulture) }));
             customListView1.Items.Add(new ListViewItem());
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMods"], r.Mods.ToString() }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], Math.Abs(oRA.Data.NegativeErrorAverage).ToString(".00") + "ms - " + "+" + oRA.Data.PositiveErrorAverage.ToString(".00") + "ms" }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], "-" + Math.Abs(oRA.Data.NegativeErrorAverage).ToString(".00") + "ms ~ " + "+" + oRA.Data.PositiveErrorAverage.ToString(".00") + "ms" }));
         }
     }
 }

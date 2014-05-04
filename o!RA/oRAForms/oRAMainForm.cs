@@ -5,7 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Xml;
@@ -26,6 +26,7 @@ namespace o_RA.oRAForms
         }
         private XmlReader Locale;
         public static Settings Settings = new Settings();
+        internal static Updater Updater = new Updater();
 
         Replay Replay;
         Beatmap Beatmap;
@@ -43,16 +44,10 @@ namespace o_RA.oRAForms
             InitializeLocale();
             InitializeControls();
             InitializePlugins();
-
-            ReplayTimelineLB.ItemHeight = 20;
-
             InitializeGameDirs();
+            Task.Factory.StartNew(() => Updater.Start(Settings));
+            Task.Factory.StartNew(PopulateLists);
 
-            oRAControls.ProgressToolTip.Tag = Language["info_PopReplays"];
-
-            Thread populateListsThread = new Thread(PopulateLists);
-            populateListsThread.IsBackground = true;
-            populateListsThread.Start();
 
             FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory);
             replayWatcher.NotifyFilter = NotifyFilters.FileName;
@@ -292,6 +287,8 @@ namespace o_RA.oRAForms
 
         private void PopulateLists()
         {
+            oRAControls.ProgressToolTip.Tag = Language["info_PopReplays"];
+
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] files = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 

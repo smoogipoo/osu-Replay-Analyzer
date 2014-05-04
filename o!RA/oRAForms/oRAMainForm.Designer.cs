@@ -166,7 +166,7 @@ namespace o_RA.oRAForms
             this.ReplayTimelineLB.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
             this.ReplayTimelineLB.FormattingEnabled = true;
             this.ReplayTimelineLB.IntegralHeight = false;
-            this.ReplayTimelineLB.ItemHeight = 11;
+            this.ReplayTimelineLB.ItemHeight = 20;
             this.ReplayTimelineLB.Location = new System.Drawing.Point(301, 507);
             this.ReplayTimelineLB.Name = "ReplayTimelineLB";
             this.ReplayTimelineLB.Size = new System.Drawing.Size(715, 222);

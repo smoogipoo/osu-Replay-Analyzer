@@ -404,7 +404,6 @@ namespace o_RA.oRAForms
             if (file.Key != null)
             {
                 Beatmap = new Beatmap(file.Key);
-                oRAData.UpdateStatus(Replay, Beatmap);
 
                 /* Start Timing Windows tab */
                 //Determine the timing windows for 300,100,50
@@ -532,6 +531,7 @@ namespace o_RA.oRAForms
                     SRPMChart.Series.Add(spinnerSeries);
                     currentSpinnerNumber += 1;
                 }
+                oRAData.UpdateStatus(Replay, Beatmap);
             }
         }
         private void ReplayTimeline_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)

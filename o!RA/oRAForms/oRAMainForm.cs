@@ -507,6 +507,8 @@ namespace o_RA.oRAForms
                     ReplayTimeline.Rows[0].Selected = true;
 
                 SRPMChart.Series.Clear();
+                SRPMChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+                SRPMChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
                 int currentSpinnerNumber = 1;
                 foreach (var spinner in Beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
                 {

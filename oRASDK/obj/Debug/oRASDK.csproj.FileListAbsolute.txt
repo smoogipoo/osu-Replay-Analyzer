@@ -9,3 +9,14 @@ D:\Data\Copy\o!RA\oRASDK\obj\Debug\oRASDK.dll
 D:\Data\Copy\o!RA\oRASDK\obj\Debug\oRASDK.pdb
 D:\Data\Copy\o!RA\oRASDK\bin\debug\osu!ReplayAPI.dll
 D:\Data\Copy\o!RA\oRASDK\bin\debug\osu!ReplayAPI.pdb
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\oRASDK.dll
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\oRASDK.pdb
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\oRAInterface.dll
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\osu!BMAPI.dll
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\osu!ReplayAPI.dll
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\oRAInterface.pdb
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\osu!BMAPI.pdb
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\bin\debug\osu!ReplayAPI.pdb
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\obj\Debug\oRASDK.csprojResolveAssemblyReference.cache
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\obj\Debug\oRASDK.dll
+F:\BTSync\Workspace\VS2013\Projects\oRA\oRASDK\obj\Debug\oRASDK.pdb

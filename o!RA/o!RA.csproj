@@ -32,13 +32,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="oRAInterface">
+    <Reference Include="oRAInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLLs\oRAInterface.dll</HintPath>
     </Reference>
-    <Reference Include="osu!BMAPI">
+    <Reference Include="osu!BMAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLLs\osu!BMAPI.dll</HintPath>
     </Reference>
-    <Reference Include="osu!ReplayAPI">
+    <Reference Include="osu!ReplayAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLLs\osu!ReplayAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />

@@ -514,18 +514,18 @@ namespace o_RA.oRAForms
                 }
                 //Calculate unstable rate
                 oRAData.UnstableRate /= inc;
-                double temp = 0;
+                double variance = 0;
                 foreach (BaseCircle hitObject in Beatmap.HitObjects)
                 {
-                    ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
-                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
-                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
+                    ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && iteratedObjects.Contains(click)) ??
+                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && iteratedObjects.Contains(click)) ??
+                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && iteratedObjects.Contains(click));
                     if (c != null)
                     {
-                        temp += Math.Pow(c.Time - hitObject.StartTime - oRAData.UnstableRate, 2);
+                        variance += Math.Pow(c.Time - hitObject.StartTime - oRAData.UnstableRate, 2);
                     }
                 }
-                oRAData.UnstableRate = Math.Round(Math.Sqrt(temp / Replay.MaxCombo) * 10, 2);
+                oRAData.UnstableRate = Math.Round(Math.Sqrt(variance / iteratedObjects.Count) * 10, 2);
 
                 TWChart.Series["50 Hit Region"].Points.Clear();
                 TWChart.Series["50 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[2], -oRAData.TimingWindows[2]);

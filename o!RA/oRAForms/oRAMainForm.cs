@@ -364,13 +364,7 @@ namespace o_RA.oRAForms
 
         private static void BeatmapCreated(object sender, FileSystemEventArgs e)
         {
-            using (var md5 = MD5.Create())
-            {
-                using (var stream = File.OpenRead(e.FullPath))
-                {
-                    oRAData.BeatmapHashes.TryAdd(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
-                }
-            }
+            oRAData.BeatmapHashes.TryAdd(e.FullPath,MD5FromFile(e.FullPath));
         }
         private static void BeatmapDeleted(object sender, FileSystemEventArgs e)
         {
@@ -381,11 +375,16 @@ namespace o_RA.oRAForms
         {
             string s;
             oRAData.BeatmapHashes.TryRemove(e.OldFullPath, out s);
-            using (var md5 = MD5.Create())
+            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
+        }
+
+        private static string MD5FromFile(string filename)
+        {
+            using (MD5 md5 = MD5.Create())
             {
-                using (var stream = File.OpenRead(e.FullPath))
+                using (FileStream stream = File.OpenRead(fileName))
                 {
-                    oRAData.BeatmapHashes.TryAdd(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
                 }
             }
         }

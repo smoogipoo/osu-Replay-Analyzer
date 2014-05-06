@@ -314,14 +314,14 @@ namespace o_RA.oRAForms
             {
                 foreach (string file in beatmapFiles)
                 {
-                        using (var stream = File.OpenRead(file))
+                    using (var stream = File.OpenRead(file))
+                    {
+                        oRAData.BeatmapHashes.TryAdd(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                        Progress.BeginInvoke((MethodInvoker)delegate
                         {
-                            oRAData.BeatmapHashes.TryAdd(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
-                            Progress.BeginInvoke((MethodInvoker)delegate
-                            {
-                                Progress.Value += 1;
-                            });
-                        }
+                            Progress.Value += 1;
+                        });
+                    }
                 }
             }
             Progress.Value = 0;
@@ -360,7 +360,7 @@ namespace o_RA.oRAForms
 
         private static void BeatmapCreated(object sender, FileSystemEventArgs e)
         {
-            oRAData.BeatmapHashes.TryAdd(e.FullPath,MD5FromFile(e.FullPath));
+            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
         }
         private static void BeatmapDeleted(object sender, FileSystemEventArgs e)
         {
@@ -374,7 +374,7 @@ namespace o_RA.oRAForms
             oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
         }
 
-        private static string MD5FromFile(string filename)
+        private static string MD5FromFile(string fileName)
         {
             using (MD5 md5 = MD5.Create())
             {
@@ -546,17 +546,17 @@ namespace o_RA.oRAForms
                     TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
                     break;
                 case MouseButtons.Left:
-                {
-                    HitTestResult result = TWChart.HitTest(e.X, e.Y);
-                    if (result.ChartElementType == ChartElementType.DataPoint)
                     {
-                        var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
-                        if (point != null)
-                            point.Color = oRAColours.Colour_BG_P1;
-                        TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
-                        ReplayTimeline.Rows[result.PointIndex].Selected = true;
+                        HitTestResult result = TWChart.HitTest(e.X, e.Y);
+                        if (result.ChartElementType == ChartElementType.DataPoint)
+                        {
+                            var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
+                            if (point != null)
+                                point.Color = oRAColours.Colour_BG_P1;
+                            TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
+                            ReplayTimeline.Rows[result.PointIndex].Selected = true;
+                        }
                     }
-                }
                     break;
             }
         }

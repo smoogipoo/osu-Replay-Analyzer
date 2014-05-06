@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using o_RA.oRAForms;
 
 namespace o_RA.oRAControls
 {
@@ -71,6 +72,7 @@ namespace o_RA.oRAControls
                 Icon_Hot = Properties.Resources.Menu_H,
                 Icon_Normal = Properties.Resources.Menu_N,
                 Colour_Hot = oRAColours.Colour_BG_Main,
+                Text = @"Expand Tabs",
             };
             expandLabel.Paint += PaintOverride;
             expandLabel.MouseDown += ExpandTC;

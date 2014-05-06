@@ -41,7 +41,6 @@ namespace o_RA.oRAForms
         private void Form1_Load(object sender, EventArgs e)
         {
             InitializeLocale();
-            InitializeControls();
             InitializePlugins();
             InitializeGameDirs();
             Task.Factory.StartNew(() => Updater.Start(Settings));
@@ -107,79 +106,6 @@ namespace o_RA.oRAForms
             }
         }
 
-        private void InitializeControls()
-        {
-            //Timing Windows Chart
-            ChartArea chartArea1 = new ChartArea();
-            Legend legend1 = new Legend();
-            Series series1 = new Series("50 Hit Region")
-            {
-                ChartArea = "ChartArea1",
-                ChartType = SeriesChartType.Range,
-                Color = oRAColours.Colour_50_Region,
-                IsVisibleInLegend = false
-            };
-            Series series2 = new Series("100 Hit Region")
-            {
-                ChartArea = "ChartArea1",
-                ChartType = SeriesChartType.Range,
-                Color = oRAColours.Colour_100_Region,
-                IsVisibleInLegend = false
-            };
-            Series series3 = new Series("300 Hit Region")
-            {
-                ChartArea = "ChartArea1",
-                ChartType = SeriesChartType.Range,
-                Color = oRAColours.Colour_300_Region,
-                IsVisibleInLegend = false
-            };
-            Series series4 = new Series
-            {
-                ChartArea = "ChartArea1",
-                ChartType = SeriesChartType.StackedColumn,
-                Color = oRAColours.Colour_BG_P1,
-                Legend = "Legend1",
-                Name = Language["text_TimingWindow"]
-            };
-            oRAPage tabPage1 = new oRAPage();
-            chartArea1.AxisX.Title = "Clicks";
-            chartArea1.AxisY.Title = "Error rate (ms)";
-            chartArea1.AxisY.MinorGrid.Enabled = true;
-            chartArea1.AxisY.MinorGrid.LineColor = oRAColours.Colour_BG_P0;
-            chartArea1.BackColor = oRAColours.Colour_BG_Main;
-            chartArea1.CursorX.IsUserSelectionEnabled = true;
-            chartArea1.Name = "ChartArea1";
-            legend1.Alignment = StringAlignment.Center;
-            legend1.Docking = Docking.Bottom;
-            legend1.Font = oRAFonts.Font_Description;
-            legend1.IsTextAutoFit = false;
-            legend1.BackColor = oRAColours.Colour_BG_Main;
-            legend1.ForeColor = oRAColours.Colour_BG_P1;
-            legend1.Name = "Legend1";
-
-            TWChart.BackColor = oRAColours.Colour_BG_Main;
-            TWChart.ChartAreas.Add(chartArea1);
-            TWChart.Dock = DockStyle.Fill;
-            TWChart.Legends.Add(legend1);
-            TWChart.Name = "TWChart";
-            TWChart.Palette = ChartColorPalette.None;
-            TWChart.Series.Add(series1);
-            TWChart.Series.Add(series2);
-            TWChart.Series.Add(series3);
-            TWChart.Series.Add(series4);
-            TWChart.TabIndex = 9;
-            TWChart.Text = @"Timing Windows Chart";
-            TWChart.MouseClick += TWChart_MouseClick;
-            TWChart.MouseMove += TWChart_MouseMove;
-            tabPage1.Name = Language["tab_TimingWindows"];
-            tabPage1.Description = "";
-            tabPage1.Contents = TWChart;
-            tabPage1.Icon_Normal = Properties.Resources.TimingGraph_N;
-            tabPage1.Icon_Hot = Properties.Resources.TimingGraph_H;
-
-            MainContainer.TabPages.Add(tabPage1);
-        }
-
         private void InitializePlugins()
         {
             //Initialize plugin interface
@@ -189,6 +115,7 @@ namespace o_RA.oRAForms
             oRAData.Replays = new List<TreeNode>();
             oRAData.BeatmapHashes = new ConcurrentDictionary<string, string>();
             oRAData.TimingWindows = new double[3];
+            oRAData.TimingDifference = new List<int>();
             oRAControls.ProgressToolTip = new ToolTip();
             oRAControls.FrameTimeline = ReplayTimeline;
 
@@ -465,7 +392,7 @@ namespace o_RA.oRAForms
                     if (c != null)
                     {
                         iteratedObjects.Add(c);
-                        TWChart.Series[Language["text_TimingWindow"]].Points.AddXY(inc, c.Time - hitObject.StartTime);
+                        oRAData.TimingDifference.Add(c.Time - hitObject.StartTime);
                         if (c.Time - hitObject.StartTime > 0)
                         {
                             oRAData.PositiveErrorAverage += c.Time - hitObject.StartTime;
@@ -482,27 +409,16 @@ namespace o_RA.oRAForms
                 }
                 oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
                 oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
-                if (TWChart.Series[Language["text_TimingWindow"]].Points.Count > 0)
+                if (oRAData.TimingDifference.Count > 0)
                 {
-                    var findMaxByValue = TWChart.Series[Language["text_TimingWindow"]].Points.FindMaxByValue();
-                    var findMinByValue = TWChart.Series[Language["text_TimingWindow"]].Points.FindMinByValue();
-                    oRAData.TimingMax = findMaxByValue != null ? Convert.ToInt32(findMaxByValue.YValues[0]) : 0;
-                    oRAData.TimingMin = findMinByValue != null ? Convert.ToInt32(findMinByValue.YValues[0]) : 0;
+                    oRAData.TimingMax = oRAData.TimingDifference.Max();
+                    oRAData.TimingMin = oRAData.TimingDifference.Min();
                 }
+
                 //Calculate unstable rate
                 oRAData.UnstableRate /= inc;
-                double variance = 0;
-                foreach (BaseCircle hitObject in Beatmap.HitObjects)
-                {
-                    ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && iteratedObjects.Contains(click)) ??
-                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && iteratedObjects.Contains(click)) ??
-                                     Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && iteratedObjects.Contains(click));
-                    if (c != null)
-                    {
-                        variance += Math.Pow(c.Time - hitObject.StartTime - oRAData.UnstableRate, 2);
-                    }
-                }
-                oRAData.UnstableRate = Math.Round(Math.Sqrt(variance / iteratedObjects.Count) * 10, 2);
+                double variance = oRAData.TimingDifference.Aggregate((v, newValue) => v + (int)Math.Pow(newValue, 2));
+                oRAData.UnstableRate = Math.Round(Math.Sqrt(variance / oRAData.TimingDifference.Count) * 10, 2);
 
                 TWChart.Series["50 Hit Region"].Points.Clear();
                 TWChart.Series["50 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[2], -oRAData.TimingWindows[2]);
@@ -523,12 +439,9 @@ namespace o_RA.oRAForms
         private void ReplayTimeline_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)
         {
             if (e.StateChanged != DataGridViewElementStates.Selected) return;
-            if (e.Row.Index != -1)
+            if (e.Row.Index != -1 && e.Row.Index != oRAData.CurrentFrame)
             {
-                var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
-                if (point != null)
-                    point.Color = oRAColours.Colour_BG_P1;
-                TWChart.Series[Language["text_TimingWindow"]].Points[e.Row.Index].Color = oRAColours.Colour_Item_BG_0;
+                oRAData.ChangeFrame(e.Row.Index);
             }
         }
 
@@ -540,48 +453,6 @@ namespace o_RA.oRAForms
         private void Progress_MouseLeave(object sender, EventArgs e)
         {
             oRAControls.ProgressToolTip.Hide(Progress);
-        }
-
-        private void TWChart_MouseClick(object sender, MouseEventArgs e)
-        {
-            switch (e.Button)
-            {
-                case MouseButtons.Right:
-                    TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
-                    TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-                    break;
-                case MouseButtons.Left:
-                {
-                    HitTestResult result = TWChart.HitTest(e.X, e.Y);
-                    if (result.ChartElementType == ChartElementType.DataPoint)
-                    {
-                        var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
-                        if (point != null)
-                            point.Color = oRAColours.Colour_BG_P1;
-                        TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
-                        ReplayTimeline.Rows[result.PointIndex].Selected = true;
-                    }
-                }
-                    break;
-            }
-        }
-
-        private void TWChart_MouseMove(object sender, MouseEventArgs e)
-        {
-            HitTestResult result = TWChart.HitTest(e.X, e.Y);
-
-            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < TWChart.Series[Language["text_TimingWindow"]].Points.Count)
-            {
-                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].XValue)
-                {
-                    ChartToolTip.Tag = (int)TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].XValue;
-                    ChartToolTip.SetToolTip(TWChart, TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].YValues[0] + "ms");
-                }
-            }
-            else
-            {
-                ChartToolTip.Hide(TWChart);
-            }
         }
 
         private void settingsToolStripMenuItem1_Click(object sender, EventArgs e)

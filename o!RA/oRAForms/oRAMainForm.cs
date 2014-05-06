@@ -314,8 +314,6 @@ namespace o_RA.oRAForms
             {
                 foreach (string file in beatmapFiles)
                 {
-                    try
-                    {
                         using (var stream = File.OpenRead(file))
                         {
                             oRAData.BeatmapHashes.TryAdd(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
@@ -324,8 +322,6 @@ namespace o_RA.oRAForms
                                 Progress.Value += 1;
                             });
                         }
-                    }
-                    catch { }
                 }
             }
             Progress.Value = 0;

@@ -9,8 +9,7 @@ namespace o_RA
     public class DBHelper
     {
         private readonly SqlCeConnection LocalConnection = null;
-        private static string _dbPath = System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf");
-        private static string _connString = @"Data Source='" + _dbPath + @"';Max Database Size=1024;";
+        private static string _connString = @"Data Source='" + System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;";
 
         public DBHelper()
         {

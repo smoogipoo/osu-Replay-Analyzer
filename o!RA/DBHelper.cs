@@ -14,12 +14,7 @@ namespace o_RA
         public DBHelper()
         {
             LocalConnection = new SqlCeConnection(_connString);
-            OpenConnection();
-        }
-
-        private void OpenConnection()
-        {
-            LocalConnection.Open();
+            LocalConnection.Open(); ;
         }
 
         //one-way access, good for large amoutns of data
@@ -31,7 +26,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open(); ;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -60,7 +55,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open(); ;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -99,7 +94,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open(); ;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -133,7 +128,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open(); ;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -175,7 +170,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open(); ;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -205,7 +200,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open();;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -244,7 +239,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open();;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -275,7 +270,7 @@ namespace o_RA
 
             try
             {
-                OpenConnection();
+                LocalConnection.Open(); ;
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;

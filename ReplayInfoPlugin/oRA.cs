@@ -9,9 +9,9 @@ namespace ReplayInfoPlugin
         #region Plugin Constants (Set these)
         public static string Name = "Replay Information";
         public static string Description = "Displays information about the selected replay.";
-        public static string Author = "smoogipooo";
+        public static string Author = "o!RA Developers";
         public static string Version = "1.0.0";
-        public static string HomePage = "http://smgi.me";
+        public static string HomePage = "";
 
         public static ToolStripMenuItem PluginMenuItem;
         public static UserControl PluginTabItem = new MainForm();

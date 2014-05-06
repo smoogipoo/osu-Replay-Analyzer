@@ -48,13 +48,17 @@ namespace o_RA.oRAForms
             Task.Factory.StartNew(PopulateLists);
 
 
-            FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory);
-            replayWatcher.NotifyFilter = NotifyFilters.FileName;
-            replayWatcher.Filter = "*.osr";
-            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(oRAData.BeatmapDirectory);
-            replayWatcher.NotifyFilter = NotifyFilters.FileName;
-            beatmapWatcher.Filter = "*.osu";
-            beatmapWatcher.IncludeSubdirectories = true;
+            FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory)
+            {
+                NotifyFilter = NotifyFilters.FileName,
+                Filter = "*.osr",
+            };
+            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(oRAData.BeatmapDirectory)
+            {
+                NotifyFilter = NotifyFilters.FileName,
+                Filter = "*.osu",
+                IncludeSubdirectories = true,
+            };
 
             replayWatcher.Created += ReplayCreated;
             replayWatcher.Deleted += ReplayDeleted;
@@ -107,9 +111,7 @@ namespace o_RA.oRAForms
         {
             //Timing Windows Chart
             ChartArea chartArea1 = new ChartArea();
-            ChartArea chartArea2 = new ChartArea();
             Legend legend1 = new Legend();
-            Legend legend2 = new Legend();
             Series series1 = new Series("50 Hit Region")
             {
                 ChartArea = "ChartArea1",
@@ -131,7 +133,7 @@ namespace o_RA.oRAForms
                 Color = oRAColours.Colour_300_Region,
                 IsVisibleInLegend = false
             };
-            Series series4 = new Series()
+            Series series4 = new Series
             {
                 ChartArea = "ChartArea1",
                 ChartType = SeriesChartType.StackedColumn,
@@ -140,7 +142,6 @@ namespace o_RA.oRAForms
                 Name = Language["text_TimingWindow"]
             };
             oRAPage tabPage1 = new oRAPage();
-            oRAPage tabPage2 = new oRAPage();
             chartArea1.AxisX.Title = "Clicks";
             chartArea1.AxisY.Title = "Error rate (ms)";
             chartArea1.AxisY.MinorGrid.Enabled = true;
@@ -176,35 +177,7 @@ namespace o_RA.oRAForms
             tabPage1.Icon_Normal = Properties.Resources.TimingGraph_N;
             tabPage1.Icon_Hot = Properties.Resources.TimingGraph_H;
 
-            //Spinner RPM Chart
-            chartArea2.BackColor = oRAColours.Colour_BG_Main;
-            chartArea2.CursorX.IsUserSelectionEnabled = true;
-            chartArea2.Name = "ChartArea2";
-            legend2.Alignment = StringAlignment.Center;
-            legend2.Docking = Docking.Bottom;
-            legend2.Font = oRAFonts.Font_Description;
-            legend2.IsTextAutoFit = false;
-            legend2.BackColor = oRAColours.Colour_BG_Main;
-            legend2.ForeColor = oRAColours.Colour_BG_P1;
-            legend2.Name = "Legend2";
-            SRPMChart.BackColor = oRAColours.Colour_BG_Main;
-            SRPMChart.ChartAreas.Add(chartArea2);
-            SRPMChart.Dock = DockStyle.Fill;
-            SRPMChart.Legends.Add(legend2);
-            SRPMChart.Name = "SRPMChart";
-            SRPMChart.Palette = ChartColorPalette.None;
-            SRPMChart.TabIndex = 10;
-            SRPMChart.Text = @"Spinner RPM Chart";
-            SRPMChart.MouseClick += SRPMChart_MouseClick;
-            SRPMChart.MouseDown += SRPMChart_MouseDown;
-            SRPMChart.MouseMove += SRPMChart_MouseMove;
-            tabPage2.Name = Language["tab_SpinnerRPM"];
-            tabPage2.Contents = SRPMChart;
-            tabPage2.Icon_Normal = Properties.Resources.SpinnerRPMGraph_N;
-            tabPage2.Icon_Hot = Properties.Resources.SpinnerRPMGraph_H;
-
             MainContainer.TabPages.Add(tabPage1);
-            MainContainer.TabPages.Add(tabPage2);
         }
 
         private void InitializePlugins()
@@ -232,12 +205,14 @@ namespace o_RA.oRAForms
                     if (p.Instance.p_PluginTabItem != null)
                     {
                         p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
-                        oRAPage page = new oRAPage();
-                        page.Description = p.Instance.p_Description;
-                        page.Name = p.Instance.p_Name;
-                        page.Contents = p.Instance.p_PluginTabItem;
-                        page.Icon_Hot = p.Instance.p_PluginTabIcon_H;
-                        page.Icon_Normal = p.Instance.p_PluginTabIcon_N;
+                        oRAPage page = new oRAPage
+                        {
+                            Description = p.Instance.p_Description,
+                            Name = p.Instance.p_Name,
+                            Contents = p.Instance.p_PluginTabItem,
+                            Icon_Hot = p.Instance.p_PluginTabIcon_H,
+                            Icon_Normal = p.Instance.p_PluginTabIcon_N,
+                        };
                         MainContainer.TabPages.Add(page);
                     }
                     if (p.Instance.p_PluginMenuItem != null)
@@ -509,8 +484,10 @@ namespace o_RA.oRAForms
                 oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
                 if (TWChart.Series[Language["text_TimingWindow"]].Points.Count > 0)
                 {
-                    oRAData.TimingMax = Convert.ToInt32(TWChart.Series[Language["text_TimingWindow"]].Points.FindMaxByValue().YValues[0]);
-                    oRAData.TimingMin = Convert.ToInt32(TWChart.Series[Language["text_TimingWindow"]].Points.FindMinByValue().YValues[0]);
+                    var findMaxByValue = TWChart.Series[Language["text_TimingWindow"]].Points.FindMaxByValue();
+                    var findMinByValue = TWChart.Series[Language["text_TimingWindow"]].Points.FindMinByValue();
+                    oRAData.TimingMax = findMaxByValue != null ? Convert.ToInt32(findMaxByValue.YValues[0]) : 0;
+                    oRAData.TimingMin = findMinByValue != null ? Convert.ToInt32(findMinByValue.YValues[0]) : 0;
                 }
                 //Calculate unstable rate
                 oRAData.UnstableRate /= inc;
@@ -540,52 +517,6 @@ namespace o_RA.oRAForms
                 ReplayTimeline.DataSource = iteratedObjects;
                 if (ReplayTimeline.Rows.Count > 0)
                     ReplayTimeline.Rows[0].Selected = true;
-
-                SRPMChart.Series.Clear();
-                SRPMChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
-                SRPMChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-                int currentSpinnerNumber = 1;
-                foreach (var spinner in Beatmap.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
-                {
-                    PointInfo currentPosition = new PointInfo(-500, -500);
-                    Dictionary<double, int> RPMCount = new Dictionary<double, int>();
-                    double currentTime = 0;
-                    foreach (ReplayInfo repPoint in Replay.ReplayFrames.Where(repPoint => repPoint.Time < ((SpinnerInfo)spinner).EndTime && repPoint.Time > spinner.StartTime))
-                    {
-                        if ((int)currentPosition.X == -500)
-                        {
-                            currentPosition.X = repPoint.X;
-                            currentPosition.Y = repPoint.Y;
-                        }
-                        else
-                        {
-                            currentTime += repPoint.TimeDiff;
-                            if (RPMCount.Keys.Contains(currentTime))
-                                continue;
-                            double ptsDist = currentPosition.DistanceTo(new PointInfo(repPoint.X, repPoint.Y));
-                            double p1CDist = currentPosition.DistanceTo(spinner.Location);
-                            double p2CDist = new PointInfo(repPoint.X, repPoint.Y).DistanceTo(spinner.Location);
-                            double travelDegrees = Math.Acos((Math.Pow(p1CDist, 2) + Math.Pow(p2CDist, 2) - Math.Pow(ptsDist, 2)) / (2 * p1CDist * p2CDist)) * (180 / Math.PI);
-                            RPMCount.Add(currentTime, (int)Math.Min((travelDegrees / (0.006 * repPoint.TimeDiff)), 477));
-                            currentPosition.X = repPoint.X;
-                            currentPosition.Y = repPoint.Y;
-                        }
-                    }
-                    int count = 0;
-                    int valueAmnt = 0;
-                    Series spinnerSeries = new Series();
-                    spinnerSeries.ChartType = SeriesChartType.Spline;
-                    spinnerSeries.BorderWidth = 2;
-                    spinnerSeries.Name = Language["text_Spinner"] + " " + currentSpinnerNumber;
-                    foreach (var frame in RPMCount)
-                    {
-                        valueAmnt += frame.Value;
-                        count += 1;
-                        spinnerSeries.Points.AddXY(frame.Key, Convert.ToInt32(valueAmnt / count));
-                    }
-                    SRPMChart.Series.Add(spinnerSeries);
-                    currentSpinnerNumber += 1;
-                }
                 oRAData.UpdateStatus(Replay, Beatmap);
             }
         }
@@ -613,22 +544,25 @@ namespace o_RA.oRAForms
 
         private void TWChart_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            switch (e.Button)
             {
-                TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
-                TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-            }
-            else if (e.Button == MouseButtons.Left)
-            {
-                HitTestResult result = TWChart.HitTest(e.X, e.Y);
-                if (result.ChartElementType == ChartElementType.DataPoint)
+                case MouseButtons.Right:
+                    TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+                    TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
+                    break;
+                case MouseButtons.Left:
                 {
-                    var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
-                    if (point != null)
-                        point.Color = oRAColours.Colour_BG_P1;
-                    TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
-                    ReplayTimeline.Rows[result.PointIndex].Selected = true;
+                    HitTestResult result = TWChart.HitTest(e.X, e.Y);
+                    if (result.ChartElementType == ChartElementType.DataPoint)
+                    {
+                        var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
+                        if (point != null)
+                            point.Color = oRAColours.Colour_BG_P1;
+                        TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
+                        ReplayTimeline.Rows[result.PointIndex].Selected = true;
+                    }
                 }
+                    break;
             }
         }
 
@@ -647,86 +581,6 @@ namespace o_RA.oRAForms
             else
             {
                 ChartToolTip.Hide(TWChart);
-            }
-        }
-
-        private void SRPMChart_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                SRPMChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
-                SRPMChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-            }
-        }
-
-        private void SRPMChart_MouseMove(object sender, MouseEventArgs e)
-        {
-            HitTestResult result = SRPMChart.HitTest(e.X, e.Y);
-            if (result.PointIndex != -1 && result.Series != null && result.Series.BorderWidth != 0)
-            {
-                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s, result.Series) && s.BorderWidth != 0))
-                {
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
-                }
-                result.Series.BorderWidth = 3;
-            }
-            else
-            {
-                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s.Tag, "1") && s.BorderWidth != 0))
-                {
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
-                }
-            }
-
-            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < SRPMChart.Series[0].Points.Count && !Equals(result.Series.Tag, "0"))
-            {
-                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)result.Series.Points[result.PointIndex].XValue)
-                {
-                    ChartToolTip.Tag = (int)result.Series.Points[result.PointIndex].XValue;
-                    ChartToolTip.SetToolTip(SRPMChart, result.Series.Points[result.PointIndex].YValues[0] + "RPM");
-                }
-            }
-            else
-            {
-                ChartToolTip.Hide(SRPMChart);
-            }
-        }
-
-        private void SRPMChart_MouseDown(object sender, MouseEventArgs e)
-        {
-            HitTestResult result = SRPMChart.HitTest(e.X, e.Y);
-            if (result.PointIndex != -1 && result.Series != null)
-            {
-                if (result.Series.BorderWidth == 0)
-                {
-                    foreach (Series s in SRPMChart.Series)
-                    {
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = true;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "";
-                    }
-                }
-                else
-                {
-                    foreach (Series s in SRPMChart.Series.Where(s => !Equals(s, result.Series)))
-                    {
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 0;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = false;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "0";
-                    }
-                    result.Series.BorderWidth = 3;
-                    result.Series.Tag = "1";
-                }
-
-            }
-            else
-            {
-                foreach (Series s in SRPMChart.Series)
-                {
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = true;
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "";
-                }
             }
         }
 

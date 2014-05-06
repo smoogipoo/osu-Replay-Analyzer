@@ -310,19 +310,13 @@ namespace o_RA.oRAForms
                 Progress.Value = 0;
                 Progress.Maximum = beatmapFiles.Length;
             });
-            using (var md5 = MD5.Create())
+            foreach (string file in beatmapFiles)
             {
-                foreach (string file in beatmapFiles)
+                oRAData.BeatmapHashes.TryAdd(file, MD5FromFile(file));
+                Progress.BeginInvoke((MethodInvoker)delegate
                 {
-                    using (var stream = File.OpenRead(file))
-                    {
-                        oRAData.BeatmapHashes.TryAdd(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
-                        Progress.BeginInvoke((MethodInvoker)delegate
-                        {
-                            Progress.Value += 1;
-                        });
-                    }
-                }
+                    Progress.Value += 1;
+                });
             }
             Progress.Value = 0;
             oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
@@ -58,30 +59,48 @@ namespace o_RA.oRAControls
     public class PageCollection : UserControl
     {
         public Panel TabContainer { get; set; }
-
         public List<oRAPage> Pages = new List<oRAPage>();
-
         internal static int TotalHeight = 0;
+
+        public PageCollection()
+        {
+            oRALabel expandLabel = new oRALabel
+            {
+                Width = 60,
+                Height = 60,
+                Icon_Hot = Properties.Resources.Menu_H,
+                Icon_Normal = Properties.Resources.Menu_N,
+                Colour_Hot = oRAColours.Colour_BG_Main,
+            };
+            expandLabel.Paint += PaintOverride;
+            expandLabel.MouseDown += ExpandTC;
+            Controls.Add(expandLabel);
+            TotalHeight += 61;
+        }
+
         public void Add(oRAPage Page)
         {
             Pages.Add(Page);
 
-            oRALabel l = new oRALabel();
-            l.AutoSize = false;
-            l.Height = 60;
-            l.Width = 60;
-            l.Icon_Normal = Page.Icon_Normal;
-            l.Icon_Hot = Page.Icon_Hot;
-            l.Location = new Point(0, TotalHeight);
+            oRALabel l = new oRALabel
+            {
+                AutoSize = false,
+                Width = 60,
+                Height = 60,
+                Icon_Normal = Page.Icon_Normal,
+                Icon_Hot = Page.Icon_Hot,
+                Location = new Point(0, TotalHeight),
+                Index = Pages.Count - 1,
+                Text = Page.Name,
+            };
             l.MouseDown += ChangeTab;
             l.Paint += PaintOverride;
-            l.Tag = Pages.Count - 1 + "0";
             Controls.Add(l);
 
             TabContainer.Controls.Add((Control)Page.Contents);
             if (Pages.Count == 1)
-            {    
-                l.Tag = l.Tag.ToString().Substring(0, 1) + "1";
+            {  
+                l.Activated = true;
                 l.Refresh();
             }
             else
@@ -90,32 +109,50 @@ namespace o_RA.oRAControls
             }
             TotalHeight += 61;
         }
-        private void ChangeTab(object sender, EventArgs e)
+
+        private void ExpandTC(object sender, EventArgs e)
         {
-            if (((oRALabel)sender).Tag.ToString().Substring(1, 1) == "1")
-            {
-                return;
-            }
-            TabContainer.Controls.Clear();
-            TabContainer.Controls.Add((Control)Pages[Convert.ToInt32(((oRALabel)sender).Tag.ToString().Substring(0, 1))].Contents);
+            ((oRALabel)sender).Activated = !((oRALabel)sender).Activated;
+            ((oRALabel)sender).Parent.Width = ((oRALabel)sender).Activated ? 200 : 60;
             foreach (oRALabel l in Controls)
             {
-                l.Tag = l.Tag.ToString().Substring(0, 1) + ((oRALabel)sender == l ? "1" : "0");
+                l.Width = ((oRALabel)sender).Activated ? 200 : 60;
                 l.Refresh();
             }
         }
 
-        static private void PaintOverride(object sender, PaintEventArgs e)
+        private void ChangeTab(object sender, EventArgs e)
         {
-            if (((oRALabel)sender).Tag.ToString().Substring(1, 1) == "1")
+            if (((oRALabel)sender).Activated)
             {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_0), 0, 0, ((oRALabel)sender).Width, ((oRALabel)sender).Height);
+                return;
+            }
+            TabContainer.Controls.Clear();
+            TabContainer.Controls.Add((Control)Pages[((oRALabel)sender).Index].Contents);
+            foreach (oRALabel l in Controls)
+            {
+                if (l.Index != -1)
+                    l.Activated = sender == l;
+                l.Refresh();
+            }
+        }
+
+        private void PaintOverride(object sender, PaintEventArgs e)
+        {
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            if (((oRALabel)sender).Activated)
+            {
+                e.Graphics.FillRectangle(new SolidBrush(((oRALabel)sender).Colour_Hot), 0, 0, ((oRALabel)sender).Width, ((oRALabel)sender).Height);
                 e.Graphics.DrawImage(((oRALabel)sender).Icon_Hot, 5, 5, 50, 50);
+                if (((oRALabel)Controls[0]).Activated)
+                    e.Graphics.DrawString(((oRALabel)sender).Text, oRAFonts.Font_Title, new SolidBrush(((oRALabel)sender).Colour_Normal), new RectangleF(60, 30 - e.Graphics.MeasureString(((oRALabel)sender).Text, oRAFonts.Font_Title).Height / 2, 140, e.Graphics.MeasureString(((oRALabel)sender).Text, oRAFonts.Font_Title).Height));                    
             }
             else
             {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), 0, 0, ((oRALabel)sender).Width, ((oRALabel)sender).Height);
+                e.Graphics.FillRectangle(new SolidBrush(((oRALabel)sender).Colour_Normal), 0, 0, ((oRALabel)sender).Width, ((oRALabel)sender).Height);
                 e.Graphics.DrawImage(((oRALabel)sender).Icon_Normal, 5, 5, 50, 50);
+                if (((oRALabel)Controls[0]).Activated)
+                    e.Graphics.DrawString(((oRALabel)sender).Text, oRAFonts.Font_Title, new SolidBrush(((oRALabel)sender).Colour_Hot), new RectangleF(60, 30 - e.Graphics.MeasureString(((oRALabel)sender).Text, oRAFonts.Font_Title).Height / 2, 140, e.Graphics.MeasureString(((oRALabel)sender).Text, oRAFonts.Font_Title).Height));                    
             }
         }
 
@@ -129,5 +166,9 @@ namespace o_RA.oRAControls
     {
         public Bitmap Icon_Normal { get; set; }
         public Bitmap Icon_Hot { get; set; }
+        public Color Colour_Normal = oRAColours.Colour_BG_P0;
+        public Color Colour_Hot = oRAColours.Colour_Item_BG_0;
+        public int Index = -1;
+        public bool Activated;
     }
 }

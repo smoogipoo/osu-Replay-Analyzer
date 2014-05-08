@@ -105,7 +105,7 @@ namespace o_RA.oRAControls
 
             TabContainer.Controls.Add((Control)Page.Contents);
             if (Pages.Count == 1)
-            {  
+            {
                 l.Activated = true;
                 l.Refresh();
             }
@@ -173,7 +173,7 @@ namespace o_RA.oRAControls
                 if (((oRALabel)Controls[0]).Activated)
                 {
                     e.Graphics.DrawString(label.Text, oRAFonts.Font_Title, new SolidBrush(label.Colour_Normal), new RectangleF(60, 30 - textSize.Height / 2, 140, textSize.Height), sF);
-                    label.HasEllipsis = textSize.Width > 140;                    
+                    label.HasEllipsis = textSize.Width > 140;
                 }
             }
             else
@@ -192,16 +192,5 @@ namespace o_RA.oRAControls
         {
             return Pages.ToArray();
         }
-    }
-
-    public class oRALabel : Label
-    {
-        public Bitmap Icon_Normal { get; set; }
-        public Bitmap Icon_Hot { get; set; }
-        public Color Colour_Normal = oRAColours.Colour_BG_P0;
-        public Color Colour_Hot = oRAColours.Colour_Item_BG_0;
-        public int Index = -1;
-        public bool Activated;
-        public bool HasEllipsis;
     }
 }

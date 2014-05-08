@@ -86,6 +86,11 @@
     <None Include="Resources\Icon_N.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>robocopy "$(TargetDir) " "$(SolutionDir)o!RA\bin\$(ConfigurationName)\Plugins\ReplayInfo" "$(TargetFileName)"
+rem suppress successful robocopy exit statuses, only report genuine errors
+set/A errlev="%25ERRORLEVEL%25 &amp; 24"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

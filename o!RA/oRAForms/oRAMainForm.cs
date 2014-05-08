@@ -310,23 +310,13 @@ namespace o_RA.oRAForms
                 Progress.Value = 0;
                 Progress.Maximum = beatmapFiles.Length;
             });
-            using (var md5 = MD5.Create())
+            foreach (string file in beatmapFiles)
             {
-                foreach (string file in beatmapFiles)
+                oRAData.BeatmapHashes.TryAdd(file, MD5FromFile(file));
+                Progress.BeginInvoke((MethodInvoker)delegate
                 {
-                    try
-                    {
-                        using (var stream = File.OpenRead(file))
-                        {
-                            oRAData.BeatmapHashes.TryAdd(file, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
-                            Progress.BeginInvoke((MethodInvoker)delegate
-                            {
-                                Progress.Value += 1;
-                            });
-                        }
-                    }
-                    catch { }
-                }
+                    Progress.Value += 1;
+                });
             }
             Progress.Value = 0;
             oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];
@@ -364,13 +354,7 @@ namespace o_RA.oRAForms
 
         private static void BeatmapCreated(object sender, FileSystemEventArgs e)
         {
-            using (var md5 = MD5.Create())
-            {
-                using (var stream = File.OpenRead(e.FullPath))
-                {
-                    oRAData.BeatmapHashes.TryAdd(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
-                }
-            }
+            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
         }
         private static void BeatmapDeleted(object sender, FileSystemEventArgs e)
         {
@@ -381,11 +365,16 @@ namespace o_RA.oRAForms
         {
             string s;
             oRAData.BeatmapHashes.TryRemove(e.OldFullPath, out s);
-            using (var md5 = MD5.Create())
+            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
+        }
+
+        private static string MD5FromFile(string fileName)
+        {
+            using (MD5 md5 = MD5.Create())
             {
-                using (var stream = File.OpenRead(e.FullPath))
+                using (FileStream stream = File.OpenRead(fileName))
                 {
-                    oRAData.BeatmapHashes.TryAdd(e.FullPath, BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower());
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
                 }
             }
         }
@@ -551,17 +540,17 @@ namespace o_RA.oRAForms
                     TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
                     break;
                 case MouseButtons.Left:
-                {
-                    HitTestResult result = TWChart.HitTest(e.X, e.Y);
-                    if (result.ChartElementType == ChartElementType.DataPoint)
                     {
-                        var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
-                        if (point != null)
-                            point.Color = oRAColours.Colour_BG_P1;
-                        TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
-                        ReplayTimeline.Rows[result.PointIndex].Selected = true;
+                        HitTestResult result = TWChart.HitTest(e.X, e.Y);
+                        if (result.ChartElementType == ChartElementType.DataPoint)
+                        {
+                            var point = TWChart.Series[Language["text_TimingWindow"]].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
+                            if (point != null)
+                                point.Color = oRAColours.Colour_BG_P1;
+                            TWChart.Series[Language["text_TimingWindow"]].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
+                            ReplayTimeline.Rows[result.PointIndex].Selected = true;
+                        }
                     }
-                }
                     break;
             }
         }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -10,11 +12,12 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Xml;
 using BMAPI;
-using oRAInterface;
 using o_RA.Globals;
 using o_RA.oRAControls;
+using oRAInterface;
 using ReplayAPI;
-using System.Collections.Concurrent;
+using System.Data.SqlServerCe;
+using System.Data;
 
 namespace o_RA.oRAForms
 {
@@ -44,8 +47,102 @@ namespace o_RA.oRAForms
             InitializeControls();
             InitializePlugins();
             InitializeGameDirs();
+
+            #region DBTEST
+            //Check if write possible, if db is in program files might not have write access
+
+            //Insert one row
+            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES ('Test');");
+            //Reset id
+            //dbtest.ExecuteNonQuery(@"ALTER TABLE [GameMode] ALTER COLUMN [Id] IDENTITY (1,1)");
+
+            //Insert multiple rows
+            // http://stackoverflow.com/questions/5016260/sqlce-upsert-update-or-insert-how-to-prepare-a-row-using-common-method
+            //using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            //{
+            //    SqlCeCommand cmd = new SqlCeCommand();
+            //    SqlCeResultSet rs;
+            //    SqlCeUpdatableRecord rec;
+            //    conn.Open();
+            //    cmd.Connection = conn;
+            //    // Table name
+            //    cmd.CommandText = "GameMode";
+            //    cmd.CommandType = CommandType.TableDirect;
+            //    rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
+            //    rec = rs.CreateRecord();
+            //    for (int i = 0; i < 10000; i++)
+            //    {
+            //        rec.SetString(1, "TEEEEEST");
+            //        rs.Insert(rec);
+            //    }
+            //    rs.Close();
+            //    rs.Dispose();
+            //    cmd.Dispose();
+            //}
+
+            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
+            FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
+
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            {
+
+                SqlCeCommand cmd = new SqlCeCommand();
+                SqlCeResultSet rs;
+                SqlCeUpdatableRecord rec;
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "Replay";
+                cmd.CommandType = CommandType.TableDirect;
+                rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
+                rec = rs.CreateRecord();
+                foreach (FileInfo file in replayFiles)
+                {
+                    try
+                    {
+                        Replay = new Replay(file.FullName);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(Language["info_RepLoadError"] + ex);
+                        return;
+                    }
+                    rec.SetInt32(1, (int)Replay.GameMode);
+                    rec.SetString(2, Replay.Filename);
+                    rec.SetString(3, Replay.MapHash);
+                    rec.SetString(4, Replay.ReplayHash); 
+                    rec.SetString(5, Replay.PlayerName);
+                    rec.SetInt32(6, Replay.TotalScore);
+                    rec.SetInt32(7, Replay.Count_300);
+                    rec.SetInt32(8, Replay.Count_100);
+                    rec.SetInt32(9, Replay.Count_50);
+                    rec.SetInt32(10, Replay.Count_Geki);
+                    rec.SetInt32(11, Replay.Count_Katu);
+                    rec.SetInt32(12, Replay.Count_Miss);
+                    rec.SetInt32(13, Replay.MaxCombo);
+                    rec.SetInt32(14, Replay.IsPerfect);
+                    rec.SetDateTime(15, Replay.PlayTime);
+                    rec.SetInt32(16, Replay.ReplayLength);
+                    try
+                    {
+                        rs.Insert(rec);
+                    }
+                    catch (SqlCeException)
+                    {
+                        // error loading replay into table
+                    }
+
+                }
+                rs.Close();
+                rs.Dispose();
+                cmd.Dispose();
+            }
+            // Use seek() instead of select
+            // http://msdn.microsoft.com/en-us/library/system.data.sqlserverce.sqlcedatareader.seek(v=vs.100).aspx
+            #endregion
+
             Task.Factory.StartNew(() => Updater.Start(Settings));
             Task.Factory.StartNew(PopulateLists);
+
 
 
             FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory)

@@ -14,10 +14,9 @@ namespace o_RA
         public DBHelper()
         {
             LocalConnection = new SqlCeConnection(_connString);
-            LocalConnection.Open(); ;
         }
 
-        //one-way access, good for large amoutns of data
+        //one-way access, good for large amounts of data
         #region ExecuteDataReader
         public SqlCeDataReader ExecuteDataReader(string query)
         {

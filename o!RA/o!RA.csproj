@@ -143,6 +143,9 @@
     <None Include="Resources\enUSFlag.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Debug\db.sdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
     <None Include="Resources\SpinnerRPMGraph_N.png" />
     <None Include="Resources\TimingGraph_H.png" />

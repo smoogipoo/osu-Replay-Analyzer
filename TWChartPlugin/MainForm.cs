@@ -82,6 +82,8 @@ namespace TWChartPlugin
         }
         private void HandleFrameChanged(int index)
         {
+            if (index > TWChart.Series[3].Points.Count - 1)
+                return;
             var point = TWChart.Series[3].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
             if (point != null)
                 point.Color = oRAColours.Colour_BG_P1;

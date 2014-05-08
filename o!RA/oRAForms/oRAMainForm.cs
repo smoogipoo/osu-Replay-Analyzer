@@ -35,8 +35,6 @@ namespace o_RA.oRAForms
         static ControlsClass oRAControls;
 
         public static readonly PluginServices Plugins = new PluginServices();
-        internal Chart TWChart = new Chart();
-        internal Chart SRPMChart = new Chart();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -118,6 +116,7 @@ namespace o_RA.oRAForms
             oRAData.TimingDifference = new List<int>();
             oRAControls.ProgressToolTip = new ToolTip();
             oRAControls.FrameTimeline = ReplayTimeline;
+            oRAData.FrameChanged += HandleFrameChanged;
 
             //Load Plugins
             if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
@@ -378,9 +377,7 @@ namespace o_RA.oRAForms
                 oRAData.PositiveErrorAverage = 0;
                 oRAData.NegativeErrorAverage = 0;
                 oRAData.UnstableRate = 0;
-                TWChart.Series[Language["text_TimingWindow"]].Points.Clear();
-                TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
-                TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
+                oRAData.TimingDifference.Clear();
 
                 //Match up beatmap objects to replay clicks
                 List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
@@ -420,19 +417,10 @@ namespace o_RA.oRAForms
                 double variance = oRAData.TimingDifference.Aggregate((v, newValue) => v + (int)Math.Pow(newValue, 2));
                 oRAData.UnstableRate = Math.Round(Math.Sqrt(variance / oRAData.TimingDifference.Count) * 10, 2);
 
-                TWChart.Series["50 Hit Region"].Points.Clear();
-                TWChart.Series["50 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[2], -oRAData.TimingWindows[2]);
-                TWChart.Series["50 Hit Region"].Points.AddXY(iteratedObjects.Count, oRAData.TimingWindows[2], -oRAData.TimingWindows[2]);
-                TWChart.Series["100 Hit Region"].Points.Clear();
-                TWChart.Series["100 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[1], -oRAData.TimingWindows[1]);
-                TWChart.Series["100 Hit Region"].Points.AddXY(iteratedObjects.Count, oRAData.TimingWindows[1], -oRAData.TimingWindows[1]);
-                TWChart.Series["300 Hit Region"].Points.Clear();
-                TWChart.Series["300 Hit Region"].Points.AddXY(0, oRAData.TimingWindows[0], -oRAData.TimingWindows[0]);
-                TWChart.Series["300 Hit Region"].Points.AddXY(iteratedObjects.Count, oRAData.TimingWindows[0], -oRAData.TimingWindows[0]);
-
                 ReplayTimeline.DataSource = iteratedObjects;
                 if (ReplayTimeline.Rows.Count > 0)
                     ReplayTimeline.Rows[0].Selected = true;
+
                 oRAData.UpdateStatus(Replay, Beatmap);
             }
         }
@@ -444,7 +432,10 @@ namespace o_RA.oRAForms
                 oRAData.ChangeFrame(e.Row.Index);
             }
         }
-
+        private void HandleFrameChanged(int index)
+        {
+            ReplayTimeline.CurrentCell = ReplayTimeline.Rows[index].Cells[0];
+        }
         private void Progress_MouseEnter(object sender, EventArgs e)
         {
             oRAControls.ProgressToolTip.Show((string)oRAControls.ProgressToolTip.Tag, Progress, 0);

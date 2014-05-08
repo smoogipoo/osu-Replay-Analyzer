@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Data;
 using System.Linq;
@@ -74,7 +75,10 @@ namespace TWChartPlugin
             TWChart.Series[3].Points.Clear();
             TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-            TWChart.Series[3].Points.Add(oRA.Data.TimingDifference.ConvertAll(d => (double)d).ToArray());
+            foreach (int time in oRA.Data.TimingDifference)
+            {
+                TWChart.Series[3].Points.Add(time);
+            }
         }
         private void HandleFrameChanged(int index)
         {

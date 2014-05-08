@@ -46,7 +46,7 @@ namespace ReplayAPI
             using (FileStream fs = new FileStream(replayFile, FileMode.Open, FileAccess.Read))
             using (BinaryReader br = new BinaryReader(fs))
             {
-                GameMode = (GameModes)Enum.Parse(typeof(GameModes), br.ReadByte().ToString());
+                GameMode = (GameModes)Enum.Parse(typeof(GameModes), br.ReadByte().ToString(CultureInfo.InvariantCulture));
 
                 FileFormat = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
 
@@ -83,21 +83,22 @@ namespace ReplayAPI
                         if (splitStr == "")
                             continue;
                         sString tempStr = splitStr;
-                        LifeInfo tempLife = new LifeInfo();
-                        tempLife.Time = Convert.ToInt32(tempStr.SubString(0, tempStr.nthDexOf("|", 0)));
-                        tempLife.Percentage = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1));
+                        LifeInfo tempLife = new LifeInfo
+                        {
+                            Time = Convert.ToInt32(tempStr.SubString(0, tempStr.nthDexOf("|", 0))),
+                            Percentage = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1)),
+                        };
                         LifeData.Add(tempLife);
                     }
                 }
-
-                long timeStamp = Int64.Parse(GetReversedString(br, 8), NumberStyles.HexNumber);
+                long timeStamp = long.Parse(GetReversedString(br, 8), NumberStyles.HexNumber);
                 PlayTime = new DateTime(timeStamp);
 
                 ReplayLength = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
-
+            
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    byte[] bytesToWrite = br.ReadBytes((int)br.BaseStream.Length);
+                    byte[] bytesToWrite = br.ReadBytes(ReplayLength + 1);
                     ms.Write(bytesToWrite, 0, bytesToWrite.Length);
                     ms.Position = 0;
 
@@ -163,7 +164,7 @@ namespace ReplayAPI
         static string GetReversedString(BinaryReader br, int length)
         {
             byte[] readBytes = br.ReadBytes(length).Reverse().ToArray();
-            return readBytes.Aggregate("", (current, b) => current + b.ToString("X"));
+            return readBytes.Aggregate("", (current, b) => current + (b < 9 ? "0" : "") + b.ToString("X"));
         }
         static int GetChunkLength(BinaryReader br)
         {

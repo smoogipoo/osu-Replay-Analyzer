@@ -15,8 +15,8 @@ namespace TWChartPlugin
 
         public static ToolStripMenuItem PluginMenuItem;
         public static UserControl PluginTabItem = new MainForm();
-        public static Bitmap PluginTabIcon_Normal;
-        public static Bitmap PluginTabIcon_Hot;
+        public static Bitmap PluginTabIcon_Normal = Properties.Resources.TimingGraph_N;
+        public static Bitmap PluginTabIcon_Hot = Properties.Resources.TimingGraph_H;
         #endregion
 
         #region Exposed items

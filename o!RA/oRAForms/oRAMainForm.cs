@@ -48,33 +48,13 @@ namespace o_RA.oRAForms
 
             //Insert one row
             //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES ('Test');");
-            //Reset id
-            //dbtest.ExecuteNonQuery(@"ALTER TABLE [GameMode] ALTER COLUMN [Id] IDENTITY (1,1)");
 
-            //Insert multiple rows
-            // http://stackoverflow.com/questions/5016260/sqlce-upsert-update-or-insert-how-to-prepare-a-row-using-common-method
-            //using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
-            //{
-            //    SqlCeCommand cmd = new SqlCeCommand();
-            //    SqlCeResultSet rs;
-            //    SqlCeUpdatableRecord rec;
-            //    conn.Open();
-            //    cmd.Connection = conn;
-            //    // Table name
-            //    cmd.CommandText = "GameMode";
-            //    cmd.CommandType = CommandType.TableDirect;
-            //    rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
-            //    rec = rs.CreateRecord();
-            //    for (int i = 0; i < 10000; i++)
-            //    {
-            //        rec.SetString(1, "TEEEEEST");
-            //        rs.Insert(rec);
-            //    }
-            //    rs.Close();
-            //    rs.Dispose();
-            //    cmd.Dispose();
-            //}
+            //With parameters
+            //ArrayList pmts = new ArrayList();
+            //pmts.Add(new SqlCeParameter("@Name","test"));
+            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES (@Name);", pmts);
 
+            #region load replays
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
@@ -121,6 +101,57 @@ namespace o_RA.oRAForms
                     }
                 });
             }
+            #endregion
+
+            #region load beatmaps
+            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            {
+                SqlCeCommand cmd = new SqlCeCommand();
+                SqlCeResultSet rs;
+                SqlCeUpdatableRecord rec;
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "Beatmap";
+                cmd.CommandType = CommandType.TableDirect;
+                rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
+                rec = rs.CreateRecord();
+                foreach (string file in beatmapFiles)
+                {
+                    try
+                    {
+                        Beatmap = new Beatmap(file);
+                    }
+                    catch (Exception)
+                    {
+                        //MessageBox.Show(Language["info_BMLoadError"] + ex);
+                        return;
+                    }
+                    rec.SetString(1, Beatmap.Creator);
+                    rec.SetString(2, Beatmap.AudioFilename);
+                    rec.SetString(3, Beatmap.Filename);
+                    rec.SetDecimal(4, (decimal)Beatmap.HPDrainRate);
+                    rec.SetDecimal(5, (decimal)Beatmap.CircleSize);
+                    rec.SetDecimal(6, (decimal)Beatmap.OverallDifficulty);
+                    rec.SetDecimal(7, (decimal)Beatmap.ApproachRate);
+                    rec.SetString(8, Beatmap.Title);
+                    rec.SetString(9, Beatmap.Artist);
+                    rec.SetString(10, Beatmap.Version);
+                    try
+                    {
+                        rs.Insert(rec);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(file + Environment.NewLine + ex);
+                    }
+                }
+                rs.Close();
+                rs.Dispose();
+                cmd.Dispose();
+            }
+            #endregion
+
             // Use seek() instead of select
             // http://msdn.microsoft.com/en-us/library/system.data.sqlserverce.sqlcedatareader.seek(v=vs.100).aspx
             #endregion

@@ -224,6 +224,17 @@ namespace o_RA.oRAForms
             }
         }
 
+        private SqlCeDataReader GetDBField(SqlCeConnection conn, string table, string column, string condition)
+        {
+            SqlCeCommand cmd = new SqlCeCommand(String.Format("SELECT {0} FROM {1} WHERE {2};", column, table, condition), conn);
+            return cmd.ExecuteReader();
+        }
+
+        private bool DBFieldExists(SqlCeConnection conn, string table, string column, string key)
+        {
+            //TODO
+        }
+
         private void LoadBeatmapsToDB()
         {
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
@@ -268,16 +279,73 @@ namespace o_RA.oRAForms
             }
         }
 
+        private void UpdateBeatmapsToDB()
+        {
+            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+
+            Parallel.ForEach(beatmapFiles, file =>
+            {
+                using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+                {
+                    conn.Open();
+                    //Compare by filename
+                    if (DBFieldExists(conn, "Beatmap", "Filename", file))
+                    {
+                        //compare by md5 hash
+                        if (MD5FromFile(file) != GetDBField(conn, "Beatmap", "Hash", "Filename=" + file)["Hash"].ToString())
+                        {
+                            //Update db entry
+                        }
+                    }
+                    else
+                    {
+                        //Add new entry to db
+                        using (SqlCeCommand cmd = new SqlCeCommand())
+                        {
+                            cmd.Connection = conn;
+                            cmd.CommandText = "Beatmap";
+                            cmd.CommandType = CommandType.TableDirect;
+                            using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
+                            {
+                                SqlCeUpdatableRecord rec = rs.CreateRecord();
+
+                                Beatmap = new Beatmap(file);
+
+                                rec.SetString(1, Beatmap.Creator);
+                                rec.SetString(2, Beatmap.AudioFilename);
+                                rec.SetString(3, Beatmap.Filename);
+                                rec.SetDecimal(4, (decimal)Beatmap.HPDrainRate);
+                                rec.SetDecimal(5, (decimal)Beatmap.CircleSize);
+                                rec.SetDecimal(6, (decimal)Beatmap.OverallDifficulty);
+                                rec.SetDecimal(7, (decimal)Beatmap.ApproachRate);
+                                rec.SetString(8, Beatmap.Title);
+                                rec.SetString(9, Beatmap.Artist);
+                                rec.SetString(10, Beatmap.Version);
+                                try
+                                {
+                                    rs.Insert(rec);
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show(file + Environment.NewLine + ex);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         private void LoadReplaysToDB()
         {
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
-            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            Parallel.ForEach(replayFiles, file =>
             {
-                conn.Open();
-                Parallel.ForEach(replayFiles, file =>
+                using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
                 {
+                    conn.Open();
                     using (SqlCeCommand cmd = new SqlCeCommand())
                     {
                         cmd.Connection = conn;
@@ -314,14 +382,32 @@ namespace o_RA.oRAForms
                             catch (SqlCeException) { }
                         }
                     }
-                });
+                }
+            });
+        }
+
+        private void UpdateReplaysToDB()
+        {
+            //Use DB operations wherever possible for performance
+            //Compare by filename
+            if (true)
+            {
+                //compare by md5 hash
+                if (!true)
+                {
+                    //Update db entry
+                }
+            }
+            else
+            {
+                //Add to db
             }
         }
 
         private void PopulateDB()
         {
             //TODO Check if write possible, if db is in program files might not have write access
-            //TODO Find way not to add duplicate data
+            //TODO Find way not to add duplicate data - Compare by filename - if exists in 
             //TODO Update DB if replay gets added/deleted
             //TODO Update DB if beatmap gets added/deleted/changed
 
@@ -337,10 +423,18 @@ namespace o_RA.oRAForms
             {
                 LoadBeatmapsToDB();
             }
+            else
+            {
+                UpdateBeatmapsToDB();
+            }
 
             if (IsDBTableEmpty("Replay"))
             {
                 LoadReplaysToDB();
+            }
+            else
+            {
+                UpdateReplaysToDB();
             }
 
             // Use seek() instead of select

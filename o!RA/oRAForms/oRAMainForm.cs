@@ -423,6 +423,8 @@ namespace o_RA.oRAForms
         }
         private void HandleFrameChanged(int index)
         {
+            if (index > ReplayTimeline.Rows.Count - 1)
+                return;
             ReplayTimeline.CurrentCell = ReplayTimeline.Rows[index].Cells[0];
         }
         private void Progress_MouseEnter(object sender, EventArgs e)

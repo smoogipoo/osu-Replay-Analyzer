@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +8,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 using System.Xml;
 using BMAPI;
 using o_RA.Globals;
@@ -80,56 +78,48 @@ namespace o_RA.oRAForms
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
-            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
             {
-
-                SqlCeCommand cmd = new SqlCeCommand();
-
                 conn.Open();
-                cmd.Connection = conn;
-                cmd.CommandText = "Replay";
-                cmd.CommandType = CommandType.TableDirect;
-                SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
-                SqlCeUpdatableRecord rec = rs.CreateRecord();
-                foreach (FileInfo file in replayFiles)
+                Parallel.ForEach(replayFiles, file =>
                 {
-                    try
+                    using (SqlCeCommand cmd = new SqlCeCommand())
                     {
-                        Replay = new Replay(file.FullName);
+                        cmd.Connection = conn;
+                        cmd.CommandText = "Replay";
+                        cmd.CommandType = CommandType.TableDirect;
+                        using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
+                        {
+                            SqlCeUpdatableRecord rec = rs.CreateRecord();
+                            try
+                            {
+                                Replay = new Replay(file.FullName);
+                            }
+                            catch (Exception) { }
+                            rec.SetInt32(1, (int)Replay.GameMode);
+                            rec.SetString(2, Replay.Filename);
+                            rec.SetString(3, Replay.MapHash);
+                            rec.SetString(4, Replay.ReplayHash);
+                            rec.SetString(5, Replay.PlayerName);
+                            rec.SetInt32(6, Replay.TotalScore);
+                            rec.SetInt32(7, Replay.Count_300);
+                            rec.SetInt32(8, Replay.Count_100);
+                            rec.SetInt32(9, Replay.Count_50);
+                            rec.SetInt32(10, Replay.Count_Geki);
+                            rec.SetInt32(11, Replay.Count_Katu);
+                            rec.SetInt32(12, Replay.Count_Miss);
+                            rec.SetInt32(13, Replay.MaxCombo);
+                            rec.SetInt32(14, Replay.IsPerfect);
+                            rec.SetDateTime(15, Replay.PlayTime);
+                            rec.SetInt32(16, Replay.ReplayLength);
+                            try
+                            {
+                                rs.Insert(rec);
+                            }
+                            catch (SqlCeException) { }
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        continue;
-                    }
-                    rec.SetInt32(1, (int)Replay.GameMode);
-                    rec.SetString(2, Replay.Filename);
-                    rec.SetString(3, Replay.MapHash);
-                    rec.SetString(4, Replay.ReplayHash); 
-                    rec.SetString(5, Replay.PlayerName);
-                    rec.SetInt32(6, Replay.TotalScore);
-                    rec.SetInt32(7, Replay.Count_300);
-                    rec.SetInt32(8, Replay.Count_100);
-                    rec.SetInt32(9, Replay.Count_50);
-                    rec.SetInt32(10, Replay.Count_Geki);
-                    rec.SetInt32(11, Replay.Count_Katu);
-                    rec.SetInt32(12, Replay.Count_Miss);
-                    rec.SetInt32(13, Replay.MaxCombo);
-                    rec.SetInt32(14, Replay.IsPerfect);
-                    rec.SetDateTime(15, Replay.PlayTime);
-                    rec.SetInt32(16, Replay.ReplayLength);
-                    try
-                    {
-                        rs.Insert(rec);
-                    }
-                    catch (SqlCeException)
-                    {
-                        // error loading replay into table
-                    }
-
-                }
-                rs.Close();
-                rs.Dispose();
-                cmd.Dispose();
+                });
             }
             // Use seek() instead of select
             // http://msdn.microsoft.com/en-us/library/system.data.sqlserverce.sqlcedatareader.seek(v=vs.100).aspx

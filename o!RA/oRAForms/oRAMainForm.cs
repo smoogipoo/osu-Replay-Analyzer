@@ -210,22 +210,66 @@ namespace o_RA.oRAForms
             return Directory.Exists(Path.Combine(gameDir, "Replays")) && Directory.Exists(Path.Combine(gameDir, "Songs"));
         }
 
-        private void PopulateDB()
+        private bool IsDBTableEmpty(string table)
         {
-            //TODO Check if write possible, if db is in program files might not have write access
-            //TODO Find way not to add duplicate data
-            //TODO Update DB if replay gets added/deleted
-            //TODO Update DB if beatmap gets added/deleted/changed
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            {
+                SqlCeCommand cmd = new SqlCeCommand(String.Format("SELECT COUNT(*) FROM {0};", table), conn);
+                conn.Open();
+                if ((int)cmd.ExecuteScalar() > 0)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
 
-            //Insert one row
-            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES ('Test');");
+        private void LoadBeatmapsToDB()
+        {
+            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
 
-            //With parameters
-            //ArrayList pmts = new ArrayList();
-            //pmts.Add(new SqlCeParameter("@Name","test"));
-            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES (@Name);", pmts);
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            {
+                conn.Open();
+                Parallel.ForEach(beatmapFiles, file =>
+                {
+                    using (SqlCeCommand cmd = new SqlCeCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandText = "Beatmap";
+                        cmd.CommandType = CommandType.TableDirect;
+                        using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
+                        {
+                            SqlCeUpdatableRecord rec = rs.CreateRecord();
 
-            #region load replays
+                            Beatmap = new Beatmap(file);
+
+                            rec.SetString(1, Beatmap.Creator);
+                            rec.SetString(2, Beatmap.AudioFilename);
+                            rec.SetString(3, Beatmap.Filename);
+                            rec.SetDecimal(4, (decimal)Beatmap.HPDrainRate);
+                            rec.SetDecimal(5, (decimal)Beatmap.CircleSize);
+                            rec.SetDecimal(6, (decimal)Beatmap.OverallDifficulty);
+                            rec.SetDecimal(7, (decimal)Beatmap.ApproachRate);
+                            rec.SetString(8, Beatmap.Title);
+                            rec.SetString(9, Beatmap.Artist);
+                            rec.SetString(10, Beatmap.Version);
+                            try
+                            {
+                                rs.Insert(rec);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(file + Environment.NewLine + ex);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        private void LoadReplaysToDB()
+        {
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
@@ -272,50 +316,32 @@ namespace o_RA.oRAForms
                     }
                 });
             }
-            #endregion
+        }
 
-            #region load beatmaps
-            //string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+        private void PopulateDB()
+        {
+            //TODO Check if write possible, if db is in program files might not have write access
+            //TODO Find way not to add duplicate data
+            //TODO Update DB if replay gets added/deleted
+            //TODO Update DB if beatmap gets added/deleted/changed
 
-            //using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
-            //{
-            //    conn.Open();
-            //    Parallel.ForEach(beatmapFiles, file =>
-            //    {
-            //        using (SqlCeCommand cmd = new SqlCeCommand())
-            //        {
-            //            cmd.Connection = conn;
-            //            cmd.CommandText = "Beatmap";
-            //            cmd.CommandType = CommandType.TableDirect;
-            //            using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
-            //            {
-            //                SqlCeUpdatableRecord rec = rs.CreateRecord();
+            //Insert one row
+            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES ('Test');");
 
-            //                Beatmap = new Beatmap(file);
+            //With parameters
+            //ArrayList pmts = new ArrayList();
+            //pmts.Add(new SqlCeParameter("@Name","test"));
+            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES (@Name);", pmts);
 
-            //                rec.SetString(1, Beatmap.Creator);
-            //                rec.SetString(2, Beatmap.AudioFilename);
-            //                rec.SetString(3, Beatmap.Filename);
-            //                rec.SetDecimal(4, (decimal)Beatmap.HPDrainRate);
-            //                rec.SetDecimal(5, (decimal)Beatmap.CircleSize);
-            //                rec.SetDecimal(6, (decimal)Beatmap.OverallDifficulty);
-            //                rec.SetDecimal(7, (decimal)Beatmap.ApproachRate);
-            //                rec.SetString(8, Beatmap.Title);
-            //                rec.SetString(9, Beatmap.Artist);
-            //                rec.SetString(10, Beatmap.Version);
-            //                try
-            //                {
-            //                    rs.Insert(rec);
-            //                }
-            //                catch (Exception ex)
-            //                {
-            //                    MessageBox.Show(file + Environment.NewLine + ex);
-            //                }
-            //            }
-            //        }
-            //    });
-            //}
-            #endregion
+            if (IsDBTableEmpty("Beatmap"))
+            {
+                LoadBeatmapsToDB();
+            }
+
+            if (IsDBTableEmpty("Replay"))
+            {
+                LoadReplaysToDB();
+            }
 
             // Use seek() instead of select
             // http://msdn.microsoft.com/en-us/library/system.data.sqlserverce.sqlcedatareader.seek(v=vs.100).aspx

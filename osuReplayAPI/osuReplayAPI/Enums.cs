@@ -6,10 +6,10 @@ namespace ReplayAPI
     public enum KeyData
     {
         None = 0,
-        K1 = 5,
-        K2 = 10,
-        K3 = 1,
-        K4 = 2
+        M1 = (1 << 0),
+        M2 = (1 << 1),
+        K1 = (1 << 2) | (1 << 0),
+        K2 = (1 << 3) | (1 << 1),
     }
 
     [Flags]

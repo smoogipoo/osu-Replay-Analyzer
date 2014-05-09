@@ -131,7 +131,7 @@ namespace o_RA.oRAControls
         private void HandleMouseEnter(object sender, EventArgs e)
         {
             oRALabel label = (oRALabel)sender;
-            if (label.HasEllipsis)
+            if (label.HasEllipsis && ((oRALabel)Controls[0]).Activated)
             {
                 TextToolTip.Show(label.Text, label, new Point(60, label.Height));
             }

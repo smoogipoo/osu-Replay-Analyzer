@@ -5,7 +5,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Reflection;
-using System.Linq;
 using System.Globalization;
 using smgiFuncs;
 

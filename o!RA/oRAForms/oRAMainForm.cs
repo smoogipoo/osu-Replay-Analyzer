@@ -238,12 +238,12 @@ namespace o_RA.oRAForms
         private void LoadBeatmapsToDB()
         {
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-
-            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            Parallel.ForEach(beatmapFiles, file =>
             {
-                conn.Open();
-                Parallel.ForEach(beatmapFiles, file =>
+                using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
                 {
+                    conn.Open();
+
                     using (SqlCeCommand cmd = new SqlCeCommand())
                     {
                         cmd.Connection = conn;
@@ -275,8 +275,8 @@ namespace o_RA.oRAForms
                             }
                         }
                     }
-                });
-            }
+                }
+            });
         }
 
         private void UpdateBeatmapsToDB()

@@ -93,7 +93,7 @@ namespace o_RA
 
             try
             {
-                LocalConnection.Open(); ;
+                LocalConnection.Open();
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -127,7 +127,7 @@ namespace o_RA
 
             try
             {
-                LocalConnection.Open(); ;
+                LocalConnection.Open();
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -169,7 +169,7 @@ namespace o_RA
 
             try
             {
-                LocalConnection.Open(); ;
+                LocalConnection.Open();
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -199,7 +199,7 @@ namespace o_RA
 
             try
             {
-                LocalConnection.Open();;
+                LocalConnection.Open();
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -238,7 +238,7 @@ namespace o_RA
 
             try
             {
-                LocalConnection.Open();;
+                LocalConnection.Open();
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;
@@ -269,7 +269,7 @@ namespace o_RA
 
             try
             {
-                LocalConnection.Open(); ;
+                LocalConnection.Open();
 
                 localCommand = new SqlCeCommand(query, LocalConnection);
                 localCommand.CommandType = CommandType.Text;

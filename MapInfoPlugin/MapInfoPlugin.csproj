@@ -90,7 +90,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>robocopy "$(TargetDir) " "$(SolutionDir)o!RA\bin\$(ConfigurationName)\Plugins\MapInfo" "$(TargetFileName)"
+    <PostBuildEvent>robocopy "$(TargetDir) " "$(SolutionDir)o!RA\bin\$(ConfigurationName)\Plugins\3_MapInfo" "$(TargetFileName)"
 rem suppress successful robocopy exit statuses, only report genuine errors
 set/A errlev="%25ERRORLEVEL%25 &amp; 24"</PostBuildEvent>
   </PropertyGroup>

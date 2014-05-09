@@ -22,6 +22,8 @@ namespace TWChartPlugin
             InitializeComponent();
         }
 
+        Point LastHitPoint;
+
         private void TWChart_MouseClick(object sender, MouseEventArgs e)
         {
             switch (e.Button)
@@ -45,18 +47,16 @@ namespace TWChartPlugin
                     break;
             }
         }
-
         private void TWChart_MouseMove(object sender, MouseEventArgs e)
         {
+            if (new Point(e.X, e.Y) == LastHitPoint)
+                return;
+            LastHitPoint = new Point(e.X, e.Y);
             HitTestResult result = TWChart.HitTest(e.X, e.Y);
-
             if (result.PointIndex != -1 && result.Series != null && result.PointIndex < TWChart.Series[3].Points.Count)
             {
-                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)TWChart.Series[3].Points[result.PointIndex].XValue)
-                {
                     ChartToolTip.Tag = (int)TWChart.Series[3].Points[result.PointIndex].XValue;
                     ChartToolTip.SetToolTip(TWChart, TWChart.Series[3].Points[result.PointIndex].YValues[0] + "ms");
-                }
             }
             else
             {

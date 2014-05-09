@@ -87,14 +87,13 @@ namespace o_RA.oRAForms
             {
 
                 SqlCeCommand cmd = new SqlCeCommand();
-                SqlCeResultSet rs;
-                SqlCeUpdatableRecord rec;
+
                 conn.Open();
                 cmd.Connection = conn;
                 cmd.CommandText = "Replay";
                 cmd.CommandType = CommandType.TableDirect;
-                rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
-                rec = rs.CreateRecord();
+                SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
+                SqlCeUpdatableRecord rec = rs.CreateRecord();
                 foreach (FileInfo file in replayFiles)
                 {
                     try
@@ -103,8 +102,7 @@ namespace o_RA.oRAForms
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(Language["info_RepLoadError"] + ex);
-                        return;
+                        continue;
                     }
                     rec.SetInt32(1, (int)Replay.GameMode);
                     rec.SetString(2, Replay.Filename);

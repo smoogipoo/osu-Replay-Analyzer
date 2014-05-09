@@ -44,13 +44,13 @@ namespace smgiFuncs
         {
             int indx = -1;
             int count = 0;
-            indx = _data.IndexOf(splitter, indx + 1, StringComparison.Ordinal);
+            indx = _data.IndexOf(splitter, indx + 1, StringComparison.InvariantCulture);
             if (indx != -1)
             {
                 while (indx != -1)
                 {
                     count += 1;
-                    indx = _data.IndexOf(splitter, indx + 1, StringComparison.Ordinal);
+                    indx = _data.IndexOf(splitter, indx + 1, StringComparison.InvariantCulture);
                 }
             }
             return count;
@@ -58,11 +58,11 @@ namespace smgiFuncs
         public int nthDexOf(string splitter, int count)
         {
             int camnt = -1;
-            int indx = _data.IndexOf(splitter, StringComparison.Ordinal);
+            int indx = _data.IndexOf(splitter, StringComparison.InvariantCulture);
             camnt += 1;
-            while (!((camnt == count) | (indx == -1)))
+            while (camnt != count || indx == -1)
             {
-                indx = _data.IndexOf(splitter, indx + 1, StringComparison.Ordinal);
+                indx = _data.IndexOf(splitter, indx + 1, StringComparison.InvariantCulture);
                 if (indx == -1)
                 {
                     return indx;
@@ -97,7 +97,7 @@ namespace smgiFuncs
         }
         public int LastIndexOf(string splitter)
         {
-            return _data.LastIndexOf(splitter, StringComparison.Ordinal);
+            return _data.LastIndexOf(splitter, StringComparison.InvariantCulture);
         }
     }
     #endregion

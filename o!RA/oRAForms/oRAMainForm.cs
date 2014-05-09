@@ -233,6 +233,7 @@ namespace o_RA.oRAForms
         private bool DBFieldExists(SqlCeConnection conn, string table, string column, string key)
         {
             //TODO
+            return false;
         }
 
         private void LoadBeatmapsToDB()

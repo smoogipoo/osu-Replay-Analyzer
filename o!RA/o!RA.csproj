@@ -150,12 +150,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
-    <None Include="Resources\SpinnerRPMGraph_N.png" />
-    <None Include="Resources\TimingGraph_H.png" />
-    <None Include="Resources\TimingGraph_N.png" />
     <None Include="Resources\Menu_H.png" />
     <None Include="Resources\Menu_N.png" />
-    <None Include="Resources\SpinnerRPMGraph_H.png" />
     <Content Include="db.sdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

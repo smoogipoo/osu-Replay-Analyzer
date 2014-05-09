@@ -55,101 +55,95 @@ namespace o_RA.oRAForms
             //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES (@Name);", pmts);
 
             #region load replays
-            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
-            FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
+            //DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
+            //FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
-            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
-            {
-                conn.Open();
-                Parallel.ForEach(replayFiles, file =>
-                {
-                    using (SqlCeCommand cmd = new SqlCeCommand())
-                    {
-                        cmd.Connection = conn;
-                        cmd.CommandText = "Replay";
-                        cmd.CommandType = CommandType.TableDirect;
-                        using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                            SqlCeUpdatableRecord rec = rs.CreateRecord();
-                            try
-                            {
-                                Replay = new Replay(file.FullName);
-                            }
-                            catch (Exception) { }
-                            rec.SetInt32(1, (int)Replay.GameMode);
-                            rec.SetString(2, Replay.Filename);
-                            rec.SetString(3, Replay.MapHash);
-                            rec.SetString(4, Replay.ReplayHash);
-                            rec.SetString(5, Replay.PlayerName);
-                            rec.SetInt32(6, Replay.TotalScore);
-                            rec.SetInt32(7, Replay.Count_300);
-                            rec.SetInt32(8, Replay.Count_100);
-                            rec.SetInt32(9, Replay.Count_50);
-                            rec.SetInt32(10, Replay.Count_Geki);
-                            rec.SetInt32(11, Replay.Count_Katu);
-                            rec.SetInt32(12, Replay.Count_Miss);
-                            rec.SetInt32(13, Replay.MaxCombo);
-                            rec.SetInt32(14, Replay.IsPerfect);
-                            rec.SetDateTime(15, Replay.PlayTime);
-                            rec.SetInt32(16, Replay.ReplayLength);
-                            try
-                            {
-                                rs.Insert(rec);
-                            }
-                            catch (SqlCeException) { }
-                        }
-                    }
-                });
-            }
+            //using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            //{
+            //    conn.Open();
+            //    Parallel.ForEach(replayFiles, file =>
+            //    {
+            //        using (SqlCeCommand cmd = new SqlCeCommand())
+            //        {
+            //            cmd.Connection = conn;
+            //            cmd.CommandText = "Replay";
+            //            cmd.CommandType = CommandType.TableDirect;
+            //            using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
+            //            {
+            //                SqlCeUpdatableRecord rec = rs.CreateRecord();
+            //                try
+            //                {
+            //                    Replay = new Replay(file.FullName);
+            //                }
+            //                catch (Exception) { }
+            //                rec.SetInt32(1, (int)Replay.GameMode);
+            //                rec.SetString(2, Replay.Filename);
+            //                rec.SetString(3, Replay.MapHash);
+            //                rec.SetString(4, Replay.ReplayHash);
+            //                rec.SetString(5, Replay.PlayerName);
+            //                rec.SetInt32(6, Replay.TotalScore);
+            //                rec.SetInt32(7, Replay.Count_300);
+            //                rec.SetInt32(8, Replay.Count_100);
+            //                rec.SetInt32(9, Replay.Count_50);
+            //                rec.SetInt32(10, Replay.Count_Geki);
+            //                rec.SetInt32(11, Replay.Count_Katu);
+            //                rec.SetInt32(12, Replay.Count_Miss);
+            //                rec.SetInt32(13, Replay.MaxCombo);
+            //                rec.SetInt32(14, Replay.IsPerfect);
+            //                rec.SetDateTime(15, Replay.PlayTime);
+            //                rec.SetInt32(16, Replay.ReplayLength);
+            //                try
+            //                {
+            //                    rs.Insert(rec);
+            //                }
+            //                catch (SqlCeException) { }
+            //            }
+            //        }
+            //    });
+            //}
             #endregion
 
             #region load beatmaps
-            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + System.IO.Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
-            {
-                SqlCeCommand cmd = new SqlCeCommand();
-                SqlCeResultSet rs;
-                SqlCeUpdatableRecord rec;
-                conn.Open();
-                cmd.Connection = conn;
-                cmd.CommandText = "Beatmap";
-                cmd.CommandType = CommandType.TableDirect;
-                rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable);
-                rec = rs.CreateRecord();
-                foreach (string file in beatmapFiles)
-                {
-                    try
-                    {
-                        Beatmap = new Beatmap(file);
-                    }
-                    catch (Exception)
-                    {
-                        //MessageBox.Show(Language["info_BMLoadError"] + ex);
-                        return;
-                    }
-                    rec.SetString(1, Beatmap.Creator);
-                    rec.SetString(2, Beatmap.AudioFilename);
-                    rec.SetString(3, Beatmap.Filename);
-                    rec.SetDecimal(4, (decimal)Beatmap.HPDrainRate);
-                    rec.SetDecimal(5, (decimal)Beatmap.CircleSize);
-                    rec.SetDecimal(6, (decimal)Beatmap.OverallDifficulty);
-                    rec.SetDecimal(7, (decimal)Beatmap.ApproachRate);
-                    rec.SetString(8, Beatmap.Title);
-                    rec.SetString(9, Beatmap.Artist);
-                    rec.SetString(10, Beatmap.Version);
-                    try
-                    {
-                        rs.Insert(rec);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(file + Environment.NewLine + ex);
-                    }
-                }
-                rs.Close();
-                rs.Dispose();
-                cmd.Dispose();
-            }
+            //string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+
+            //using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            //{
+            //    conn.Open();
+            //    Parallel.ForEach(beatmapFiles, file =>
+            //    {
+            //        using (SqlCeCommand cmd = new SqlCeCommand())
+            //        {
+            //            cmd.Connection = conn;
+            //            cmd.CommandText = "Beatmap";
+            //            cmd.CommandType = CommandType.TableDirect;
+            //            using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
+            //            {
+            //                SqlCeUpdatableRecord rec = rs.CreateRecord();
+
+            //                Beatmap = new Beatmap(file);
+
+            //                rec.SetString(1, Beatmap.Creator);
+            //                rec.SetString(2, Beatmap.AudioFilename);
+            //                rec.SetString(3, Beatmap.Filename);
+            //                rec.SetDecimal(4, (decimal)Beatmap.HPDrainRate);
+            //                rec.SetDecimal(5, (decimal)Beatmap.CircleSize);
+            //                rec.SetDecimal(6, (decimal)Beatmap.OverallDifficulty);
+            //                rec.SetDecimal(7, (decimal)Beatmap.ApproachRate);
+            //                rec.SetString(8, Beatmap.Title);
+            //                rec.SetString(9, Beatmap.Artist);
+            //                rec.SetString(10, Beatmap.Version);
+            //                try
+            //                {
+            //                    rs.Insert(rec);
+            //                }
+            //                catch (Exception ex)
+            //                {
+            //                    MessageBox.Show(file + Environment.NewLine + ex);
+            //                }
+            //            }
+            //        }
+            //    });
+            //}
             #endregion
 
             // Use seek() instead of select

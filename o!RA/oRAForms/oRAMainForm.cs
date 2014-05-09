@@ -212,7 +212,10 @@ namespace o_RA.oRAForms
 
         private void PopulateDB()
         {
-            //Check if write possible, if db is in program files might not have write access
+            //TODO Check if write possible, if db is in program files might not have write access
+            //TODO Find way not to add duplicate data
+            //TODO Update DB if replay gets added/deleted
+            //TODO Update DB if beatmap gets added/deleted/changed
 
             //Insert one row
             //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES ('Test');");

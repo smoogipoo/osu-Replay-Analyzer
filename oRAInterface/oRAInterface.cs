@@ -32,19 +32,28 @@ namespace oRAInterface
     public class DataClass
     {
         public delegate void ReplayChangedHandler(Replay r, Beatmap b);
+        public delegate void FrameChangedHandler(int FrameIndex);
         public event ReplayChangedHandler ReplayChanged;
+        public event FrameChangedHandler FrameChanged;
         
         public void UpdateStatus(Replay Replay, Beatmap Beatmap)
         {
             if (ReplayChanged != null)
                 ReplayChanged(Replay, Beatmap);
         }
+        public void ChangeFrame(int FrameIndex)
+        {
+            if (FrameChanged != null)
+                FrameChanged(FrameIndex);
+            CurrentFrame = FrameIndex;
+        }
 
-        public Dictionary<string, string> Language { get; set; }
         public Replay CurrentReplay { get; set; }
         public Beatmap CurrentBeatmap { get; set; }
+        public Dictionary<string, string> Language { get; set; }
         public ConcurrentDictionary<string, string> BeatmapHashes { get; set; }
         public List<TreeNode> Replays { get; set; }
+        public List<int> TimingDifference { get; set; }
         public string ReplayDirectory { get; set; }
         public string BeatmapDirectory { get; set; }
         public double[] TimingWindows { get; set; }
@@ -53,6 +62,7 @@ namespace oRAInterface
         public double UnstableRate { get; set; }
         public int TimingMax { get; set; }
         public int TimingMin { get; set; }
+        public int CurrentFrame { get; set; }
     }
 
     public class ControlsClass
@@ -79,8 +89,5 @@ namespace o_RA
         public static Color Colour_Highlight = Color.FromArgb(255, 255, 255, 255);
         public static Color Colour_Item_BG_0 = Color.FromArgb(255, 0, 120, 255);
         public static Color Colour_Item_BG_1 = Color.FromArgb(127, 0, 120, 255);
-        public static Color Colour_50_Region = Color.FromArgb(60, 40,25,180);
-        public static Color Colour_100_Region = Color.FromArgb(50, 50, 220, 60);
-        public static Color Colour_300_Region = Color.FromArgb(40, 230, 170, 80);
     }
 }

@@ -20,6 +20,8 @@ namespace SpinnerRPMPlugin
             InitializeComponent();
         }
 
+        Point LastHitPoint;
+
         private void SRPMChart_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -31,30 +33,25 @@ namespace SpinnerRPMPlugin
 
         private void SRPMChart_MouseMove(object sender, MouseEventArgs e)
         {
+            if (new Point(e.X, e.Y) == LastHitPoint)
+                return;
+            LastHitPoint = new Point(e.X, e.Y);
             HitTestResult result = SRPMChart.HitTest(e.X, e.Y);
             if (result.PointIndex != -1 && result.Series != null && result.Series.BorderWidth != 0)
             {
-                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s, result.Series) && s.BorderWidth != 0))
-                {
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
-                }
                 result.Series.BorderWidth = 3;
             }
             else
             {
-                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s.Tag, "1") && s.BorderWidth != 0))
+                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s.Tag, "1") && s.BorderWidth != 0 && s.BorderWidth != 2))
                 {
                     SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
                 }
             }
 
-            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < SRPMChart.Series[0].Points.Count && !Equals(result.Series.Tag, "0"))
+            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < result.Series.Points.Count && !Equals(result.Series.Tag, "0"))
             {
-                if (ChartToolTip.Tag == null || (int)ChartToolTip.Tag != (int)result.Series.Points[result.PointIndex].XValue)
-                {
-                    ChartToolTip.Tag = (int)result.Series.Points[result.PointIndex].XValue;
-                    ChartToolTip.SetToolTip(SRPMChart, result.Series.Points[result.PointIndex].YValues[0] + "RPM");
-                }
+                ChartToolTip.SetToolTip(SRPMChart, result.Series.Points[result.PointIndex].YValues[0] + "RPM");
             }
             else
             {

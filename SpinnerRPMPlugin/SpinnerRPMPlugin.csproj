@@ -82,7 +82,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>robocopy "$(TargetDir) " "$(SolutionDir)o!RA\bin\$(ConfigurationName)\Plugins\SpinnerRPM" "$(TargetFileName)"
+    <PostBuildEvent>robocopy "$(TargetDir) " "$(SolutionDir)o!RA\bin\$(ConfigurationName)\Plugins\2_SpinnerRPM" "$(TargetFileName)"
 rem suppress successful robocopy exit statuses, only report genuine errors
 set/A errlev="%25ERRORLEVEL%25 &amp; 24"</PostBuildEvent>
   </PropertyGroup>

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace o_RA.Properties {
+namespace TWChartPlugin.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace o_RA.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("o_RA.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TWChartPlugin.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,9 +63,9 @@ namespace o_RA.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap enUSFlag {
+        internal static System.Drawing.Bitmap TimingGraph_H {
             get {
-                object obj = ResourceManager.GetObject("enUSFlag", resourceCulture);
+                object obj = ResourceManager.GetObject("TimingGraph_H", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,19 +73,9 @@ namespace o_RA.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Menu_H {
+        internal static System.Drawing.Bitmap TimingGraph_N {
             get {
-                object obj = ResourceManager.GetObject("Menu_H", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Menu_N {
-            get {
-                object obj = ResourceManager.GetObject("Menu_N", resourceCulture);
+                object obj = ResourceManager.GetObject("TimingGraph_N", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

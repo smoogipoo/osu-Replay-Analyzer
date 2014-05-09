@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.TabContainer = new System.Windows.Forms.Panel();
-            this.TabPages = new PageCollection();
+            this.TabPages = new o_RA.oRAControls.PageCollection();
             this.SuspendLayout();
             // 
             // TabContainer

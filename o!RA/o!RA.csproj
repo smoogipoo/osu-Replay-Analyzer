@@ -146,9 +146,7 @@
     <None Include="Resources\enUSFlag.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bin\Debug\db.sdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="bin\Debug\db.sdf" />
     <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
     <None Include="Resources\Menu_H.png" />
     <None Include="Resources\Menu_N.png" />

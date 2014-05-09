@@ -65,8 +65,8 @@ namespace o_RA
 {
     public class oRAFonts
     {
-        public static Font Font_Title = new Font("Segoe UI", 12, FontStyle.Bold);
-        public static Font Font_Description = new Font("Segoe UI", 10);
+        public static Font Font_Title = new Font("Segoe UI", 10, FontStyle.Bold);
+        public static Font Font_Description = new Font("Segoe UI", 9);
         public static Font Font_SubDescription = new Font("Segoe UI", 8);
     }
     public class oRAColours

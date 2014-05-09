@@ -9,7 +9,7 @@ namespace SpinnerRPMPlugin
     public class oRA : IPlugin
     {
         #region Plugin Constants (Set these)
-        public static string Name = "Spinner RPM Plugin";
+        public static string Name = "Spinner RPM";
         public static string Description = "Plots the moving RPM of the spinners.";
         public static string Author = "o!RA Developers";
         public static string Version = "1.0.0";

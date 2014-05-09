@@ -62,8 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBHelper.cs" />
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="oRAControls\oRALabel.cs" />
     <Compile Include="oRAForms\oRAMainForm.cs">
       <SubType>Form</SubType>
     </Compile>

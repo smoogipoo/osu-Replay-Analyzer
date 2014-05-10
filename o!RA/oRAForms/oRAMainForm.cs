@@ -279,7 +279,7 @@ namespace o_RA.oRAForms
                         //compare by md5 hash
                         if (MD5FromFile(file) != GetDBField(conn, "Beatmap", "Hash", "Filename=" + file)["Hash"].ToString())
                         {
-                            //Update db entry
+                            //Update db entry if md5 different
                         }
                     }
                     else

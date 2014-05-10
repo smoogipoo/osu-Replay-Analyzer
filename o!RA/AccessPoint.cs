@@ -1011,6 +1011,7 @@ namespace o_RA
         {
             string sqlStatement = Command.CommandText;
             int objectCounter = 0;
+            // slow method, adds each value individually for each row
             foreach (var dataItem in DataList)
             {
                 Command.CommandText = sqlStatement;

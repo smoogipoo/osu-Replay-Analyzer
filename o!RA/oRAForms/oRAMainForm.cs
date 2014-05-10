@@ -464,28 +464,27 @@ namespace o_RA.oRAForms
                     ReplayLength = Replay.ReplayLength
                 };
                 int id = DataBase.Insert(item);
-                //Parallel.ForEach(Replay.ReplayFrames, frame =>
+                //Parallel.ForEach(Replay.ClickFrames, frame =>
                  //   {
-                MessageBox.Show(Replay.ReplayFrames.Count.ToString());
-                foreach (var frame in Replay.ReplayFrames)
+                List<ClickFrame> replayFrameList = new List<ClickFrame>();
+                foreach (var frame in Replay.ClickFrames)
                 {
-                    Tables.ReplayFrame item2 = new Tables.ReplayFrame
-                    {
-                        TimeDiff = frame.TimeDiff,
-                        Time = frame.Time,
-                        X = (decimal)frame.X,
-                        Y = (decimal)frame.Y,
-                        Replay_Id = id
-                    };
-                    DataBase.Insert(item2);
+                        Tables.ClickFrame item2 = new Tables.ClickFrame
+                        {
+                            TimeDiff = frame.TimeDiff,
+                            Time = frame.Time,
+                            X = (decimal)frame.X,
+                            Y = (decimal)frame.Y,
+                            Replay_Id = id
+                        };
+                        replayFrameList.Add(item2);
                 }
-                MessageBox.Show("End Replay");
-
+                DataBase.Insert(replayFrameList);
                 //});
                 }
             //});
 
-            var alldata = DataBase.Select(new Tables.ReplayFrame());
+            var alldata = DataBase.Select(new Tables.ClickFrame());
             MessageBox.Show("Number of records in table: " +
                 alldata.Count.ToString() + "\r\n");
 

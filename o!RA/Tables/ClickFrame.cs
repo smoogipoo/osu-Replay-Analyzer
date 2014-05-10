@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace o_RA.Tables
 {
-    class ReplayFrame
+    class ClickFrame
     {
-        public ReplayFrame()
+        public ClickFrame()
         {
 
         }

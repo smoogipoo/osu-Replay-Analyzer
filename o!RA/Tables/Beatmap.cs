@@ -17,6 +17,7 @@ namespace o_RA.Tables
         public string Creator { get; set; }
         public string AudioFilename { get; set; }
         public string Filename { get; set; }
+        public string MapHash { get; set; }
         public decimal? HPDrainRate { get; set; }
         public decimal? CircleSize { get; set; }
         public decimal? OverallDifficulty { get; set; }

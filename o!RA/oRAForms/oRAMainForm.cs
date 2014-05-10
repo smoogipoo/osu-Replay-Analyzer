@@ -31,7 +31,7 @@ namespace o_RA.oRAForms
         internal static Updater Updater = new Updater();
 
         private AccessPoint DataBase = new AccessPoint { Filename = "db.sdf", Filepath = Environment.CurrentDirectory };
-        Replay Replay;
+        ReplayAPI.Replay Replay;
         BMAPI.Beatmap Beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
         static DataClass oRAData;
@@ -359,7 +359,7 @@ namespace o_RA.oRAForms
                             SqlCeUpdatableRecord rec = rs.CreateRecord();
                             try
                             {
-                                Replay = new Replay(file.FullName);
+                                Replay = new ReplayAPI.Replay(file.FullName);
                             }
                             catch (Exception) { }
                             rec.SetInt32(1, (int)Replay.GameMode);
@@ -410,10 +410,9 @@ namespace o_RA.oRAForms
         private void PopulateDB()
         {
             //TODO Check if write possible, if db is in program files might not have write access
-            //TODO Find way not to add duplicate data - Compare by filename - if exists in 
+            //TODO Find way not to add duplicate data
             //TODO Update DB if replay gets added/deleted
             //TODO Update DB if beatmap gets added/deleted/changed
-
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
             Parallel.ForEach(beatmapFiles, file =>
             {
@@ -423,6 +422,7 @@ namespace o_RA.oRAForms
                     Creator = Beatmap.Creator,
                     AudioFilename = Beatmap.AudioFilename,
                     Filename = Beatmap.Filename,
+                    MapHash = MD5FromFile(file),
                     HPDrainRate = (decimal)Beatmap.HPDrainRate,
                     CircleSize = (decimal)Beatmap.CircleSize,
                     OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
@@ -434,7 +434,35 @@ namespace o_RA.oRAForms
                 DataBase.Insert(item);
             });
 
-            var alldata = DataBase.Select(new Tables.Beatmap());
+            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
+            FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
+
+            Parallel.ForEach(replayFiles, file =>
+            {
+                Replay = new ReplayAPI.Replay(file.FullName);
+                Tables.Replay item = new Tables.Replay
+                {
+                    GameMode = (int)Replay.GameMode,
+                    Filename = Replay.Filename,
+                    MapHash = Replay.MapHash,
+                    ReplayHash = Replay.ReplayHash,
+                    PlayerName = Replay.PlayerName,
+                    TotalScore = Replay.TotalScore,
+                    Count_300 = Replay.Count_300,
+                    Count_100 = Replay.Count_100,
+                    Count_50 = Replay.Count_50,
+                    Count_Geki = Replay.Count_Geki,
+                    Count_Katu = Replay.Count_Katu,
+                    Count_Miss = Replay.Count_Miss,
+                    MaxCombo = Replay.MaxCombo,
+                    IsPerfect = Replay.IsPerfect,
+                    PlayTime = Replay.PlayTime,
+                    ReplayLength = Replay.ReplayLength
+                };
+                DataBase.Insert(item);
+            });
+
+            var alldata = DataBase.Select(new Tables.Replay());
             MessageBox.Show("Number of records in table: " +
                 alldata.Count.ToString() + "\r\n");
 
@@ -560,7 +588,7 @@ namespace o_RA.oRAForms
         {
             try
             {
-                Replay = new Replay(oRAData.ReplayDirectory + "\\" + e.Node.Text);
+                Replay = new ReplayAPI.Replay(oRAData.ReplayDirectory + "\\" + e.Node.Text);
             }
             catch (Exception ex)
             {

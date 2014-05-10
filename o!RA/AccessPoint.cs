@@ -171,6 +171,7 @@ namespace o_RA
         public string Filename { get; set; }
         private string password { get; set; }
         public string Password { set { password = value; } }
+        public int CurrentRowId { get; private set; }
 
         #endregion
 
@@ -314,6 +315,10 @@ namespace o_RA
             }
             catch (SqlCeException sqlexception)
             {
+                if (sqlexception.Message.StartsWith("A duplicate value cannot be inserted into a unique index."))
+                {
+                    return -2;
+                }
                 MessageBox.Show(sqlexception.Message + "\n\n" + sqlexception.StackTrace, "SQL-error.",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return -1;
@@ -1011,7 +1016,6 @@ namespace o_RA
         {
             string sqlStatement = Command.CommandText;
             int objectCounter = 0;
-            // slow method, adds each value individually for each row
             foreach (var dataItem in DataList)
             {
                 Command.CommandText = sqlStatement;
@@ -1019,6 +1023,7 @@ namespace o_RA
                 objectCounter += Command.ExecuteNonQuery();
                 Command.CommandText = "SELECT @@IDENTITY";
                 int propID = Convert.ToInt32((decimal)Command.ExecuteScalar());
+                CurrentRowId = propID;
                 CurrentUniqueIdentifier.SetValue(dataItem, propID, null);
             }
             return objectCounter;

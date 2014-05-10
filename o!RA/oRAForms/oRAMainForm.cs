@@ -226,10 +226,14 @@ namespace o_RA.oRAForms
             }
         }
 
-        private SqlCeDataReader GetDBField(SqlCeConnection conn, string table, string column, string condition)
+        private SqlCeDataReader GetDBField(string table, string column, string condition)
         {
-            SqlCeCommand cmd = new SqlCeCommand(String.Format("SELECT {0} FROM {1} WHERE {2};", column, table, condition), conn);
-            return cmd.ExecuteReader();
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            {
+                conn.Open();
+                SqlCeCommand cmd = new SqlCeCommand(String.Format("SELECT {0} FROM {1} WHERE {2};", column, table, condition), conn);
+                return cmd.ExecuteReader();
+            }
         }
 
         private bool DBFieldExists(SqlCeConnection conn, string table, string column, string key)
@@ -241,8 +245,10 @@ namespace o_RA.oRAForms
         private void LoadBeatmapsToDB()
         {
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-            List<Tables.Beatmap> beatmapList = new List<Tables.Beatmap>();
-            Parallel.ForEach(beatmapFiles, file =>
+            int currentBeatmap_Id;
+            //Parallel.ForEach(beatmapFiles, file =>
+            //{
+            foreach (var file in beatmapFiles)
             {
                 Beatmap = new BMAPI.Beatmap(file);
                 Tables.Beatmap item = new Tables.Beatmap
@@ -259,9 +265,32 @@ namespace o_RA.oRAForms
                     Artist = Beatmap.Artist,
                     Version = Beatmap.Version
                 };
-                beatmapList.Add(item);
-            });
-            DataBase.Insert(beatmapList);
+                DataBase.Insert(item);
+                currentBeatmap_Id = DataBase.CurrentRowId;
+                foreach (var tag in Beatmap.Tags)
+                {
+                    Tables.BeatmapTag item2 = new Tables.BeatmapTag { Name = tag };
+                    //check for duplicate tags
+                    if (DataBase.Insert(item2) == -2)
+                    {
+                        try
+                        {
+                            //TODO get correct BeatmapTag_Id
+                            MessageBox.Show(GetDBField("BeatmapTag", "BeatmapTag_Id", "Name='" + item2.Name+"'")["BeatmapTag_Id"].ToString());
+                        }
+                        catch (Exception ex)
+                        {
+
+                            MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+                        }
+                        //insert foreign keys to Beatmap_BeatmapTag
+                        //TODO not working
+                        DataBase.Insert(new Beatmap_BeatmapTag { Beatmap_Id = currentBeatmap_Id, BeatmapTag_Id = GetDBField("BeatmapTag", "BeatmapTag_Id", "Name=" + item2.Name).GetInt32(0)});
+                    }
+                }
+
+            }
+            //});
         }
 
         private void UpdateBeatmapsToDB()
@@ -277,7 +306,7 @@ namespace o_RA.oRAForms
                     if (DBFieldExists(conn, "Beatmap", "Filename", file))
                     {
                         //compare by md5 hash
-                        if (MD5FromFile(file) != GetDBField(conn, "Beatmap", "Hash", "Filename=" + file)["Hash"].ToString())
+                        if (MD5FromFile(file) != GetDBField("Beatmap", "Hash", "Filename=" + file)["Hash"].ToString())
                         {
                             //Update db entry if md5 different
                         }
@@ -405,7 +434,8 @@ namespace o_RA.oRAForms
             }
             else
             {
-                UpdateBeatmapsToDB();
+                //TODO:
+                //UpdateBeatmapsToDB();
             }
 
             if (IsDBTableEmpty("Replay"))
@@ -414,7 +444,8 @@ namespace o_RA.oRAForms
             }
             else
             {
-                UpdateReplaysToDB();
+                //TODO:
+                //UpdateReplaysToDB();
             }
         }
 

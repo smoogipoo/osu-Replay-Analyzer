@@ -413,32 +413,36 @@ namespace o_RA.oRAForms
             //TODO Find way not to add duplicate data
             //TODO Update DB if replay gets added/deleted
             //TODO Update DB if beatmap gets added/deleted/changed
-            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-            Parallel.ForEach(beatmapFiles, file =>
-            {
-                Beatmap = new BMAPI.Beatmap(file);
-                Tables.Beatmap item = new Tables.Beatmap
-                {
-                    Creator = Beatmap.Creator,
-                    AudioFilename = Beatmap.AudioFilename,
-                    Filename = Beatmap.Filename,
-                    MapHash = MD5FromFile(file),
-                    HPDrainRate = (decimal)Beatmap.HPDrainRate,
-                    CircleSize = (decimal)Beatmap.CircleSize,
-                    OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
-                    ApproachRate = (decimal)Beatmap.ApproachRate,
-                    Title = Beatmap.Title,
-                    Artist = Beatmap.Artist,
-                    Version = Beatmap.Version
-                };
-                DataBase.Insert(item);
-            });
+            //string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+            //Parallel.ForEach(beatmapFiles, file =>
+            //{
+            //    Beatmap = new BMAPI.Beatmap(file);
+            //    Tables.Beatmap item = new Tables.Beatmap
+            //    {
+            //        Creator = Beatmap.Creator,
+            //        AudioFilename = Beatmap.AudioFilename,
+            //        Filename = Beatmap.Filename,
+            //        MapHash = MD5FromFile(file),
+            //        HPDrainRate = (decimal)Beatmap.HPDrainRate,
+            //        CircleSize = (decimal)Beatmap.CircleSize,
+            //        OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
+            //        ApproachRate = (decimal)Beatmap.ApproachRate,
+            //        Title = Beatmap.Title,
+            //        Artist = Beatmap.Artist,
+            //        Version = Beatmap.Version
+            //    };
+            //    DataBase.Insert(item);
+            //});
 
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
-            Parallel.ForEach(replayFiles, file =>
-            {
+            //Parallel.ForEach(replayFiles, file =>
+            //{
+                foreach (var file in replayFiles)
+                {
+                    
+
                 Replay = new ReplayAPI.Replay(file.FullName);
                 Tables.Replay item = new Tables.Replay
                 {
@@ -459,10 +463,29 @@ namespace o_RA.oRAForms
                     PlayTime = Replay.PlayTime,
                     ReplayLength = Replay.ReplayLength
                 };
-                DataBase.Insert(item);
-            });
+                int id = DataBase.Insert(item);
+                //Parallel.ForEach(Replay.ReplayFrames, frame =>
+                 //   {
+                MessageBox.Show(Replay.ReplayFrames.Count.ToString());
+                foreach (var frame in Replay.ReplayFrames)
+                {
+                    Tables.ReplayFrame item2 = new Tables.ReplayFrame
+                    {
+                        TimeDiff = frame.TimeDiff,
+                        Time = frame.Time,
+                        X = (decimal)frame.X,
+                        Y = (decimal)frame.Y,
+                        Replay_Id = id
+                    };
+                    DataBase.Insert(item2);
+                }
+                MessageBox.Show("End Replay");
 
-            var alldata = DataBase.Select(new Tables.Replay());
+                //});
+                }
+            //});
+
+            var alldata = DataBase.Select(new Tables.ReplayFrame());
             MessageBox.Show("Number of records in table: " +
                 alldata.Count.ToString() + "\r\n");
 

@@ -437,10 +437,13 @@ namespace o_RA.oRAForms
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
             //Parallel.ForEach(replayFiles, file =>
             //{
-                foreach (var file in replayFiles)
-                {
+            foreach (var file in replayFiles)
+            {
                 Replay = new ReplayAPI.Replay(file.FullName);
                 Tables.Replay item = new Tables.Replay
                 {
@@ -461,27 +464,31 @@ namespace o_RA.oRAForms
                     PlayTime = Replay.PlayTime,
                     ReplayLength = Replay.ReplayLength
                 };
+                //Need to find a way to get correct Replay_Id, currently always 1
                 int id = DataBase.Insert(item);
-                //Parallel.ForEach(Replay.ClickFrames, frame =>
-                 //   {
+
                 List<ClickFrame> clickFrameList = new List<ClickFrame>();
+                //Parallel.ForEach(Replay.ClickFrames, frame =>
+                //    {
                 foreach (var frame in Replay.ClickFrames)
                 {
-                        Tables.ClickFrame item2 = new Tables.ClickFrame
-                        {
-                            TimeDiff = frame.TimeDiff,
-                            Time = frame.Time,
-                            X = (decimal)frame.X,
-                            Y = (decimal)frame.Y,
-                            KeyData_Id = (int)frame.Keys,
-                            Replay_Id = id
-                        };
-                        clickFrameList.Add(item2);
+                    Tables.ClickFrame item2 = new Tables.ClickFrame
+                    {
+                        TimeDiff = frame.TimeDiff,
+                        Time = frame.Time,
+                        X = (decimal)frame.X,
+                        Y = (decimal)frame.Y,
+                        KeyData_Id = (int)frame.Keys,
+                        Replay_Id = id
+                    };
+                    clickFrameList.Add(item2);
                 }
-                DataBase.Insert(clickFrameList);
                 //});
-                }
+                DataBase.Insert(clickFrameList);
+            }
             //});
+            watch.Stop();
+            MessageBox.Show(watch.Elapsed.ToString());
 
             if (IsDBTableEmpty("Beatmap"))
             {

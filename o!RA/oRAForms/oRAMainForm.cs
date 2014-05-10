@@ -414,16 +414,6 @@ namespace o_RA.oRAForms
             //TODO Update DB if replay gets added/deleted
             //TODO Update DB if beatmap gets added/deleted/changed
 
-            //Insert one row
-            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES ('Test');");
-
-            //With parameters
-            //ArrayList pmts = new ArrayList();
-            //pmts.Add(new SqlCeParameter("@Name","test"));
-            //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES (@Name);", pmts);
-
-            // instantiate object of type TestTable. An empty string will be 
-            // written as null in the table.
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
             Parallel.ForEach(beatmapFiles, file =>
             {
@@ -444,13 +434,7 @@ namespace o_RA.oRAForms
                 DataBase.Insert(item);
             });
 
-
-
-            // even shorter than writing data!
             var alldata = DataBase.Select(new Tables.Beatmap());
-            // in case of exception...
-            if (alldata == null) return;
-            // clear textbox
             MessageBox.Show("Number of records in table: " +
                 alldata.Count.ToString() + "\r\n");
 
@@ -470,9 +454,6 @@ namespace o_RA.oRAForms
             {
                 UpdateReplaysToDB();
             }
-
-            // Use seek() instead of select
-            // http://msdn.microsoft.com/en-us/library/system.data.sqlserverce.sqlcedatareader.seek(v=vs.100).aspx
         }
 
         private void PopulateLists()

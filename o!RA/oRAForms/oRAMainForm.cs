@@ -401,12 +401,22 @@ namespace o_RA.oRAForms
                     oRAData.TimingMin = oRAData.TimingDifference.Min();
                 }
 
-                //Calculate unstable rate
-                oRAData.UnstableRate /= inc;
-                double variance = oRAData.TimingDifference.Aggregate((v, newValue) => v + (int)Math.Pow(newValue, 2));
-                oRAData.UnstableRate = Math.Round(Math.Sqrt(variance / oRAData.TimingDifference.Count) * 10, 2);
+                if (oRAData.TimingDifference.Count > 0 && inc > 0)
+                {
+                    //Calculate unstable rate
+                    oRAData.UnstableRate /= inc;
+                    double variance = oRAData.TimingDifference.Aggregate((v, newValue) => v + (int)Math.Pow(newValue, 2));
+                    oRAData.UnstableRate = Math.Round(Math.Sqrt(variance / oRAData.TimingDifference.Count) * 10, 2);
+                }
 
                 ReplayTimeline.DataSource = iteratedObjects;
+                if (ReplayTimeline.Columns.Count > 0)
+                {
+                    foreach (DataGridViewColumn c in ReplayTimeline.Columns)
+                    {
+                        c.SortMode = DataGridViewColumnSortMode.NotSortable;
+                    }
+                }
                 if (ReplayTimeline.Rows.Count > 0)
                     ReplayTimeline.Rows[0].Selected = true;
 
@@ -452,12 +462,7 @@ namespace o_RA.oRAForms
         {
             if (e.Node.Index == -1)
                 return;
-            e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_BG_P0), e.Bounds);
-            if (e.State.HasFlag(TreeNodeStates.Selected))
-            {
-                e.Graphics.FillRectangle(new SolidBrush(oRAColours.Colour_Item_BG_1), e.Bounds);
-                e.Graphics.DrawRectangle(new Pen(oRAColours.Colour_Item_BG_0), e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-            }
+            e.Graphics.FillRectangle(new SolidBrush(e.State.HasFlag(TreeNodeStates.Selected) ? oRAColours.Colour_Item_BG_0 : oRAColours.Colour_BG_P0), e.Bounds);
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             e.Graphics.DrawString(e.Node.Text, oRAFonts.Font_SubDescription, e.State.HasFlag(TreeNodeStates.Selected) ? new SolidBrush(oRAColours.Colour_Text_H) : new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + 22, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Node.Text, oRAFonts.Font_SubDescription).Height / 2);
         }

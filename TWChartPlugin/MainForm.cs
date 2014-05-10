@@ -53,7 +53,7 @@ namespace TWChartPlugin
                 return;
             LastHitPoint = new Point(e.X, e.Y);
             HitTestResult result = TWChart.HitTest(e.X, e.Y);
-            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < TWChart.Series[3].Points.Count)
+            if (result.PointIndex != -1 && result.Series != null && result.PointIndex < TWChart.Series[3].Points.Count && Equals(result.Series, TWChart.Series[3]))
             {
                     ChartToolTip.Tag = (int)TWChart.Series[3].Points[result.PointIndex].XValue;
                     ChartToolTip.SetToolTip(TWChart, TWChart.Series[3].Points[result.PointIndex].YValues[0] + "ms");
@@ -75,10 +75,19 @@ namespace TWChartPlugin
             TWChart.Series[3].Points.Clear();
             TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-            foreach (int time in oRA.Data.TimingDifference)
+            for (int i = 0; i < oRA.Data.TimingDifference.Count; i++)
             {
-                TWChart.Series[3].Points.Add(time);
-            }
+                TWChart.Series[3].Points.AddXY(i + 1, oRA.Data.TimingDifference[i]); 
+            }         
+            TWChart.Series[0].Points.Clear();
+            TWChart.Series[0].Points.AddXY(0, oRA.Data.TimingWindows[2], -oRA.Data.TimingWindows[2]);
+            TWChart.Series[0].Points.AddXY(oRA.Data.TimingDifference.Count, oRA.Data.TimingWindows[2], -oRA.Data.TimingWindows[2]);
+            TWChart.Series[1].Points.Clear();
+            TWChart.Series[1].Points.AddXY(0, oRA.Data.TimingWindows[1], -oRA.Data.TimingWindows[1]);
+            TWChart.Series[1].Points.AddXY(oRA.Data.TimingDifference.Count, oRA.Data.TimingWindows[1], -oRA.Data.TimingWindows[1]);
+            TWChart.Series[2].Points.Clear();
+            TWChart.Series[2].Points.AddXY(0, oRA.Data.TimingWindows[0], -oRA.Data.TimingWindows[0]);
+            TWChart.Series[2].Points.AddXY(oRA.Data.TimingDifference.Count, oRA.Data.TimingWindows[0], -oRA.Data.TimingWindows[0]);
         }
         private void HandleFrameChanged(int index)
         {

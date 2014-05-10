@@ -14,11 +14,12 @@ namespace o_RA.Tables
         }
 
         [UniqueIdentifier]
-        public int? ReplayFrame_Id { get; set; }
+        public int? ClickFrame_Id { get; set; }
         public Int64? TimeDiff { get; set; }
         public int? Time { get; set; }
         public decimal? X { get; set; }
         public decimal? Y { get; set; }
+        public int? KeyData_Id { get; set; }
         public int? Replay_Id { get; set; }
     }
 }

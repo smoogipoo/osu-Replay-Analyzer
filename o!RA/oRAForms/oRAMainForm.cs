@@ -441,8 +441,6 @@ namespace o_RA.oRAForms
             //{
                 foreach (var file in replayFiles)
                 {
-                    
-
                 Replay = new ReplayAPI.Replay(file.FullName);
                 Tables.Replay item = new Tables.Replay
                 {
@@ -466,7 +464,7 @@ namespace o_RA.oRAForms
                 int id = DataBase.Insert(item);
                 //Parallel.ForEach(Replay.ClickFrames, frame =>
                  //   {
-                List<ClickFrame> replayFrameList = new List<ClickFrame>();
+                List<ClickFrame> clickFrameList = new List<ClickFrame>();
                 foreach (var frame in Replay.ClickFrames)
                 {
                         Tables.ClickFrame item2 = new Tables.ClickFrame
@@ -475,18 +473,15 @@ namespace o_RA.oRAForms
                             Time = frame.Time,
                             X = (decimal)frame.X,
                             Y = (decimal)frame.Y,
+                            KeyData_Id = (int)frame.Keys,
                             Replay_Id = id
                         };
-                        replayFrameList.Add(item2);
+                        clickFrameList.Add(item2);
                 }
-                DataBase.Insert(replayFrameList);
+                DataBase.Insert(clickFrameList);
                 //});
                 }
             //});
-
-            var alldata = DataBase.Select(new Tables.ClickFrame());
-            MessageBox.Show("Number of records in table: " +
-                alldata.Count.ToString() + "\r\n");
 
             if (IsDBTableEmpty("Beatmap"))
             {

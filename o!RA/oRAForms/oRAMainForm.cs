@@ -413,33 +413,38 @@ namespace o_RA.oRAForms
             //TODO Find way not to add duplicate data
             //TODO Update DB if replay gets added/deleted
             //TODO Update DB if beatmap gets added/deleted/changed
-            //string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-            //Parallel.ForEach(beatmapFiles, file =>
-            //{
-            //    Beatmap = new BMAPI.Beatmap(file);
-            //    Tables.Beatmap item = new Tables.Beatmap
-            //    {
-            //        Creator = Beatmap.Creator,
-            //        AudioFilename = Beatmap.AudioFilename,
-            //        Filename = Beatmap.Filename,
-            //        MapHash = MD5FromFile(file),
-            //        HPDrainRate = (decimal)Beatmap.HPDrainRate,
-            //        CircleSize = (decimal)Beatmap.CircleSize,
-            //        OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
-            //        ApproachRate = (decimal)Beatmap.ApproachRate,
-            //        Title = Beatmap.Title,
-            //        Artist = Beatmap.Artist,
-            //        Version = Beatmap.Version
-            //    };
-            //    DataBase.Insert(item);
-            //});
-
-            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
-            FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
-
+            // 9 sec for 2k Beatmaps
             Stopwatch watch = new Stopwatch();
             watch.Start();
+            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+            List<Tables.Beatmap> beatmapList = new List<Tables.Beatmap>();
+            Parallel.ForEach(beatmapFiles, file =>
+            {
+                Beatmap = new BMAPI.Beatmap(file);
+                Tables.Beatmap item = new Tables.Beatmap
+                {
+                    Creator = Beatmap.Creator,
+                    AudioFilename = Beatmap.AudioFilename,
+                    Filename = Beatmap.Filename,
+                    MapHash = MD5FromFile(file),
+                    HPDrainRate = (decimal)Beatmap.HPDrainRate,
+                    CircleSize = (decimal)Beatmap.CircleSize,
+                    OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
+                    ApproachRate = (decimal)Beatmap.ApproachRate,
+                    Title = Beatmap.Title,
+                    Artist = Beatmap.Artist,
+                    Version = Beatmap.Version
+                };
+                beatmapList.Add(item);
+            });
+            DataBase.Insert(beatmapList);
+            watch.Stop();
+            MessageBox.Show(watch.Elapsed.ToString());
+            watch.Reset();
 
+            watch.Start();
+            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
+            FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
             //Parallel.ForEach(replayFiles, file =>
             //{
             foreach (var file in replayFiles)

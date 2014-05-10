@@ -241,45 +241,27 @@ namespace o_RA.oRAForms
         private void LoadBeatmapsToDB()
         {
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+            List<Tables.Beatmap> beatmapList = new List<Tables.Beatmap>();
             Parallel.ForEach(beatmapFiles, file =>
             {
-                using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+                Beatmap = new BMAPI.Beatmap(file);
+                Tables.Beatmap item = new Tables.Beatmap
                 {
-                    conn.Open();
-
-                    using (SqlCeCommand cmd = new SqlCeCommand())
-                    {
-                        cmd.Connection = conn;
-                        cmd.CommandText = "Beatmap";
-                        cmd.CommandType = CommandType.TableDirect;
-                        using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                            SqlCeUpdatableRecord rec = rs.CreateRecord();
-
-                            Beatmap = new BMAPI.Beatmap(file);
-
-                            rec.SetString(1, Beatmap.Creator);
-                            rec.SetString(2, Beatmap.AudioFilename);
-                            rec.SetString(3, Beatmap.Filename);
-                            rec.SetDecimal(4, (decimal)Beatmap.HPDrainRate);
-                            rec.SetDecimal(5, (decimal)Beatmap.CircleSize);
-                            rec.SetDecimal(6, (decimal)Beatmap.OverallDifficulty);
-                            rec.SetDecimal(7, (decimal)Beatmap.ApproachRate);
-                            rec.SetString(8, Beatmap.Title);
-                            rec.SetString(9, Beatmap.Artist);
-                            rec.SetString(10, Beatmap.Version);
-                            try
-                            {
-                                rs.Insert(rec);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(file + Environment.NewLine + ex);
-                            }
-                        }
-                    }
-                }
+                    Creator = Beatmap.Creator,
+                    AudioFilename = Beatmap.AudioFilename,
+                    Filename = Beatmap.Filename,
+                    MapHash = MD5FromFile(file),
+                    HPDrainRate = (decimal)Beatmap.HPDrainRate,
+                    CircleSize = (decimal)Beatmap.CircleSize,
+                    OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
+                    ApproachRate = (decimal)Beatmap.ApproachRate,
+                    Title = Beatmap.Title,
+                    Artist = Beatmap.Artist,
+                    Version = Beatmap.Version
+                };
+                beatmapList.Add(item);
             });
+            DataBase.Insert(beatmapList);
         }
 
         private void UpdateBeatmapsToDB()
@@ -343,108 +325,6 @@ namespace o_RA.oRAForms
         {
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
-
-            Parallel.ForEach(replayFiles, file =>
-            {
-                using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
-                {
-                    conn.Open();
-                    using (SqlCeCommand cmd = new SqlCeCommand())
-                    {
-                        cmd.Connection = conn;
-                        cmd.CommandText = "Replay";
-                        cmd.CommandType = CommandType.TableDirect;
-                        using (SqlCeResultSet rs = cmd.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                            SqlCeUpdatableRecord rec = rs.CreateRecord();
-                            try
-                            {
-                                Replay = new ReplayAPI.Replay(file.FullName);
-                            }
-                            catch (Exception) { }
-                            rec.SetInt32(1, (int)Replay.GameMode);
-                            rec.SetString(2, Replay.Filename);
-                            rec.SetString(3, Replay.MapHash);
-                            rec.SetString(4, Replay.ReplayHash);
-                            rec.SetString(5, Replay.PlayerName);
-                            rec.SetInt32(6, Replay.TotalScore);
-                            rec.SetInt32(7, Replay.Count_300);
-                            rec.SetInt32(8, Replay.Count_100);
-                            rec.SetInt32(9, Replay.Count_50);
-                            rec.SetInt32(10, Replay.Count_Geki);
-                            rec.SetInt32(11, Replay.Count_Katu);
-                            rec.SetInt32(12, Replay.Count_Miss);
-                            rec.SetInt32(13, Replay.MaxCombo);
-                            rec.SetInt32(14, Replay.IsPerfect);
-                            rec.SetDateTime(15, Replay.PlayTime);
-                            rec.SetInt32(16, Replay.ReplayLength);
-                            try
-                            {
-                                rs.Insert(rec);
-                            }
-                            catch (SqlCeException) { }
-                        }
-                    }
-                }
-            });
-        }
-
-        private void UpdateReplaysToDB()
-        {
-            //Use DB operations wherever possible for performance
-            //Compare by filename
-            if (true)
-            {
-                //compare by md5 hash
-                if (!true)
-                {
-                    //Update db entry
-                }
-            }
-            else
-            {
-                //Add to db
-            }
-        }
-
-        private void PopulateDB()
-        {
-            //TODO Check if write possible, if db is in program files might not have write access
-            //TODO Find way not to add duplicate data
-            //TODO Update DB if replay gets added/deleted
-            //TODO Update DB if beatmap gets added/deleted/changed
-            // 9 sec for 2k Beatmaps
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-            List<Tables.Beatmap> beatmapList = new List<Tables.Beatmap>();
-            Parallel.ForEach(beatmapFiles, file =>
-            {
-                Beatmap = new BMAPI.Beatmap(file);
-                Tables.Beatmap item = new Tables.Beatmap
-                {
-                    Creator = Beatmap.Creator,
-                    AudioFilename = Beatmap.AudioFilename,
-                    Filename = Beatmap.Filename,
-                    MapHash = MD5FromFile(file),
-                    HPDrainRate = (decimal)Beatmap.HPDrainRate,
-                    CircleSize = (decimal)Beatmap.CircleSize,
-                    OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
-                    ApproachRate = (decimal)Beatmap.ApproachRate,
-                    Title = Beatmap.Title,
-                    Artist = Beatmap.Artist,
-                    Version = Beatmap.Version
-                };
-                beatmapList.Add(item);
-            });
-            DataBase.Insert(beatmapList);
-            watch.Stop();
-            MessageBox.Show(watch.Elapsed.ToString());
-            watch.Reset();
-
-            watch.Start();
-            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
-            FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
             //Parallel.ForEach(replayFiles, file =>
             //{
             foreach (var file in replayFiles)
@@ -492,8 +372,32 @@ namespace o_RA.oRAForms
                 DataBase.Insert(clickFrameList);
             }
             //});
-            watch.Stop();
-            MessageBox.Show(watch.Elapsed.ToString());
+        }
+
+        private void UpdateReplaysToDB()
+        {
+            //Use DB operations wherever possible for performance
+            //Compare by filename
+            if (true)
+            {
+                //compare by md5 hash
+                if (!true)
+                {
+                    //Update db entry
+                }
+            }
+            else
+            {
+                //Add to db
+            }
+        }
+
+        private void PopulateDB()
+        {
+            //TODO Check if write possible, if db is in program files might not have write access
+            //TODO Find way not to add duplicate data
+            //TODO Update DB if replay gets added/deleted
+            //TODO Update DB if beatmap gets added/deleted/changed
 
             if (IsDBTableEmpty("Beatmap"))
             {
@@ -503,6 +407,7 @@ namespace o_RA.oRAForms
             {
                 UpdateBeatmapsToDB();
             }
+
             if (IsDBTableEmpty("Replay"))
             {
                 LoadReplaysToDB();

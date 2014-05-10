@@ -16,6 +16,7 @@ using oRAInterface;
 using ReplayAPI;
 using System.Data.SqlServerCe;
 using System.Data;
+using o_RA.Tables;
 
 namespace o_RA.oRAForms
 {
@@ -29,8 +30,9 @@ namespace o_RA.oRAForms
         public static Settings Settings = new Settings();
         internal static Updater Updater = new Updater();
 
+        private AccessPoint DataBase = new AccessPoint { Filename = "db.sdf", Filepath = Environment.CurrentDirectory};
         Replay Replay;
-        Beatmap Beatmap;
+        BMAPI.Beatmap Beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
         static DataClass oRAData;
         static ControlsClass oRAControls;
@@ -254,7 +256,7 @@ namespace o_RA.oRAForms
                         {
                             SqlCeUpdatableRecord rec = rs.CreateRecord();
 
-                            Beatmap = new Beatmap(file);
+                            Beatmap = new BMAPI.Beatmap(file);
 
                             rec.SetString(1, Beatmap.Creator);
                             rec.SetString(2, Beatmap.AudioFilename);
@@ -310,7 +312,7 @@ namespace o_RA.oRAForms
                             {
                                 SqlCeUpdatableRecord rec = rs.CreateRecord();
 
-                                Beatmap = new Beatmap(file);
+                                Beatmap = new BMAPI.Beatmap(file);
 
                                 rec.SetString(1, Beatmap.Creator);
                                 rec.SetString(2, Beatmap.AudioFilename);
@@ -419,7 +421,6 @@ namespace o_RA.oRAForms
             //ArrayList pmts = new ArrayList();
             //pmts.Add(new SqlCeParameter("@Name","test"));
             //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES (@Name);", pmts);
-
             if (IsDBTableEmpty("Beatmap"))
             {
                 LoadBeatmapsToDB();
@@ -428,6 +429,14 @@ namespace o_RA.oRAForms
             {
                 UpdateBeatmapsToDB();
             }
+            // even shorter than writing data!
+            var alldata = DataBase.Select(new Tables.Beatmap());
+            // in case of exception...
+            if (alldata == null) return;
+            // clear textbox
+            MessageBox.Show("Number of records in table: " +
+                alldata.Count.ToString() + "\r\n");
+            MessageBox.Show(alldata[0].Filename);
 
             if (IsDBTableEmpty("Replay"))
             {
@@ -557,7 +566,7 @@ namespace o_RA.oRAForms
             var file = oRAData.BeatmapHashes.FirstOrDefault(kvp => kvp.Value.Contains(Replay.MapHash));
             if (file.Key != null)
             {
-                Beatmap = new Beatmap(file.Key);
+                Beatmap = new BMAPI.Beatmap(file.Key);
 
                 /* Start Timing Windows tab */
                 //Determine the timing windows for 300,100,50

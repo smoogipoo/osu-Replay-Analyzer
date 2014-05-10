@@ -30,7 +30,7 @@ namespace o_RA.oRAForms
         public static Settings Settings = new Settings();
         internal static Updater Updater = new Updater();
 
-        private AccessPoint DataBase = new AccessPoint { Filename = "db.sdf", Filepath = Environment.CurrentDirectory};
+        private AccessPoint DataBase = new AccessPoint { Filename = "db.sdf", Filepath = Environment.CurrentDirectory };
         Replay Replay;
         BMAPI.Beatmap Beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
@@ -421,6 +421,39 @@ namespace o_RA.oRAForms
             //ArrayList pmts = new ArrayList();
             //pmts.Add(new SqlCeParameter("@Name","test"));
             //dbtest.ExecuteNonQuery(@"INSERT INTO GameMode (Name) VALUES (@Name);", pmts);
+
+            // instantiate object of type TestTable. An empty string will be 
+            // written as null in the table.
+            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+            Parallel.ForEach(beatmapFiles, file =>
+            {
+                Beatmap = new BMAPI.Beatmap(file);
+                Tables.Beatmap item = new Tables.Beatmap
+                {
+                    Creator = Beatmap.Creator,
+                    AudioFilename = Beatmap.AudioFilename,
+                    Filename = Beatmap.Filename,
+                    HPDrainRate = (decimal)Beatmap.HPDrainRate,
+                    CircleSize = (decimal)Beatmap.CircleSize,
+                    OverallDifficulty = (decimal)Beatmap.OverallDifficulty,
+                    ApproachRate = (decimal)Beatmap.ApproachRate,
+                    Title = Beatmap.Title,
+                    Artist = Beatmap.Artist,
+                    Version = Beatmap.Version
+                };
+                DataBase.Insert(item);
+            });
+
+
+
+            // even shorter than writing data!
+            var alldata = DataBase.Select(new Tables.Beatmap());
+            // in case of exception...
+            if (alldata == null) return;
+            // clear textbox
+            MessageBox.Show("Number of records in table: " +
+                alldata.Count.ToString() + "\r\n");
+
             if (IsDBTableEmpty("Beatmap"))
             {
                 LoadBeatmapsToDB();
@@ -429,15 +462,6 @@ namespace o_RA.oRAForms
             {
                 UpdateBeatmapsToDB();
             }
-            // even shorter than writing data!
-            var alldata = DataBase.Select(new Tables.Beatmap());
-            // in case of exception...
-            if (alldata == null) return;
-            // clear textbox
-            MessageBox.Show("Number of records in table: " +
-                alldata.Count.ToString() + "\r\n");
-            MessageBox.Show(alldata[0].Filename);
-
             if (IsDBTableEmpty("Replay"))
             {
                 LoadReplaysToDB();

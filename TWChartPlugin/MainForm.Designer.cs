@@ -87,7 +87,6 @@
             series4.ChartArea = "ChartArea1";
             series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StackedColumn;
             series4.Color = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
-            series4.IsXValueIndexed = true;
             series4.Legend = "Legend1";
             series4.Name = "Timing Window";
             this.TWChart.Series.Add(series1);

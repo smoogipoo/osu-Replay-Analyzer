@@ -270,22 +270,15 @@ namespace o_RA.oRAForms
                 foreach (var tag in Beatmap.Tags)
                 {
                     Tables.BeatmapTag item2 = new Tables.BeatmapTag { Name = tag };
-                    //check for duplicate tags
-                    if (DataBase.Insert(item2) == -2)
+                    var existingItem = DataBase.Select(item2).FirstOrDefault(e => true);
+                    if (existingItem == null)
                     {
-                        try
-                        {
-                            //TODO get correct BeatmapTag_Id
-                            MessageBox.Show(GetDBField("BeatmapTag", "BeatmapTag_Id", "Name='" + item2.Name+"'")["BeatmapTag_Id"].ToString());
-                        }
-                        catch (Exception ex)
-                        {
-
-                            MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
-                        }
-                        //insert foreign keys to Beatmap_BeatmapTag
-                        //TODO not working
-                        DataBase.Insert(new Beatmap_BeatmapTag { Beatmap_Id = currentBeatmap_Id, BeatmapTag_Id = GetDBField("BeatmapTag", "BeatmapTag_Id", "Name=" + item2.Name).GetInt32(0)});
+                        DataBase.Insert(item2);
+                    }
+                    else
+                    {
+                        Beatmap_BeatmapTag test = new Beatmap_BeatmapTag { Beatmap_Id = currentBeatmap_Id, BeatmapTag_Id = existingItem.BeatmapTag_Id };
+                        DataBase.Insert(test);
                     }
                 }
 

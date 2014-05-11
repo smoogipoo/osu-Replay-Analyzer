@@ -347,6 +347,8 @@ namespace o_RA.oRAForms
         {
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] replayFiles = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
+            int currentReplay_Id;
+            List<ClickFrame> clickFrameList = new List<ClickFrame>();
             //Parallel.ForEach(replayFiles, file =>
             //{
             foreach (var file in replayFiles)
@@ -371,10 +373,9 @@ namespace o_RA.oRAForms
                     PlayTime = Replay.PlayTime,
                     ReplayLength = Replay.ReplayLength
                 };
-                //Need to find a way to get correct Replay_Id, currently always 1
-                int id = DataBase.Insert(item);
+                DataBase.Insert(item);
+                currentReplay_Id = DataBase.CurrentRowId;
 
-                List<ClickFrame> clickFrameList = new List<ClickFrame>();
                 //Parallel.ForEach(Replay.ClickFrames, frame =>
                 //    {
                 foreach (var frame in Replay.ClickFrames)
@@ -386,13 +387,14 @@ namespace o_RA.oRAForms
                         X = (decimal)frame.X,
                         Y = (decimal)frame.Y,
                         KeyData_Id = (int)frame.Keys,
-                        Replay_Id = id
+                        Replay_Id = currentReplay_Id
                     };
                     clickFrameList.Add(item2);
                 }
                 //});
-                DataBase.Insert(clickFrameList);
             }
+            DataBase.Insert(clickFrameList);
+            //DataBase.Insert(clickFrameList);
             //});
         }
 
@@ -423,7 +425,8 @@ namespace o_RA.oRAForms
 
             if (IsDBTableEmpty("Beatmap"))
             {
-                LoadBeatmapsToDB();
+                //TODO rewrite method to go faster
+                //LoadBeatmapsToDB();
             }
             else
             {

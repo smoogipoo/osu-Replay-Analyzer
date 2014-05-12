@@ -93,59 +93,10 @@ namespace Database_Test
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
                     ReplayDir = fbd.SelectedPath;
-                    PutReplays();
+                    UpdateReplays();
                 }
             }
             Close();
-        }
-
-        private void PutReplays()
-        {
-            SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
-            options |= SqlCeBulkCopyOptions.KeepNulls;
-
-            DataTable replayData = CreateReplayDataTable();
-
-            DataTable clickData = CreateReplayFrameTable();
-
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            //Specify an extremely large timeout otherwise connection will close
-            using (SqlCeBulkCopy bC = new SqlCeBulkCopy(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;Default Lock Timeout=9000000", options))
-            {
-                foreach (string file in Directory.GetFiles(ReplayDir))
-                {
-                    try
-                    {
-                        Replay r = new Replay(file);
-
-                        //Only add items to the datatable if there isn't any other item with the same hash
-                        if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
-                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
-
-                        foreach (ReplayInfo rI in r.ClickFrames)
-                        {
-                            clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                        }
-                    }
-                    catch { }
-                }
-
-                //Now we flush the remaining items in the datatables to the database
-                bC.DestinationTableName = "ReplayData";
-                bC.WriteToServer(replayData);
-                bC.DestinationTableName = "ReplayFrame";
-                bC.WriteToServer(clickData);
-
-                //Free some memory
-                replayData.Clear();
-                clickData.Clear();
-
-                //Because we added a timeout, we need to close the BulkCopy (I think)
-                bC.Close();
-            }
-            watch.Stop();
-            MessageBox.Show(watch.Elapsed.ToString());
         }
 
         /// <summary>
@@ -153,7 +104,62 @@ namespace Database_Test
         /// </summary>
         private void UpdateReplays()
         {
-            SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;Default Lock Timeout=9000000");
+            SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
+            options |= SqlCeBulkCopyOptions.KeepNulls;
+
+            DataTable replayData = CreateReplayDataTable();
+            DataTable clickData = CreateReplayFrameTable();
+
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;Default Lock Timeout=9000000"))
+            {
+                conn.Open();
+                foreach (string file in Directory.GetFiles(ReplayDir))
+                {
+                    Replay r = new Replay(file);
+                    //Only add items to the datatable if there isn't any other item with the same hash
+                    if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
+                    {
+                        try
+                        {
+                            using (SqlCeCommand cmd = new SqlCeCommand(String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash ='{0}';", r.ReplayHash), conn))
+                            {
+                                if (cmd.ExecuteReader().Read())
+                                {
+                                    MessageBox.Show("Need to implement");
+                                    //Delete existing Replayframes
+                                    //Delete existing Replay
+                                }
+                                replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                                foreach (ReplayInfo rI in r.ClickFrames)
+                                {
+                                    clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message + ex.StackTrace);
+                        }
+
+                    }
+                }
+                using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+                {
+                    bC.DestinationTableName = "ReplayData";
+                    bC.WriteToServer(replayData);
+                    bC.DestinationTableName = "ReplayFrame";
+                    bC.WriteToServer(clickData);
+                    //Because we added a timeout, we need to close the BulkCopy (I think)
+                    bC.Close();
+                }
+            }
+            watch.Stop();
+            MessageBox.Show(watch.Elapsed.ToString());
+            //Free some memory
+            replayData.Clear();
+            clickData.Clear();
         }
     }
 }

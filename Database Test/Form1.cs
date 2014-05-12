@@ -96,7 +96,6 @@ namespace Database_Test
                     UpdateReplays();
                 }
             }
-            Close();
         }
 
         /// <summary>
@@ -112,19 +111,21 @@ namespace Database_Test
 
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;Default Lock Timeout=9000000"))
+            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
             {
                 conn.Open();
-                foreach (string file in Directory.GetFiles(ReplayDir))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
-                    Replay r = new Replay(file);
-                    //Only add items to the datatable if there isn't any other item with the same hash
-                    if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
+                    cmd.Connection = conn;
+                    foreach (string file in Directory.GetFiles(ReplayDir))
                     {
-                        try
+                        Replay r = new Replay(file);
+                        //Only add items to the datatable if there isn't any other item with the same hash
+                        if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
                         {
-                            using (SqlCeCommand cmd = new SqlCeCommand(String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash ='{0}';", r.ReplayHash), conn))
+                            try
                             {
+                                cmd.CommandText = String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash ='{0}';", r.ReplayHash);
                                 if (cmd.ExecuteReader().Read())
                                 {
                                     MessageBox.Show("Need to implement");
@@ -137,12 +138,11 @@ namespace Database_Test
                                     clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
                                 }
                             }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message + ex.StackTrace);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message + ex.StackTrace);
-                        }
-
                     }
                 }
                 using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
@@ -151,8 +151,6 @@ namespace Database_Test
                     bC.WriteToServer(replayData);
                     bC.DestinationTableName = "ReplayFrame";
                     bC.WriteToServer(clickData);
-                    //Because we added a timeout, we need to close the BulkCopy (I think)
-                    bC.Close();
                 }
             }
             watch.Stop();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -61,6 +62,8 @@ namespace Database_Test
             clickData.Columns.Add(new DataColumn("Y", typeof(double)));
             clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
 
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             //Specify an extremely large timeout otherwise connection will close
             using (SqlCeBulkCopy bC = new SqlCeBulkCopy(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;Default Lock Timeout=9000000", options))
             {
@@ -74,22 +77,9 @@ namespace Database_Test
                         if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("Hash")))
                             replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
 
-                        if (replayData.Rows.Count == 250) // This value may be changed depending on requirements - replays will only be put into the database when 250 of them are in replayData
-                        {
-                            bC.DestinationTableName = "ReplayData";
-                            bC.WriteToServer(replayData); //Insert datatable into the database
-                            replayData.Clear();
-                        }
                         foreach (ReplayInfo rI in r.ClickFrames)
                         {
                             clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-
-                            if (clickData.Rows.Count == 100000) //This value also may be changed, but 100 000 is pretty decent
-                            {
-                                bC.DestinationTableName = "ReplayFrame";
-                                bC.WriteToServer(clickData);
-                                clickData.Clear();
-                            }
                         }
                     }
                     catch { }
@@ -108,6 +98,8 @@ namespace Database_Test
                 //Because we added a timeout, we need to close the BulkCopy (I think)
                 bC.Close();
             }
+            watch.Stop();
+            MessageBox.Show(watch.Elapsed.ToString());
         }
     }
 }

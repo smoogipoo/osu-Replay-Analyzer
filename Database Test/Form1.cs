@@ -3,22 +3,21 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using ReplayAPI;
 using ErikEJ.SqlCe;
+using ReplayAPI;
 
 namespace Database_Test
 {
     public partial class Form1 : Form
     {
+        private string ReplayDir;
+
         public Form1()
         {
             InitializeComponent();
         }
-        string ReplayDir;
         private void Form1_Load(object sender, EventArgs e)
         {
-
-
             using (FolderBrowserDialog fbd = new FolderBrowserDialog())
             {
                 fbd.Description = @"Select replay directory";
@@ -28,8 +27,8 @@ namespace Database_Test
                     PutReplays();
                 }
             }
+            Close();
         }
-
 
         private void PutReplays()
         {
@@ -62,19 +61,19 @@ namespace Database_Test
             clickData.Columns.Add(new DataColumn("Y", typeof(double)));
             clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
 
-            //Specify an extremely large timeout otherwise connection will close 
+            //Specify an extremely large timeout otherwise connection will close
             using (SqlCeBulkCopy bC = new SqlCeBulkCopy(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;Default Lock Timeout=9000000", options))
             {
                 foreach (string file in Directory.GetFiles(ReplayDir))
                 {
                     try
-                    { 
+                    {
                         Replay r = new Replay(file);
 
                         //Only add items to the datatable if there isn't any other item with the same hash
                         if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("Hash")))
-                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);                     
-                        
+                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+
                         if (replayData.Rows.Count == 250) // This value may be changed depending on requirements - replays will only be put into the database when 250 of them are in replayData
                         {
                             bC.DestinationTableName = "ReplayData";
@@ -109,8 +108,6 @@ namespace Database_Test
                 //Because we added a timeout, we need to close the BulkCopy (I think)
                 bC.Close();
             }
-
-
         }
     }
 }

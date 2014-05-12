@@ -1,0 +1,40 @@
+-- Script Date: 12/05/2014 9:54 PM  - ErikEJ.SqlCeScripting version 3.5.2.38
+DROP TABLE [ReplayFrame];
+GO
+CREATE TABLE [ReplayFrame] (
+  [Id] int IDENTITY (1,1) NOT NULL
+, [ReplayHash] nvarchar(32) NOT NULL
+, [Time] int NOT NULL
+, [TimeDiff] int NOT NULL
+, [X] float NOT NULL
+, [Y] float NOT NULL
+, [KeyData] int NOT NULL
+);
+GO
+ALTER TABLE [ReplayFrame] ADD CONSTRAINT [PK_ReplayFrame] PRIMARY KEY ([Id]);
+GO
+
+-- Script Date: 12/05/2014 9:54 PM  - ErikEJ.SqlCeScripting version 3.5.2.38
+DROP TABLE [ReplayData];
+GO
+CREATE TABLE [ReplayData] (
+  [Hash] nvarchar(32) NOT NULL
+, [GameMode] int NOT NULL
+, [Filename] nvarchar(500) NOT NULL
+, [MapHash] nvarchar(32) NOT NULL
+, [PlayerName] nvarchar(100) NOT NULL
+, [TotalScore] int NOT NULL
+, [Count_300] int NOT NULL
+, [Count_100] int NOT NULL
+, [Count_50] int NOT NULL
+, [Count_Geki] int NOT NULL
+, [Count_Katu] int NOT NULL
+, [Count_Miss] int NOT NULL
+, [MaxCombo] int NOT NULL
+, [IsPerfect] int NOT NULL
+, [PlayTime] bigint NOT NULL
+, [ReplayLength] int NOT NULL
+);
+GO
+ALTER TABLE [ReplayData] ADD CONSTRAINT [PK_ReplayData] PRIMARY KEY ([Hash]);
+GO

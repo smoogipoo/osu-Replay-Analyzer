@@ -36,31 +36,9 @@ namespace Database_Test
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
             options |= SqlCeBulkCopyOptions.KeepNulls;
 
-            DataTable replayData = new DataTable();
-            replayData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
-            replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
-            replayData.Columns.Add(new DataColumn("MapHash", typeof(string)));
-            replayData.Columns.Add(new DataColumn("PlayerName", typeof(string)));
-            replayData.Columns.Add(new DataColumn("TotalScore", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_300", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_100", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_50", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_Geki", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_Katu", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_Miss", typeof(int)));
-            replayData.Columns.Add(new DataColumn("MaxCombo", typeof(int)));
-            replayData.Columns.Add(new DataColumn("IsPerfect", typeof(int)));
-            replayData.Columns.Add(new DataColumn("PlayTime", typeof(long)));
-            replayData.Columns.Add(new DataColumn("ReplayLength", typeof(int)));
+            DataTable replayData = CreateReplayDataTable();
 
-            DataTable clickData = new DataTable();
-            clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
-            clickData.Columns.Add(new DataColumn("Time", typeof(int)));
-            clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
-            clickData.Columns.Add(new DataColumn("X", typeof(double)));
-            clickData.Columns.Add(new DataColumn("Y", typeof(double)));
-            clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
+            DataTable clickData = ReplayFrameTable()
 
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -100,6 +78,40 @@ namespace Database_Test
             }
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
+        }
+
+        private DataTable CreateReplayDataTable()
+        {
+            DataTable replayData = new DataTable();
+            replayData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
+            replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
+            replayData.Columns.Add(new DataColumn("MapHash", typeof(string)));
+            replayData.Columns.Add(new DataColumn("PlayerName", typeof(string)));
+            replayData.Columns.Add(new DataColumn("TotalScore", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_300", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_100", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_50", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_Geki", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_Katu", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_Miss", typeof(int)));
+            replayData.Columns.Add(new DataColumn("MaxCombo", typeof(int)));
+            replayData.Columns.Add(new DataColumn("IsPerfect", typeof(int)));
+            replayData.Columns.Add(new DataColumn("PlayTime", typeof(long)));
+            replayData.Columns.Add(new DataColumn("ReplayLength", typeof(int)));
+            return replayData;
+        }
+
+        private DataTable ReplayFrameTable()
+        {
+            DataTable clickData = new DataTable();
+            clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Time", typeof(int)));
+            clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
+            clickData.Columns.Add(new DataColumn("X", typeof(double)));
+            clickData.Columns.Add(new DataColumn("Y", typeof(double)));
+            clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
+            return clickData;
         }
     }
 }

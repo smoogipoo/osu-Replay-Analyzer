@@ -37,7 +37,7 @@ namespace Database_Test
             options |= SqlCeBulkCopyOptions.KeepNulls;
 
             DataTable replayData = new DataTable();
-            replayData.Columns.Add(new DataColumn("Hash", typeof(string)));
+            replayData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
             replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
             replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
             replayData.Columns.Add(new DataColumn("MapHash", typeof(string)));
@@ -55,7 +55,7 @@ namespace Database_Test
             replayData.Columns.Add(new DataColumn("ReplayLength", typeof(int)));
 
             DataTable clickData = new DataTable();
-            clickData.Columns.Add(new DataColumn("ReplayHash", typeof(string)));
+            clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
             clickData.Columns.Add(new DataColumn("Time", typeof(int)));
             clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
             clickData.Columns.Add(new DataColumn("X", typeof(double)));
@@ -74,7 +74,7 @@ namespace Database_Test
                         Replay r = new Replay(file);
 
                         //Only add items to the datatable if there isn't any other item with the same hash
-                        if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("Hash")))
+                        if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
                             replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
 
                         foreach (ReplayInfo rI in r.ClickFrames)

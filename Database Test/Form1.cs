@@ -38,7 +38,7 @@ namespace Database_Test
 
             DataTable replayData = CreateReplayDataTable();
 
-            DataTable clickData = ReplayFrameTable()
+            DataTable clickData = CreateReplayFrameTable()
 
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -102,7 +102,7 @@ namespace Database_Test
             return replayData;
         }
 
-        private DataTable ReplayFrameTable()
+        private DataTable CreateReplayFrameTable()
         {
             DataTable clickData = new DataTable();
             clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
@@ -112,6 +112,38 @@ namespace Database_Test
             clickData.Columns.Add(new DataColumn("Y", typeof(double)));
             clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
             return clickData;
+        }
+
+        private DataTable CreateBeatmapDataTable()
+        {
+            DataTable beatmapData = new DataTable();
+            clickData.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Creator", typeof(string)));
+            clickData.Columns.Add(new DataColumn("AudioFilename", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Filename", typeof(string)));
+            clickData.Columns.Add(new DataColumn("HPDrainRate", typeof(double)));
+            clickData.Columns.Add(new DataColumn("CircleSize", typeof(double)));
+            clickData.Columns.Add(new DataColumn("OverallDifficulty", typeof(double)));
+            clickData.Columns.Add(new DataColumn("ApproachRate", typeof(double)));
+            clickData.Columns.Add(new DataColumn("Title", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Artist", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Version", typeof(string)));
+            return beatmapData;
+        }
+
+        private DataTable CreateBeatmapData_BeatmapTagTable()
+        {
+            DataTable beatmapData_BeatmapTag = new DataTable();
+            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
+            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapTag_Id", typeof(int)));
+            return beatmapData_BeatmapTag;
+        }
+
+        private DataTable CreateBeatmapTagTable()
+        {
+            DataTable beatmapTag = new DataTable();
+            beatmapTag.Columns.Add(new DataColumn("Name", typeof(string)));
+            return beatmapTag;
         }
     }
 }

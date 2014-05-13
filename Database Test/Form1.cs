@@ -45,7 +45,7 @@ namespace Database_Test
 
         private DataTable CreateBeatmapData_BeatmapTagTable()
         {
-            DataTable beatmapData_BeatmapTag = new DataTable();
+            DataTable beatmapData_BeatmapTag = new DataTable("BeatmapData_BeatmapTag");
             beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
             beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapTag_Id", typeof(int)));
             return beatmapData_BeatmapTag;
@@ -53,7 +53,7 @@ namespace Database_Test
 
         private DataTable CreateBeatmapDataTable()
         {
-            DataTable beatmapData = new DataTable();
+            DataTable beatmapData = new DataTable("BeatmapData");
             beatmapData.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
             beatmapData.Columns.Add(new DataColumn("Creator", typeof(string)));
             beatmapData.Columns.Add(new DataColumn("AudioFilename", typeof(string)));
@@ -70,14 +70,14 @@ namespace Database_Test
 
         private DataTable CreateBeatmapTagTable()
         {
-            DataTable beatmapTag = new DataTable();
+            DataTable beatmapTag = new DataTable("BeatmapTag");
             beatmapTag.Columns.Add(new DataColumn("Name", typeof(string)));
             return beatmapTag;
         }
 
         private DataTable CreateReplayDataTable()
         {
-            DataTable replayData = new DataTable();
+            DataTable replayData = new DataTable("ReplayData");
             replayData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
             replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
             replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
@@ -99,7 +99,7 @@ namespace Database_Test
 
         private DataTable CreateReplayFrameTable()
         {
-            DataTable clickData = new DataTable();
+            DataTable clickData = new DataTable("ReplayFrame");
             clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
             clickData.Columns.Add(new DataColumn("Time", typeof(int)));
             clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));

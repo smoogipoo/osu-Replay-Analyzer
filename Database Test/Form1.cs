@@ -124,6 +124,7 @@ namespace Database_Test
 
             DataTable replayData = CreateReplayDataTable();
             DataTable clickData = CreateReplayFrameTable();
+            DataTable[] data = new DataTable[] { replayData, clickData };
 
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -161,19 +162,24 @@ namespace Database_Test
                         }
                     }
                 }
-                using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
-                {
-                    bC.DestinationTableName = "ReplayData";
-                    bC.WriteToServer(replayData);
-                    bC.DestinationTableName = "ReplayFrame";
-                    bC.WriteToServer(clickData);
-                }
+                BulkInsert(conn, options, data);
             }
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
             //Free some memory
             replayData.Clear();
             clickData.Clear();
+        }
+        private void BulkInsert(SqlCeConnection conn, SqlCeBulkCopyOptions options, DataTable[] data)
+        {
+            using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    bC.DestinationTableName = data[i].TableName;
+                    bC.WriteToServer(data[i]);
+                }
+            }
         }
     }
 }

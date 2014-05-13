@@ -4,8 +4,10 @@ using System.Data.SqlServerCe;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ErikEJ.SqlCe;
+using Microsoft.Win32;
 using ReplayAPI;
 
 namespace Database_Test
@@ -17,6 +19,28 @@ namespace Database_Test
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private static string FindOsuPath()
+        {
+            try
+            {
+                RegistryKey key = Registry.ClassesRoot.OpenSubKey("osu!\\DefaultIcon");
+                if (key != null)
+                {
+                    object o = key.GetValue(null);
+                    if (o != null)
+                    {
+                        var filter = new Regex(@"(?<="")[^\""]*(?="")");
+                        return Path.GetDirectoryName(filter.Match(o.ToString()).ToString());
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+            return "";
         }
 
         private DataTable CreateBeatmapData_BeatmapTagTable()
@@ -84,18 +108,10 @@ namespace Database_Test
             clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
             return clickData;
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
-            using (FolderBrowserDialog fbd = new FolderBrowserDialog())
-            {
-                fbd.Description = @"Select replay directory";
-                if (fbd.ShowDialog() == DialogResult.OK)
-                {
-                    ReplayDir = fbd.SelectedPath;
-                    UpdateReplays();
-                }
-            }
+            ReplayDir = Path.Combine(FindOsuPath(), "Replays");
+            UpdateReplays();
         }
 
         /// <summary>

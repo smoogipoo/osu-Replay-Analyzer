@@ -134,51 +134,58 @@ namespace Database_Test
                 using (SqlCeCommand cmd = new SqlCeCommand())
                 {
                     cmd.Connection = conn;
-                    foreach (string file in Directory.GetFiles(ReplayDir))
+                    using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
                     {
-                        Replay r = new Replay(file);
-                        //Only add items to the datatable if there isn't any other item with the same hash
-                        if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
+
+                        foreach (string file in Directory.GetFiles(ReplayDir))
                         {
-                            try
+                            Replay r = new Replay(file);
+                            //Only add items to the datatable if there isn't any other item with the same hash
+                            if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
                             {
-                                cmd.CommandText = String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash ='{0}';", r.ReplayHash);
-                                if (cmd.ExecuteReader().Read())
+                                try
                                 {
-                                    MessageBox.Show("Need to implement");
-                                    //Delete existing Replayframes
-                                    //Delete existing Replay
+                                    cmd.CommandText = String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash ='{0}';", r.ReplayHash);
+                                    if (cmd.ExecuteReader().Read())
+                                    {
+                                        MessageBox.Show("Need to implement");
+                                        //Delete existing Replayframes
+                                        //Delete existing Replay
+                                    }
+                                    replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                                    foreach (ReplayInfo rI in r.ClickFrames)
+                                    {
+                                        clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                                        //Limit memory usage
+                                        if (clickData.Rows.Count >= 200000) 
+                                        {
+                                            BulkInsert(bC,data);
+                                            replayData.Clear();
+                                            clickData.Clear();
+                                        }
+                                    }
                                 }
-                                replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
-                                foreach (ReplayInfo rI in r.ClickFrames)
+                                catch (Exception ex)
                                 {
-                                    clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                                    MessageBox.Show(ex.Message + ex.StackTrace);
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message + ex.StackTrace);
                             }
                         }
+                        BulkInsert(bC, data);
+                        replayData.Clear();
+                        clickData.Clear();
                     }
                 }
-                BulkInsert(conn, options, data);
             }
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
-            //Free some memory
-            replayData.Clear();
-            clickData.Clear();
         }
-        private void BulkInsert(SqlCeConnection conn, SqlCeBulkCopyOptions options, DataTable[] data)
+        private void BulkInsert(SqlCeBulkCopy bC, DataTable[] data)
         {
-            using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+            for (int i = 0; i < data.Length; i++)
             {
-                for (int i = 0; i < data.Length; i++)
-                {
-                    bC.DestinationTableName = data[i].TableName;
-                    bC.WriteToServer(data[i]);
-                }
+                bC.DestinationTableName = data[i].TableName;
+                bC.WriteToServer(data[i]);
             }
         }
     }

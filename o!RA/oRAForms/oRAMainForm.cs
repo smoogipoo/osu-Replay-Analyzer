@@ -398,24 +398,6 @@ namespace o_RA.oRAForms
             //});
         }
 
-        private void UpdateReplaysToDB()
-        {
-            //Use DB operations wherever possible for performance
-            //Compare by filename
-            if (true)
-            {
-                //compare by md5 hash
-                if (!true)
-                {
-                    //Update db entry
-                }
-            }
-            else
-            {
-                //Add to db
-            }
-        }
-
         private void PopulateDB()
         {
             //TODO Check if write possible, if db is in program files might not have write access

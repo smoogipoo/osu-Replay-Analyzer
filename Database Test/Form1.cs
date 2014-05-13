@@ -108,6 +108,7 @@ namespace Database_Test
             clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
             return clickData;
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             ReplayDir = Path.Combine(FindOsuPath(), "Replays");
@@ -119,6 +120,26 @@ namespace Database_Test
         /// </summary>
         private void UpdateReplays()
         {
+            //Logic used
+            //if (filename exists in table)
+            //{
+            //    if (hash for that entry is different)
+            //    {
+            //        //Update that db entry
+            //    }
+            //}
+            //else
+            //{
+            //    if (hash exists in table)
+            //    {
+            //        //Update filename
+            //    }
+            //    else
+            //    {
+            //        //Add to db
+            //    }
+            //}
+
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
             options |= SqlCeBulkCopyOptions.KeepNulls;
 
@@ -134,9 +155,10 @@ namespace Database_Test
                 using (SqlCeCommand cmd = new SqlCeCommand())
                 {
                     cmd.Connection = conn;
+                    cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Filename" });
                     using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
                     {
-
+                        SqlCeDataReader rdr = null;
                         foreach (string file in Directory.GetFiles(ReplayDir))
                         {
                             Replay r = new Replay(file);
@@ -145,23 +167,39 @@ namespace Database_Test
                             {
                                 try
                                 {
-                                    cmd.CommandText = String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash ='{0}';", r.ReplayHash);
-                                    if (cmd.ExecuteReader().Read())
+                                    cmd.CommandText = "SELECT 1 FROM ReplayData WHERE Filename = @Filename;";
+                                    cmd.Parameters["@Filename"].Value = r.Filename;
+                                    rdr = cmd.ExecuteReader();
+                                    if (rdr.Read())
                                     {
-                                        MessageBox.Show("Need to implement");
-                                        //Delete existing Replayframes
-                                        //Delete existing Replay
-                                    }
-                                    replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
-                                    foreach (ReplayInfo rI in r.ClickFrames)
-                                    {
-                                        clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                                        //Limit memory usage
-                                        if (clickData.Rows.Count >= 200000) 
+                                        if (rdr["ReplayData_Hash"] != r.ReplayHash)
                                         {
-                                            BulkInsert(bC,data);
-                                            replayData.Clear();
-                                            clickData.Clear();
+                                            //delete this replay and its replayframes from the db
+                                            //add replay and its replayframes
+                                        }
+                                    }
+                                    else
+                                    {
+                                        cmd.CommandText = String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash = '{0}';", r.ReplayHash);
+                                        rdr = cmd.ExecuteReader();
+                                        if (rdr.Read())
+                                        {
+                                            //update filename
+                                        }
+                                        else
+                                        {
+                                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                                            foreach (ReplayInfo rI in r.ClickFrames)
+                                            {
+                                                clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                                                //Limit memory usage
+                                                if (clickData.Rows.Count >= 200000)
+                                                {
+                                                    BulkInsert(bC, data);
+                                                    replayData.Clear();
+                                                    clickData.Clear();
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -170,7 +208,12 @@ namespace Database_Test
                                     MessageBox.Show(ex.Message + ex.StackTrace);
                                 }
                             }
+                            else
+                            {
+                                //TODO Offer to delete duplicate replay
+                            }
                         }
+                        rdr.Close();
                         BulkInsert(bC, data);
                         replayData.Clear();
                         clickData.Clear();
@@ -180,6 +223,7 @@ namespace Database_Test
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
         }
+
         private void BulkInsert(SqlCeBulkCopy bC, DataTable[] data)
         {
             for (int i = 0; i < data.Length; i++)

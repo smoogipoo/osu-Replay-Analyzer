@@ -159,7 +159,7 @@ namespace ReplayAPI
         static string GetReversedString(BinaryReader br, int length)
         {
             byte[] readBytes = br.ReadBytes(length).Reverse().ToArray();
-            return readBytes.Aggregate("", (current, b) => current + (b < 15 ? "0" : "") + b.ToString("X"));
+            return readBytes.Aggregate("", (current, b) => current + (b < 16 ? "0" : "") + b.ToString("X"));
         }
         static int GetChunkLength(BinaryReader br)
         {

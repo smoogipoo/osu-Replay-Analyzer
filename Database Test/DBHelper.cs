@@ -1,0 +1,179 @@
+﻿using System.Data;
+using System.Data.SqlServerCe;
+using ErikEJ.SqlCe;
+
+namespace Database_Test
+{
+    internal static class DBHelper
+    {
+        public static readonly string dbPath = @"Data Source='" + System.IO.Path.Combine(System.Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;";
+
+        /// <summary>
+        /// Inserts DataTable objects using SqlCeBulkCopy
+        /// </summary>
+        /// <param name="bC"></param>
+        /// <param name="data"></param>
+        public static void BulkInsert(SqlCeBulkCopy bC, DataTable[] data)
+        {
+            for (int i = 0; i < data.Length; i++)
+            {
+                bC.DestinationTableName = data[i].TableName;
+                bC.WriteToServer(data[i]);
+            }
+        }
+
+        public static DataTable CreateBeatmapData_BeatmapTagTable()
+        {
+            DataTable beatmapData_BeatmapTag = new DataTable("BeatmapData_BeatmapTag");
+            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
+            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapTag_Id", typeof(int)));
+            return beatmapData_BeatmapTag;
+        }
+
+        public static DataTable CreateBeatmapDataTable()
+        {
+            DataTable beatmapData = new DataTable("BeatmapData");
+            beatmapData.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
+            beatmapData.Columns.Add(new DataColumn("Creator", typeof(string)));
+            beatmapData.Columns.Add(new DataColumn("AudioFilename", typeof(string)));
+            beatmapData.Columns.Add(new DataColumn("Filename", typeof(string)));
+            beatmapData.Columns.Add(new DataColumn("HPDrainRate", typeof(double)));
+            beatmapData.Columns.Add(new DataColumn("CircleSize", typeof(double)));
+            beatmapData.Columns.Add(new DataColumn("OverallDifficulty", typeof(double)));
+            beatmapData.Columns.Add(new DataColumn("ApproachRate", typeof(double)));
+            beatmapData.Columns.Add(new DataColumn("Title", typeof(string)));
+            beatmapData.Columns.Add(new DataColumn("Artist", typeof(string)));
+            beatmapData.Columns.Add(new DataColumn("Version", typeof(string)));
+            return beatmapData;
+        }
+
+        public static DataTable CreateBeatmapTagTable()
+        {
+            DataTable beatmapTag = new DataTable("BeatmapTag");
+            beatmapTag.Columns.Add(new DataColumn("Name", typeof(string)));
+            return beatmapTag;
+        }
+
+        public static DataTable CreateReplayDataTable()
+        {
+            DataTable replayData = new DataTable("ReplayData");
+            replayData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
+            replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
+            replayData.Columns.Add(new DataColumn("MapHash", typeof(string)));
+            replayData.Columns.Add(new DataColumn("PlayerName", typeof(string)));
+            replayData.Columns.Add(new DataColumn("TotalScore", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_300", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_100", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_50", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_Geki", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_Katu", typeof(int)));
+            replayData.Columns.Add(new DataColumn("Count_Miss", typeof(int)));
+            replayData.Columns.Add(new DataColumn("MaxCombo", typeof(int)));
+            replayData.Columns.Add(new DataColumn("IsPerfect", typeof(int)));
+            replayData.Columns.Add(new DataColumn("PlayTime", typeof(long)));
+            replayData.Columns.Add(new DataColumn("ReplayLength", typeof(int)));
+            return replayData;
+        }
+
+        public static DataTable CreateReplayFrameTable()
+        {
+            DataTable clickData = new DataTable("ReplayFrame");
+            clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Time", typeof(int)));
+            clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
+            clickData.Columns.Add(new DataColumn("X", typeof(double)));
+            clickData.Columns.Add(new DataColumn("Y", typeof(double)));
+            clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
+            return clickData;
+        }
+
+        /// <summary>
+        /// Deletes all matching records
+        /// </summary>
+        /// <returns>Amount of deleted Records</returns>
+        public static int DeleteRecords(SqlCeConnection conn, string table, string searchColumn, string searchValue)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "DELETE FROM @Table WHERE @Column = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = searchValue });
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// Get first matching record
+        /// </summary>
+        /// <returns>First record that matches a condition</returns>
+        public static SqlCeDataReader GetRecord(SqlCeConnection conn, string table, string searchColumn, string searchValue)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT TOP 1 * FROM @Table WHERE @Column = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = searchValue });
+                return cmd.ExecuteReader();
+            }
+        }
+
+
+        /// <summary>
+        /// Gets all records that match a condition
+        /// </summary>
+        /// <returns>All records that match a condition</returns>
+        public static SqlCeDataReader GetRecords(SqlCeConnection conn, string table, string searchColumn, string searchValue)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT * FROM @Table WHERE @Column = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = searchValue });
+                return cmd.ExecuteReader();
+            }
+        }
+
+        /// <summary>
+        /// Checks if Records satisfying a condition exist
+        /// </summary>
+        /// <returns>True if at least one record is found, else false</returns>
+        public static bool RecordExists(SqlCeConnection conn, string table, string searchColumn, string value)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT 1 FROM @Table WHERE @Column = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = value });
+                return cmd.ExecuteReader().Read();
+            }
+        }
+
+        /// <summary>
+        /// Updates a record
+        /// </summary>
+        /// <returns>1 if the record was updated, else 0</returns>
+        public static int UpdateRecord(SqlCeConnection conn, string table, string targetColumn, string targetValue, string searchColumn, string searchValue)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "UPDATE @Table SET @TargetColumn = @TargetValue WHERE @SearchColumn = @SearchValue;";
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@TargetColumn", Value = targetColumn });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@TargetValue", Value = targetValue });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@SearchColumn", Value = searchColumn });
+                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@SearchValue", Value = searchValue });
+                return cmd.ExecuteNonQuery();
+            }
+        }
+    }
+}

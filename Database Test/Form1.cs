@@ -43,76 +43,14 @@ namespace Database_Test
             return "";
         }
 
-        private DataTable CreateBeatmapData_BeatmapTagTable()
-        {
-            DataTable beatmapData_BeatmapTag = new DataTable("BeatmapData_BeatmapTag");
-            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
-            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapTag_Id", typeof(int)));
-            return beatmapData_BeatmapTag;
-        }
-
-        private DataTable CreateBeatmapDataTable()
-        {
-            DataTable beatmapData = new DataTable("BeatmapData");
-            beatmapData.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
-            beatmapData.Columns.Add(new DataColumn("Creator", typeof(string)));
-            beatmapData.Columns.Add(new DataColumn("AudioFilename", typeof(string)));
-            beatmapData.Columns.Add(new DataColumn("Filename", typeof(string)));
-            beatmapData.Columns.Add(new DataColumn("HPDrainRate", typeof(double)));
-            beatmapData.Columns.Add(new DataColumn("CircleSize", typeof(double)));
-            beatmapData.Columns.Add(new DataColumn("OverallDifficulty", typeof(double)));
-            beatmapData.Columns.Add(new DataColumn("ApproachRate", typeof(double)));
-            beatmapData.Columns.Add(new DataColumn("Title", typeof(string)));
-            beatmapData.Columns.Add(new DataColumn("Artist", typeof(string)));
-            beatmapData.Columns.Add(new DataColumn("Version", typeof(string)));
-            return beatmapData;
-        }
-
-        private DataTable CreateBeatmapTagTable()
-        {
-            DataTable beatmapTag = new DataTable("BeatmapTag");
-            beatmapTag.Columns.Add(new DataColumn("Name", typeof(string)));
-            return beatmapTag;
-        }
-
-        private DataTable CreateReplayDataTable()
-        {
-            DataTable replayData = new DataTable("ReplayData");
-            replayData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
-            replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
-            replayData.Columns.Add(new DataColumn("MapHash", typeof(string)));
-            replayData.Columns.Add(new DataColumn("PlayerName", typeof(string)));
-            replayData.Columns.Add(new DataColumn("TotalScore", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_300", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_100", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_50", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_Geki", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_Katu", typeof(int)));
-            replayData.Columns.Add(new DataColumn("Count_Miss", typeof(int)));
-            replayData.Columns.Add(new DataColumn("MaxCombo", typeof(int)));
-            replayData.Columns.Add(new DataColumn("IsPerfect", typeof(int)));
-            replayData.Columns.Add(new DataColumn("PlayTime", typeof(long)));
-            replayData.Columns.Add(new DataColumn("ReplayLength", typeof(int)));
-            return replayData;
-        }
-
-        private DataTable CreateReplayFrameTable()
-        {
-            DataTable clickData = new DataTable("ReplayFrame");
-            clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
-            clickData.Columns.Add(new DataColumn("Time", typeof(int)));
-            clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
-            clickData.Columns.Add(new DataColumn("X", typeof(double)));
-            clickData.Columns.Add(new DataColumn("Y", typeof(double)));
-            clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
-            return clickData;
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             ReplayDir = Path.Combine(FindOsuPath(), "Replays");
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             UpdateReplays();
+            watch.Stop();
+            MessageBox.Show(watch.Elapsed.ToString());
         }
 
         /// <summary>
@@ -139,17 +77,14 @@ namespace Database_Test
             //        //Add to db
             //    }
             //}
-
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
             options |= SqlCeBulkCopyOptions.KeepNulls;
 
-            DataTable replayData = CreateReplayDataTable();
-            DataTable clickData = CreateReplayFrameTable();
+            DataTable replayData = DBHelper.CreateReplayDataTable();
+            DataTable clickData = DBHelper.CreateReplayFrameTable();
             DataTable[] data = new DataTable[] { replayData, clickData };
 
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            using (SqlCeConnection conn = new SqlCeConnection(@"Data Source='" + Path.Combine(Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;"))
+            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
             {
                 conn.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
@@ -167,24 +102,34 @@ namespace Database_Test
                             {
                                 try
                                 {
-                                    cmd.CommandText = "SELECT 1 FROM ReplayData WHERE Filename = @Filename;";
+                                    cmd.CommandText = "SELECT TOP 1 * FROM ReplayData WHERE Filename = @Filename;";
                                     cmd.Parameters["@Filename"].Value = r.Filename;
                                     rdr = cmd.ExecuteReader();
                                     if (rdr.Read())
                                     {
-                                        if (rdr["ReplayData_Hash"] != r.ReplayHash)
+                                        if ((string)rdr["ReplayData_Hash"] != r.ReplayHash)
                                         {
-                                            //delete this replay and its replayframes from the db
-                                            //add replay and its replayframes
+                                            //Filename found, but hash is different
+                                            //Delete this replay and its replayframes from the db
+                                            MessageBox.Show("Deleting "+ r.Filename);
+                                            DBHelper.DeleteRecords(conn, "ReplayData", "Filename", r.Filename);
+                                            //Readd updated replay and its replayframes
+                                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                                            foreach (ReplayInfo rI in r.ClickFrames)
+                                            {
+                                                clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        cmd.CommandText = String.Format("SELECT 1 FROM ReplayData WHERE ReplayData_Hash = '{0}';", r.ReplayHash);
+                                        cmd.CommandText = String.Format("SELECT TOP 1 * FROM ReplayData WHERE ReplayData_Hash = '{0}';", r.ReplayHash);
                                         rdr = cmd.ExecuteReader();
                                         if (rdr.Read())
                                         {
-                                            //update filename
+                                            //Filename not found, but hash found
+                                            //Update filename
+                                            //TODO
                                         }
                                         else
                                         {
@@ -198,7 +143,7 @@ namespace Database_Test
                                     //Limit memory usage
                                     if (replayData.Rows.Count >= 200)
                                     {
-                                        BulkInsert(bC, data);
+                                        DBHelper.BulkInsert(bC, data);
                                         replayData.Clear();
                                         clickData.Clear();
                                     }
@@ -214,22 +159,11 @@ namespace Database_Test
                             }
                         }
                         rdr.Close();
-                        BulkInsert(bC, data);
+                        DBHelper.BulkInsert(bC, data);
                         replayData.Clear();
                         clickData.Clear();
                     }
                 }
-            }
-            watch.Stop();
-            MessageBox.Show(watch.Elapsed.ToString());
-        }
-
-        private void BulkInsert(SqlCeBulkCopy bC, DataTable[] data)
-        {
-            for (int i = 0; i < data.Length; i++)
-            {
-                bC.DestinationTableName = data[i].TableName;
-                bC.WriteToServer(data[i]);
             }
         }
     }

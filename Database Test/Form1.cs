@@ -192,15 +192,15 @@ namespace Database_Test
                                             foreach (ReplayInfo rI in r.ClickFrames)
                                             {
                                                 clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                                                //Limit memory usage
-                                                if (clickData.Rows.Count >= 200000)
-                                                {
-                                                    BulkInsert(bC, data);
-                                                    replayData.Clear();
-                                                    clickData.Clear();
-                                                }
                                             }
                                         }
+                                    }
+                                    //Limit memory usage
+                                    if (replayData.Rows.Count >= 200)
+                                    {
+                                        BulkInsert(bC, data);
+                                        replayData.Clear();
+                                        clickData.Clear();
                                     }
                                 }
                                 catch (Exception ex)

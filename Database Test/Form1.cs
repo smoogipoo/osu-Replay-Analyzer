@@ -82,7 +82,7 @@ namespace Database_Test
 
             DataTable replayData = DBHelper.CreateReplayDataTable();
             DataTable clickData = DBHelper.CreateReplayFrameTable();
-            DataTable[] data = new DataTable[] { replayData, clickData };
+            DataTable[] data = { replayData, clickData };
 
             using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
             {
@@ -90,7 +90,7 @@ namespace Database_Test
                 using (SqlCeCommand cmd = new SqlCeCommand())
                 {
                     cmd.Connection = conn;
-                    cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Filename" });
+                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Filename" });
                     using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
                     {
                         SqlCeDataReader rdr = null;
@@ -111,7 +111,7 @@ namespace Database_Test
                                         {
                                             //Filename found, but hash is different
                                             //Delete this replay and its replayframes from the db
-                                            MessageBox.Show("Deleting "+ r.Filename);
+                                            MessageBox.Show(@"Deleting "+ r.Filename);
                                             DBHelper.DeleteRecords(conn, "ReplayData", "Filename", r.Filename);
                                             //Readd updated replay and its replayframes
                                             replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
@@ -129,7 +129,7 @@ namespace Database_Test
                                         {
                                             //Filename not found, but hash found
                                             //Update filename
-                                            //TODO
+                                            DBHelper.UpdateRecord(conn, "ReplayData", "Filename", r.Filename, "ReplayData_Hash", r.ReplayHash);
                                         }
                                         else
                                         {
@@ -141,7 +141,7 @@ namespace Database_Test
                                         }
                                     }
                                     //Limit memory usage
-                                    if (replayData.Rows.Count >= 200)
+                                    if (replayData.Rows.Count >= 200 || clickData.Rows.Count > 100000)
                                     {
                                         DBHelper.BulkInsert(bC, data);
                                         replayData.Clear();
@@ -159,6 +159,7 @@ namespace Database_Test
                             }
                         }
                         rdr.Close();
+                        //Flush any remaining data
                         DBHelper.BulkInsert(bC, data);
                         replayData.Clear();
                         clickData.Clear();

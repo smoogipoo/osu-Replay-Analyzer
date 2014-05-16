@@ -1,4 +1,9 @@
-﻿using System.Data;
+﻿
+
+//Can't some values as parameters
+//See http://stackoverflow.com/questions/6843065/error-with-sqlce-parameters
+
+using System.Data;
 using System.Data.SqlServerCe;
 using ErikEJ.SqlCe;
 
@@ -15,10 +20,10 @@ namespace Database_Test
         /// <param name="data"></param>
         public static void BulkInsert(SqlCeBulkCopy bC, DataTable[] data)
         {
-            for (int i = 0; i < data.Length; i++)
+            foreach (DataTable t in data)
             {
-                bC.DestinationTableName = data[i].TableName;
-                bC.WriteToServer(data[i]);
+                bC.DestinationTableName = t.TableName;
+                bC.WriteToServer(t);
             }
         }
 
@@ -97,10 +102,8 @@ namespace Database_Test
             using (SqlCeCommand cmd = new SqlCeCommand())
             {
                 cmd.Connection = conn;
-                cmd.CommandText = "DELETE FROM @Table WHERE @Column = @Value;";
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = searchValue });
+                cmd.CommandText = "DELETE FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
                 return cmd.ExecuteNonQuery();
             }
         }
@@ -110,17 +113,15 @@ namespace Database_Test
         /// </summary>
         /// <returns>First record that matches a condition</returns>
         public static SqlCeDataReader GetRecord(SqlCeConnection conn, string table, string searchColumn, string searchValue)
-        {
-            using (SqlCeCommand cmd = new SqlCeCommand())
             {
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT TOP 1 * FROM @Table WHERE @Column = @Value;";
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = searchValue });
-                return cmd.ExecuteReader();
+                using (SqlCeCommand cmd = new SqlCeCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "SELECT TOP 1 * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
+                    return cmd.ExecuteReader();
+                }
             }
-        }
 
 
         /// <summary>
@@ -128,34 +129,30 @@ namespace Database_Test
         /// </summary>
         /// <returns>All records that match a condition</returns>
         public static SqlCeDataReader GetRecords(SqlCeConnection conn, string table, string searchColumn, string searchValue)
-        {
-            using (SqlCeCommand cmd = new SqlCeCommand())
             {
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT * FROM @Table WHERE @Column = @Value;";
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = searchValue });
-                return cmd.ExecuteReader();
+                using (SqlCeCommand cmd = new SqlCeCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "SELECT * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
+                    return cmd.ExecuteReader();
+                }
             }
-        }
 
         /// <summary>
         /// Checks if Records satisfying a condition exist
         /// </summary>
         /// <returns>True if at least one record is found, else false</returns>
         public static bool RecordExists(SqlCeConnection conn, string table, string searchColumn, string value)
-        {
-            using (SqlCeCommand cmd = new SqlCeCommand())
             {
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT 1 FROM @Table WHERE @Column = @Value;";
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Column", Value = searchColumn });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Value", Value = value });
-                return cmd.ExecuteReader().Read();
+                using (SqlCeCommand cmd = new SqlCeCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "SELECT 1 FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = value });
+                    return cmd.ExecuteReader().Read();
+                }
             }
-        }
 
         /// <summary>
         /// Updates a record
@@ -166,14 +163,17 @@ namespace Database_Test
             using (SqlCeCommand cmd = new SqlCeCommand())
             {
                 cmd.Connection = conn;
-                cmd.CommandText = "UPDATE @Table SET @TargetColumn = @TargetValue WHERE @SearchColumn = @SearchValue;";
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@Table", Value = table });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@TargetColumn", Value = targetColumn });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@TargetValue", Value = targetValue });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@SearchColumn", Value = searchColumn });
-                cmd.Parameters.Add(new SqlCeParameter() { ParameterName = "@SearchValue", Value = searchValue });
+                cmd.CommandText = "UPDATE " + EscapeLiteral(table) + " SET [" + EscapeLiteral(targetColumn) + "] = @TargetValue WHERE [" + EscapeLiteral(searchColumn) + "] = @SearchValue;";
+                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@TargetValue", Value = targetValue });
+                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@SearchValue", Value = searchValue });
                 return cmd.ExecuteNonQuery();
             }
         }
+
+        private static string EscapeLiteral(string value)
+        {
+            return value.Replace("'", "\"\"");
+        }
     }
 }
+

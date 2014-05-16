@@ -45,7 +45,7 @@ namespace o_RA.oRAForms
             InitializePlugins();
             InitializeGameDirs();
 
-            PopulateDB();
+            //PopulateDB();
 
             Task.Factory.StartNew(() => Updater.Start(Settings));
             Task.Factory.StartNew(PopulateLists);

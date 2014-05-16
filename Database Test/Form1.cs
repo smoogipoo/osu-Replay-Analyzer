@@ -96,7 +96,16 @@ namespace Database_Test
                         SqlCeDataReader rdr = null;
                         foreach (string file in Directory.GetFiles(ReplayDir))
                         {
-                            Replay r = new Replay(file);
+                            Replay r;
+                            try
+                            {
+                                r = new Replay(file);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
+                                return;
+                            }
                             //Only add items to the datatable if there isn't any other item with the same hash
                             if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
                             {
@@ -111,7 +120,6 @@ namespace Database_Test
                                         {
                                             //Filename found, but hash is different
                                             //Delete this replay and its replayframes from the db
-                                            MessageBox.Show(@"Deleting "+ r.Filename);
                                             DBHelper.DeleteRecords(conn, "ReplayData", "Filename", r.Filename);
                                             //Readd updated replay and its replayframes
                                             replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);

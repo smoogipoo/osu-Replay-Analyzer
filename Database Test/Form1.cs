@@ -9,12 +9,15 @@ using System.Windows.Forms;
 using ErikEJ.SqlCe;
 using Microsoft.Win32;
 using ReplayAPI;
+using BMAPI;
+using System.Security.Cryptography;
 
 namespace Database_Test
 {
     public partial class Form1 : Form
     {
         private string ReplayDir;
+        private string BeatmapDir;
 
         public Form1()
         {
@@ -45,10 +48,13 @@ namespace Database_Test
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
             ReplayDir = Path.Combine(FindOsuPath(), "Replays");
+            BeatmapDir = Path.Combine(FindOsuPath(), "Songs");
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            UpdateReplays();
+            //UpdateReplays();
+            UpdateBeatmaps();
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
         }
@@ -58,25 +64,6 @@ namespace Database_Test
         /// </summary>
         private void UpdateReplays()
         {
-            //Logic used
-            //if (filename exists in table)
-            //{
-            //    if (hash for that entry is different)
-            //    {
-            //        //Update that db entry
-            //    }
-            //}
-            //else
-            //{
-            //    if (hash exists in table)
-            //    {
-            //        //Update filename
-            //    }
-            //    else
-            //    {
-            //        //Add to db
-            //    }
-            //}
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
             options |= SqlCeBulkCopyOptions.KeepNulls;
 
@@ -172,6 +159,79 @@ namespace Database_Test
                         replayData.Clear();
                         clickData.Clear();
                     }
+                }
+            }
+        }
+
+        private void UpdateBeatmaps()
+        {
+            SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
+            options |= SqlCeBulkCopyOptions.KeepNulls;
+
+            DataTable beatmapData = DBHelper.CreateBeatmapDataTable();
+            DataTable beatmapTagData = DBHelper.CreateBeatmapTagTable();
+            DataTable beatmapData_beatmapTagData = DBHelper.CreateBeatmapData_BeatmapTagTable();
+            DataTable[] data = { beatmapData, beatmapTagData, beatmapData_beatmapTagData };
+
+            string[] beatmapFiles = Directory.GetFiles(BeatmapDir, "*.osu", SearchOption.AllDirectories);
+
+            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+            {
+                conn.Open();
+                using (SqlCeCommand cmd = new SqlCeCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Filename" });
+                    using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+                    {
+                        foreach (string file in beatmapFiles)
+                        {
+                            Beatmap b;
+                            try
+                            {
+                                b = new Beatmap(file);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("Beatmap failed loading: " + ex.StackTrace);
+                                return;
+                            }
+
+                            beatmapData.Rows.Add(MD5FromFile(file), b.Creator, b.AudioFilename, b.Filename, b.HPDrainRate, b.CircleSize, b.OverallDifficulty, b.ApproachRate, b.Title, b.Artist, b.Version);
+                            foreach (var tag in b.Tags)
+                            {
+                                // only add tag if not already in the datatable or db
+                                if (!beatmapTagData.Rows.Contains(tag) && !DBHelper.RecordExists(conn,"BeatmapTag","BeatmapTag_Name",tag))
+                                {
+                                    beatmapTagData.Rows.Add(tag);
+                                    beatmapData_beatmapTagData.Rows.Add(MD5FromFile(file), tag);
+                                };
+                            }
+                        }
+
+                        try
+                        {
+                            DBHelper.BulkInsert(bC, data);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message + ex.StackTrace);
+                        }
+                        //Flush any remaining data
+                        beatmapData.Clear();
+                        beatmapTagData.Clear();
+                        beatmapData_beatmapTagData.Clear();
+                    }
+                }
+            }
+        }
+        private static string MD5FromFile(string fileName)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                using (FileStream stream = File.OpenRead(fileName))
+                {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
                 }
             }
         }

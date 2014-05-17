@@ -31,14 +31,14 @@ namespace Database_Test
         {
             DataTable beatmapData_BeatmapTag = new DataTable("BeatmapData_BeatmapTag");
             beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
-            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapTag_Id", typeof(int)));
+            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapTag_Name", typeof(string)));
             return beatmapData_BeatmapTag;
         }
 
         public static DataTable CreateBeatmapDataTable()
         {
             DataTable beatmapData = new DataTable("BeatmapData");
-            beatmapData.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
+            beatmapData.Columns.Add(new DataColumn { ColumnName = "BeatmapData_Hash", DataType = typeof(string), Unique = true});
             beatmapData.Columns.Add(new DataColumn("Creator", typeof(string)));
             beatmapData.Columns.Add(new DataColumn("AudioFilename", typeof(string)));
             beatmapData.Columns.Add(new DataColumn("Filename", typeof(string)));
@@ -55,14 +55,14 @@ namespace Database_Test
         public static DataTable CreateBeatmapTagTable()
         {
             DataTable beatmapTag = new DataTable("BeatmapTag");
-            beatmapTag.Columns.Add(new DataColumn("Name", typeof(string)));
+            beatmapTag.Columns.Add(new DataColumn { ColumnName = "BeatmapTag_Name", DataType = typeof(string), Unique = true });
             return beatmapTag;
         }
 
         public static DataTable CreateReplayDataTable()
         {
             DataTable replayData = new DataTable("ReplayData");
-            replayData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
+            replayData.Columns.Add(new DataColumn { ColumnName = "ReplayData_Hash", DataType = typeof(string), Unique = true });
             replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
             replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
             replayData.Columns.Add(new DataColumn("MapHash", typeof(string)));
@@ -84,7 +84,7 @@ namespace Database_Test
         public static DataTable CreateReplayFrameTable()
         {
             DataTable clickData = new DataTable("ReplayFrame");
-            clickData.Columns.Add(new DataColumn("ReplayData_Hash", typeof(string)));
+            clickData.Columns.Add(new DataColumn { ColumnName = "ReplayData_Hash", DataType = typeof(string), Unique = true });
             clickData.Columns.Add(new DataColumn("Time", typeof(int)));
             clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
             clickData.Columns.Add(new DataColumn("X", typeof(double)));
@@ -113,15 +113,15 @@ namespace Database_Test
         /// </summary>
         /// <returns>First record that matches a condition</returns>
         public static SqlCeDataReader GetRecord(SqlCeConnection conn, string table, string searchColumn, string searchValue)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
             {
-                using (SqlCeCommand cmd = new SqlCeCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT TOP 1 * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
-                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
-                    return cmd.ExecuteReader();
-                }
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT TOP 1 * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
+                return cmd.ExecuteReader();
             }
+        }
 
 
         /// <summary>
@@ -129,30 +129,30 @@ namespace Database_Test
         /// </summary>
         /// <returns>All records that match a condition</returns>
         public static SqlCeDataReader GetRecords(SqlCeConnection conn, string table, string searchColumn, string searchValue)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
             {
-                using (SqlCeCommand cmd = new SqlCeCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
-                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
-                    return cmd.ExecuteReader();
-                }
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
+                return cmd.ExecuteReader();
             }
+        }
 
         /// <summary>
         /// Checks if Records satisfying a condition exist
         /// </summary>
         /// <returns>True if at least one record is found, else false</returns>
         public static bool RecordExists(SqlCeConnection conn, string table, string searchColumn, string value)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
             {
-                using (SqlCeCommand cmd = new SqlCeCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT 1 FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
-                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = value });
-                    return cmd.ExecuteReader().Read();
-                }
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT 1 FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = value });
+                return cmd.ExecuteReader().Read();
             }
+        }
 
         /// <summary>
         /// Updates a record

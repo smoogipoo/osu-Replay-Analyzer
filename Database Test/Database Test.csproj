@@ -51,6 +51,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLLs\ErikEJ.SqlCe40.dll</HintPath>
     </Reference>
+    <Reference Include="osu!BMAPI">
+      <HintPath>..\DLLs\osu!BMAPI.dll</HintPath>
+    </Reference>
     <Reference Include="osu!ReplayAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLLs\osu!ReplayAPI.dll</HintPath>

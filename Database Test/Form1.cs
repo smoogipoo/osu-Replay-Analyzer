@@ -201,7 +201,7 @@ namespace Database_Test
                             foreach (var tag in b.Tags)
                             {
                                 // only add tag if not already in the datatable or db
-                                if (!beatmapTagData.Rows.Contains(tag) && !DBHelper.RecordExists(conn,"BeatmapTag","BeatmapTag_Name",tag))
+                                if (!beatmapTagData.AsEnumerable().Any(row => row.Field<String>("BeatmapTag_Name") == tag) && !DBHelper.RecordExists(conn,"BeatmapTag","BeatmapTag_Name",tag))
                                 {
                                     beatmapTagData.Rows.Add(tag);
                                     beatmapData_beatmapTagData.Rows.Add(MD5FromFile(file), tag);

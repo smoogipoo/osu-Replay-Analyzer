@@ -401,6 +401,7 @@ namespace BMAPI
                                 {
                                     //Slider
                                     SliderInfo tempSlider = new SliderInfo();
+                                    tempSlider.Velocity = Info.SliderMultiplier;
                                     tempSlider.Radius = 40 - 4 * (Info.CircleSize - 2);
                                     tempSlider.Location.X = Convert.ToInt32(line.SubString(0, line.nthDexOf(",", 0)));
                                     tempSlider.Location.Y = Convert.ToInt32(line.SubString(line.nthDexOf(",", 0) + 1, line.nthDexOf(",", 1)));
@@ -440,7 +441,7 @@ namespace BMAPI
                                             tempSlider.Type = SliderType.Bezier;
                                             break;
                                         case "C":
-                                            tempSlider.Type = SliderType.PassThrough;
+                                            tempSlider.Type = SliderType.CSpline;
                                             break;
                                         case "L":
                                             tempSlider.Type = SliderType.Linear;
@@ -563,6 +564,7 @@ namespace BMAPI
                                 {
                                     //Slider
                                     SliderInfo tempSlider = new SliderInfo();
+                                    tempSlider.Velocity = Info.SliderMultiplier;
                                     tempSlider.Radius = 40 - 4 * (Info.CircleSize - 2);
                                     tempSlider.Location.X = Convert.ToInt32(line.SubString(0, line.nthDexOf(",", 0)));
                                     tempSlider.Location.Y = Convert.ToInt32(line.SubString(line.nthDexOf(",", 0) + 1, line.nthDexOf(",", 1)));
@@ -602,7 +604,7 @@ namespace BMAPI
                                             tempSlider.Type = SliderType.Bezier;
                                             break;
                                         case "C":
-                                            tempSlider.Type = SliderType.PassThrough;
+                                            tempSlider.Type = SliderType.CSpline;
                                             break;
                                         case "L":
                                             tempSlider.Type = SliderType.Linear;

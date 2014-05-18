@@ -12,19 +12,21 @@ namespace BMAPI
         public SliderType Type { get; set; }
         public List<PointInfo> Points = new List<PointInfo>();
         public int RepeatCount { get; set; }
-        public int EndTime { get; set; }
+        public double Velocity { get; set; }
         public double MaxPoints { get; set; }
 
-        public PointInfo PositionAtTime(int time)
+        public PointInfo PositionAtTime(int Time)
         {
-            //Todo
-            if (Type == SliderType.Linear)
+            switch (Type)
             {
-                double dX = (Points[1].X - Points[0].X) / (EndTime - StartTime);
-                double dY = (Points[1].Y - Points[0].Y) / (EndTime - StartTime);
+                case SliderType.Linear:
+                    double angle = Math.Atan2(Points[1].Y - Points[0].Y, Points[1].X - Points[0].X);
+                    return new PointInfo(Points[0].X + Time * Velocity * Math.Cos(angle), Points[0].Y + Time * Velocity * Math.Sin(angle));
+                case SliderType.CSpline:
+                    return Location;
             }
+            return null;
         }
-
         public override bool ContainsPoint(PointInfo Point)
         {
             return ContainsPoint(Point, 0);

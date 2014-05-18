@@ -152,13 +152,28 @@ namespace BMAPI
                             default:
                             {
                                 FieldInfo fi = Info.GetType().GetField(cProperty);
-                                if ((fi.FieldType == typeof(double?)) || (fi.FieldType == typeof(double)))
-                                    fi.SetValue(Info, Convert.ToDouble(cValue));
-                                else if ((fi.FieldType == typeof(int?)) || (fi.FieldType == typeof(int)))
-                                    fi.SetValue(Info, Convert.ToInt32(cValue));
-                                else if (fi.FieldType == typeof(string))
-                                    fi.SetValue(Info, cValue);
-                                break;
+                                PropertyInfo pi = Info.GetType().GetProperty(cProperty);
+                                if (fi != null)
+                                {
+                                    if ((fi.FieldType == typeof(double?)) || (fi.FieldType == typeof(double)))
+                                        fi.SetValue(Info, Convert.ToDouble(cValue));
+                                    else if ((fi.FieldType == typeof(int?)) || (fi.FieldType == typeof(int)))
+                                        fi.SetValue(Info, Convert.ToInt32(cValue));
+                                    else if (fi.FieldType == typeof(string))
+                                        fi.SetValue(Info, cValue);
+                                    break;
+                                }
+                                else
+                                {
+                                    if ((pi.PropertyType == typeof(double?)) || (pi.PropertyType == typeof(double)))
+                                        pi.SetValue(Info, Convert.ToDouble(cValue));
+                                    else if ((pi.PropertyType == typeof(int?)) || (pi.PropertyType == typeof(int)))
+                                        pi.SetValue(Info, Convert.ToInt32(cValue));
+                                    else if (pi.PropertyType == typeof(string))
+                                        pi.SetValue(Info, cValue);
+                                    break;
+                                }
+
                             }
                         }
                         continue;
@@ -451,7 +466,7 @@ namespace BMAPI
                                             break;
                                     }
                                     string[] pts = line.SubString(line.nthDexOf(",", 4) + 1, line.nthDexOf(",", 5)).Split(new[] { "|" }, StringSplitOptions.None);
-                                    for (int i = 0; i <= pts.Length - 1; i++)
+                                    for (int i = 1; i <= pts.Length - 1; i++)
                                     {
                                         PointInfo p = new PointInfo(Convert.ToDouble(pts[i].Substring(0, pts[i].IndexOf(":", StringComparison.Ordinal))), Convert.ToDouble(pts[i].Substring(pts[i].IndexOf(":", StringComparison.Ordinal) + 1)));
                                         tempSlider.Points.Add(p);
@@ -614,7 +629,7 @@ namespace BMAPI
                                             break;
                                     }
                                     string[] pts = line.SubString(line.nthDexOf(",", 4) + 1, line.nthDexOf(",", 5)).Split(new[] { "|" }, StringSplitOptions.None);
-                                    for (int i = 0; i <= pts.Length - 1; i++)
+                                    for (int i = 1; i <= pts.Length - 1; i++)
                                     {
                                         PointInfo p = new PointInfo(Convert.ToDouble(pts[i].Substring(0, pts[i].IndexOf(":", StringComparison.Ordinal))), Convert.ToDouble(pts[i].Substring(pts[i].IndexOf(":", StringComparison.Ordinal) + 1)));
                                         tempSlider.Points.Add(p);

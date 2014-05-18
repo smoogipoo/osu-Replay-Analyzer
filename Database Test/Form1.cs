@@ -56,7 +56,9 @@ namespace Database_Test
             try
             {
                 //UpdateReplays();
-                UpdateBeatmaps();
+                //UpdateBeatmaps();
+                InsertReplays();
+                InsertBeatmaps();
             }
             catch (Exception ex)
             {
@@ -98,7 +100,7 @@ namespace Database_Test
                             if (replayData.AsEnumerable().All(row => replayHash != row.Field<string>("ReplayData_Hash")))
                             {
                                 cmd.CommandText = "SELECT TOP 1 * FROM ReplayData WHERE Filename = @Filename;";
-                                cmd.Parameters["@Filename"].Value = r.Filename;
+                                cmd.Parameters["@Filename"].Value = file;
                                 rdr = cmd.ExecuteReader();
                                 if (rdr.Read())
                                 {
@@ -175,6 +177,9 @@ namespace Database_Test
             }
         }
 
+        /// <summary>
+        /// Updates a beatmap record if it exists, otherwise inserts it
+        /// </summary>
         private void UpdateBeatmaps()
         {
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
@@ -196,11 +201,11 @@ namespace Database_Test
                     cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Filename" });
                     using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
                     {
+                        Beatmap b;
                         foreach (string file in beatmapFiles)
                         {
                             if (!DBHelper.RecordExists(conn, "BeatmapData", "BeatmapData_Hash", MD5FromFile(file)))
                             {
-                                Beatmap b;
                                 try
                                 {
                                     b = new Beatmap(file);
@@ -231,6 +236,18 @@ namespace Database_Test
                 }
             }
         }
+
+        /// <summary>
+        /// Insert replays into an empty db
+        /// </summary>
+        private void InsertReplays()
+        { }
+
+        /// <summary>
+        /// Insert beatmaps into an empty db
+        /// </summary>
+        private void InsertBeatmaps()
+        { }
 
         private static string MD5FromFile(string fileName)
         {

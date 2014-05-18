@@ -5,7 +5,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Reflection;
-using System.Linq;
 using System.Globalization;
 using smgiFuncs;
 
@@ -41,6 +40,7 @@ namespace BMAPI
         private void Parse(string bm)
         {
             Info.Filename = bm;
+            Info.BeatmapHash = MD5FromFile(bm);
             using (StreamReader sR = new StreamReader(bm))
             {
                 string currentSection = "";
@@ -838,7 +838,7 @@ namespace BMAPI
                             }
                             break;
                         default:
-                            if (f1.Name != "Format" && f1.Name != "Filename")
+                            if (f1.Name != "Format" && f1.Name != "Filename" && f1.Name != "BeatmapHash")
                             {
                                 if (f1.GetValue(this) != null)
                                 {
@@ -910,6 +910,17 @@ namespace BMAPI
                 return BM_Sections[k];
             }
             return "";
+        }
+
+        private string MD5FromFile(string fileName)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                using (FileStream stream = File.OpenRead(fileName))
+                {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
+                }
+            }
         }
     }
 }

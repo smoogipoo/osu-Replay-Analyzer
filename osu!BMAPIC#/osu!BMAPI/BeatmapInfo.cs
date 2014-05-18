@@ -7,6 +7,7 @@ namespace BMAPI
         //Info
         public int? Format = null;
         public string Filename;
+        public string BeatmapHash;
 
         //General
         public string AudioFilename;

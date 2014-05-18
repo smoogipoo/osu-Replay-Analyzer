@@ -165,6 +165,7 @@ namespace Database_Test
 
         private void UpdateBeatmaps()
         {
+
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
             options |= SqlCeBulkCopyOptions.KeepNulls;
 
@@ -201,22 +202,14 @@ namespace Database_Test
                             foreach (var tag in b.Tags)
                             {
                                 // only add tag if not already in the datatable or db
-                                if (!beatmapTagData.AsEnumerable().Any(row => row.Field<String>("BeatmapTag_Name") == tag) && !DBHelper.RecordExists(conn,"BeatmapTag","BeatmapTag_Name",tag))
+                                if (tag.Length > 2 && !beatmapTagData.AsEnumerable().Any(row => String.Equals(row.Field<String>("BeatmapTag_Name"), tag, StringComparison.InvariantCultureIgnoreCase)) && !DBHelper.RecordExists(conn, "BeatmapTag", "BeatmapTag_Name", tag))
                                 {
                                     beatmapTagData.Rows.Add(tag);
                                     beatmapData_beatmapTagData.Rows.Add(MD5FromFile(file), tag);
                                 };
                             }
                         }
-
-                        try
-                        {
-                            DBHelper.BulkInsert(bC, data);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message + ex.StackTrace);
-                        }
+                        DBHelper.BulkInsert(bC, data);
                         //Flush any remaining data
                         beatmapData.Clear();
                         beatmapTagData.Clear();
@@ -224,6 +217,7 @@ namespace Database_Test
                     }
                 }
             }
+
         }
         private static string MD5FromFile(string fileName)
         {

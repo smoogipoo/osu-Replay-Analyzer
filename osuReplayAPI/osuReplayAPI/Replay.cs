@@ -95,7 +95,7 @@ namespace ReplayAPI
                 PlayTime = new DateTime(timeStamp);
 
                 ReplayLength = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
-            
+
                 using (MemoryStream ms = new MemoryStream())
                 {
                     byte[] bytesToWrite = br.ReadBytes(ReplayLength + 1);
@@ -126,6 +126,7 @@ namespace ReplayAPI
                         outString = reader.ReadToEnd();
                     }
                     int lastTime = 0;
+                    KeyData lastKey = new KeyData();
                     foreach (string splitStr in Regex.Split(outString, ","))
                     {
                         if (splitStr == "")
@@ -138,7 +139,12 @@ namespace ReplayAPI
                         tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
                         tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
                         tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
+                        if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
+                        {
+                            ClickFrames.Add(tempInfo);
+                        }
                         ReplayFrames.Add(tempInfo);
+                        lastKey = tempInfo.Keys;
                     }
                 }
 

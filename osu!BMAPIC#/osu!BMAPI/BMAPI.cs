@@ -23,7 +23,9 @@ namespace BMAPI
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US", false);
 
             //Variable init
-            BM_Sections.Add("AudioFilename,AudioLeadIn,PreviewTime,Countdown,SampleSet,StackLeniency,Mode,LetterboxInBreaks,SpecialStyle,CountdownOffset,OverlayPosition,SkinPreference,WidescreenStoryboard,UseSkinSprites,StoryFireInFront,EpilepsyWarning,CustomSamples,EditorDistanceSpacing,AudioHash,AlwaysShowPlayfield", "General");
+            BM_Sections.Add("AudioFilename,AudioLeadIn,PreviewTime,Countdown,SampleSet,StackLeniency,Mode,LetterboxInBreaks,SpecialStyle,CountdownOffset," +
+                            "OverlayPosition,SkinPreference,WidescreenStoryboard,UseSkinSprites,StoryFireInFront,EpilepsyWarning,CustomSamples,EditorDistanceSpacing," +
+                            "AudioHash,AlwaysShowPlayfield", "General");
             BM_Sections.Add("GridSize,BeatDivisor,DistanceSpacing,CurrentTime,TimelineZoom", "Editor");
             BM_Sections.Add("Title,TitleUnicode,Artist,ArtistUnicode,Creator,Version,Source,BeatmapID,BeatmapSetID", "Metadata");
             BM_Sections.Add("HPDrainRate,CircleSize,OverallDifficulty,ApproachRate,SliderMultiplier,SliderTickRate", "Difficulty");
@@ -150,13 +152,28 @@ namespace BMAPI
                             default:
                             {
                                 FieldInfo fi = Info.GetType().GetField(cProperty);
-                                if ((fi.FieldType == typeof(double?)) || (fi.FieldType == typeof(double)))
-                                    fi.SetValue(Info, Convert.ToDouble(cValue));
-                                else if ((fi.FieldType == typeof(int?)) || (fi.FieldType == typeof(int)))
-                                    fi.SetValue(Info, Convert.ToInt32(cValue));
-                                else if (fi.FieldType == typeof(string))
-                                    fi.SetValue(Info, cValue);
-                                break;
+                                PropertyInfo pi = Info.GetType().GetProperty(cProperty);
+                                if (fi != null)
+                                {
+                                    if ((fi.FieldType == typeof(double?)) || (fi.FieldType == typeof(double)))
+                                        fi.SetValue(Info, Convert.ToDouble(cValue));
+                                    else if ((fi.FieldType == typeof(int?)) || (fi.FieldType == typeof(int)))
+                                        fi.SetValue(Info, Convert.ToInt32(cValue));
+                                    else if (fi.FieldType == typeof(string))
+                                        fi.SetValue(Info, cValue);
+                                    break;
+                                }
+                                else
+                                {
+                                    if ((pi.PropertyType == typeof(double?)) || (pi.PropertyType == typeof(double)))
+                                        pi.SetValue(Info, Convert.ToDouble(cValue));
+                                    else if ((pi.PropertyType == typeof(int?)) || (pi.PropertyType == typeof(int)))
+                                        pi.SetValue(Info, Convert.ToInt32(cValue));
+                                    else if (pi.PropertyType == typeof(string))
+                                        pi.SetValue(Info, cValue);
+                                    break;
+                                }
+
                             }
                         }
                         continue;
@@ -399,6 +416,7 @@ namespace BMAPI
                                 {
                                     //Slider
                                     SliderInfo tempSlider = new SliderInfo();
+                                    tempSlider.Velocity = Info.SliderMultiplier;
                                     tempSlider.Radius = 40 - 4 * (Info.CircleSize - 2);
                                     tempSlider.Location.X = Convert.ToInt32(line.SubString(0, line.nthDexOf(",", 0)));
                                     tempSlider.Location.Y = Convert.ToInt32(line.SubString(line.nthDexOf(",", 0) + 1, line.nthDexOf(",", 1)));
@@ -438,13 +456,13 @@ namespace BMAPI
                                             tempSlider.Type = SliderType.Bezier;
                                             break;
                                         case "C":
-                                            tempSlider.Type = SliderType.Spline;
+                                            tempSlider.Type = SliderType.CSpline;
                                             break;
                                         case "L":
                                             tempSlider.Type = SliderType.Linear;
                                             break;
                                         case "P":
-                                            tempSlider.Type = SliderType.PassThrough;
+                                            tempSlider.Type = SliderType.Spline;
                                             break;
                                     }
                                     string[] pts = line.SubString(line.nthDexOf(",", 4) + 1, line.nthDexOf(",", 5)).Split(new[] { "|" }, StringSplitOptions.None);
@@ -561,6 +579,7 @@ namespace BMAPI
                                 {
                                     //Slider
                                     SliderInfo tempSlider = new SliderInfo();
+                                    tempSlider.Velocity = Info.SliderMultiplier;
                                     tempSlider.Radius = 40 - 4 * (Info.CircleSize - 2);
                                     tempSlider.Location.X = Convert.ToInt32(line.SubString(0, line.nthDexOf(",", 0)));
                                     tempSlider.Location.Y = Convert.ToInt32(line.SubString(line.nthDexOf(",", 0) + 1, line.nthDexOf(",", 1)));
@@ -600,13 +619,13 @@ namespace BMAPI
                                             tempSlider.Type = SliderType.Bezier;
                                             break;
                                         case "C":
-                                            tempSlider.Type = SliderType.Spline;
+                                            tempSlider.Type = SliderType.CSpline;
                                             break;
                                         case "L":
                                             tempSlider.Type = SliderType.Linear;
                                             break;
                                         case "P":
-                                            tempSlider.Type = SliderType.PassThrough;
+                                            tempSlider.Type = SliderType.Spline;
                                             break;
                                     }
                                     string[] pts = line.SubString(line.nthDexOf(",", 4) + 1, line.nthDexOf(",", 5)).Split(new[] { "|" }, StringSplitOptions.None);

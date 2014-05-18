@@ -14,7 +14,7 @@ namespace BMAPI
         public bool NewCombo { get; set; }
         public EffectType Effect { get; set; }
 
-        public bool ContainsPoint(PointInfo Point)
+        public virtual bool ContainsPoint(PointInfo Point)
         {
             return Math.Sqrt(Math.Pow(Point.X - Location.X, 2) + Math.Pow(Point.Y - Location.Y, 2)) <= Radius;
         }

@@ -29,6 +29,6 @@ namespace BMAPI
         Linear = 0,
         Spline = 1,
         Bezier = 2,
-        PassThrough = 3,
+        CSpline = 3,
     }
 }

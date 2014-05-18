@@ -53,8 +53,16 @@ namespace Database_Test
             BeatmapDir = Path.Combine(FindOsuPath(), "Songs");
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            //UpdateReplays();
-            UpdateBeatmaps();
+            try
+            {
+                //UpdateReplays();
+                UpdateBeatmaps();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + ex.StackTrace);
+            }
+
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
         }
@@ -81,71 +89,75 @@ namespace Database_Test
                     using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
                     {
                         SqlCeDataReader rdr = null;
+                        string replayHash;
+                        Replay r;
                         foreach (string file in Directory.GetFiles(ReplayDir))
                         {
-                            Replay r;
-                            try
-                            {
-                                r = new Replay(file);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
-                                return;
-                            }
+                            replayHash = MD5FromFile(file);
                             //Only add items to the datatable if there isn't any other item with the same hash
-                            if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("ReplayData_Hash")))
+                            if (replayData.AsEnumerable().All(row => replayHash != row.Field<string>("ReplayData_Hash")))
                             {
-                                try
+                                cmd.CommandText = "SELECT TOP 1 * FROM ReplayData WHERE Filename = @Filename;";
+                                cmd.Parameters["@Filename"].Value = r.Filename;
+                                rdr = cmd.ExecuteReader();
+                                if (rdr.Read())
                                 {
-                                    cmd.CommandText = "SELECT TOP 1 * FROM ReplayData WHERE Filename = @Filename;";
-                                    cmd.Parameters["@Filename"].Value = r.Filename;
+                                    if ((string)rdr["ReplayData_Hash"] != replayHash)
+                                    {
+                                        try
+                                        {
+                                            r = new Replay(file);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
+                                            return;
+                                        }
+                                        //Filename found, but hash is different
+                                        //Delete this replay and its replayframes from the db
+                                        DBHelper.DeleteRecords(conn, "ReplayData", "Filename", r.Filename);
+                                        //Readd updated replay and its replayframes
+                                        replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                                        foreach (ReplayInfo rI in r.ClickFrames)
+                                        {
+                                            clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        r = new Replay(file);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
+                                        return;
+                                    }
+                                    cmd.CommandText = String.Format("SELECT TOP 1 * FROM ReplayData WHERE ReplayData_Hash = '{0}';", r.ReplayHash);
                                     rdr = cmd.ExecuteReader();
                                     if (rdr.Read())
                                     {
-                                        if ((string)rdr["ReplayData_Hash"] != r.ReplayHash)
-                                        {
-                                            //Filename found, but hash is different
-                                            //Delete this replay and its replayframes from the db
-                                            DBHelper.DeleteRecords(conn, "ReplayData", "Filename", r.Filename);
-                                            //Readd updated replay and its replayframes
-                                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
-                                            foreach (ReplayInfo rI in r.ClickFrames)
-                                            {
-                                                clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                                            }
-                                        }
+                                        //Filename not found, but hash found
+                                        //Update filename
+                                        DBHelper.UpdateRecord(conn, "ReplayData", "Filename", r.Filename, "ReplayData_Hash", r.ReplayHash);
                                     }
                                     else
                                     {
-                                        cmd.CommandText = String.Format("SELECT TOP 1 * FROM ReplayData WHERE ReplayData_Hash = '{0}';", r.ReplayHash);
-                                        rdr = cmd.ExecuteReader();
-                                        if (rdr.Read())
+                                        replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                                        foreach (ReplayInfo rI in r.ClickFrames)
                                         {
-                                            //Filename not found, but hash found
-                                            //Update filename
-                                            DBHelper.UpdateRecord(conn, "ReplayData", "Filename", r.Filename, "ReplayData_Hash", r.ReplayHash);
+                                            clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
                                         }
-                                        else
-                                        {
-                                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
-                                            foreach (ReplayInfo rI in r.ClickFrames)
-                                            {
-                                                clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                                            }
-                                        }
-                                    }
-                                    //Limit memory usage
-                                    if (replayData.Rows.Count >= 200 || clickData.Rows.Count > 100000)
-                                    {
-                                        DBHelper.BulkInsert(bC, data);
-                                        replayData.Clear();
-                                        clickData.Clear();
                                     }
                                 }
-                                catch (Exception ex)
+                                //Limit memory usage
+                                if (replayData.Rows.Count >= 200 || clickData.Rows.Count > 100000)
                                 {
-                                    MessageBox.Show(ex.Message + ex.StackTrace);
+                                    DBHelper.BulkInsert(bC, data);
+                                    replayData.Clear();
+                                    clickData.Clear();
                                 }
                             }
                             else
@@ -165,7 +177,6 @@ namespace Database_Test
 
         private void UpdateBeatmaps()
         {
-
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
             options |= SqlCeBulkCopyOptions.KeepNulls;
 
@@ -187,26 +198,28 @@ namespace Database_Test
                     {
                         foreach (string file in beatmapFiles)
                         {
-                            Beatmap b;
-                            try
+                            if (!DBHelper.RecordExists(conn, "BeatmapData", "BeatmapData_Hash", MD5FromFile(file)))
                             {
-                                b = new Beatmap(file);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("Beatmap failed loading: " + ex.StackTrace);
-                                return;
-                            }
-
-                            beatmapData.Rows.Add(MD5FromFile(file), b.Creator, b.AudioFilename, b.Filename, b.HPDrainRate, b.CircleSize, b.OverallDifficulty, b.ApproachRate, b.Title, b.Artist, b.Version);
-                            foreach (var tag in b.Tags)
-                            {
-                                // only add tag if not already in the datatable or db
-                                if (tag.Length > 2 && !beatmapTagData.AsEnumerable().Any(row => String.Equals(row.Field<String>("BeatmapTag_Name"), tag, StringComparison.InvariantCultureIgnoreCase)) && !DBHelper.RecordExists(conn, "BeatmapTag", "BeatmapTag_Name", tag))
+                                Beatmap b;
+                                try
                                 {
-                                    beatmapTagData.Rows.Add(tag);
-                                    beatmapData_beatmapTagData.Rows.Add(MD5FromFile(file), tag);
-                                };
+                                    b = new Beatmap(file);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine("Beatmap failed loading: " + ex.StackTrace);
+                                    return;
+                                }
+                                beatmapData.Rows.Add(b.BeatmapHash, b.Creator, b.AudioFilename, b.Filename, b.HPDrainRate, b.CircleSize, b.OverallDifficulty, b.ApproachRate, b.Title, b.Artist, b.Version);
+                                foreach (var tag in b.Tags)
+                                {
+                                    // only add tag if not already in the datatable or db
+                                    if (tag.Length > 2 && !beatmapTagData.AsEnumerable().Any(row => String.Equals(row.Field<String>("BeatmapTag_Name"), tag, StringComparison.InvariantCultureIgnoreCase)) && !DBHelper.RecordExists(conn, "BeatmapTag", "BeatmapTag_Name", tag))
+                                    {
+                                        beatmapTagData.Rows.Add(tag);
+                                        beatmapData_beatmapTagData.Rows.Add(b.BeatmapHash, tag);
+                                    };
+                                }
                             }
                         }
                         DBHelper.BulkInsert(bC, data);
@@ -217,8 +230,8 @@ namespace Database_Test
                     }
                 }
             }
-
         }
+
         private static string MD5FromFile(string fileName)
         {
             using (MD5 md5 = MD5.Create())

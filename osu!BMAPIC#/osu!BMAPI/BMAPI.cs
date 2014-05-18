@@ -24,7 +24,9 @@ namespace BMAPI
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US", false);
 
             //Variable init
-            BM_Sections.Add("AudioFilename,AudioLeadIn,PreviewTime,Countdown,SampleSet,StackLeniency,Mode,LetterboxInBreaks,SpecialStyle,CountdownOffset,OverlayPosition,SkinPreference,WidescreenStoryboard,UseSkinSprites,StoryFireInFront,EpilepsyWarning,CustomSamples,EditorDistanceSpacing,AudioHash,AlwaysShowPlayfield", "General");
+            BM_Sections.Add("AudioFilename,AudioLeadIn,PreviewTime,Countdown,SampleSet,StackLeniency,Mode,LetterboxInBreaks,SpecialStyle,CountdownOffset," +
+                            "OverlayPosition,SkinPreference,WidescreenStoryboard,UseSkinSprites,StoryFireInFront,EpilepsyWarning,CustomSamples,EditorDistanceSpacing," +
+                            "AudioHash,AlwaysShowPlayfield", "General");
             BM_Sections.Add("GridSize,BeatDivisor,DistanceSpacing,CurrentTime,TimelineZoom", "Editor");
             BM_Sections.Add("Title,TitleUnicode,Artist,ArtistUnicode,Creator,Version,Source,BeatmapID,BeatmapSetID", "Metadata");
             BM_Sections.Add("HPDrainRate,CircleSize,OverallDifficulty,ApproachRate,SliderMultiplier,SliderTickRate", "Difficulty");
@@ -438,17 +440,17 @@ namespace BMAPI
                                             tempSlider.Type = SliderType.Bezier;
                                             break;
                                         case "C":
-                                            tempSlider.Type = SliderType.Spline;
+                                            tempSlider.Type = SliderType.PassThrough;
                                             break;
                                         case "L":
                                             tempSlider.Type = SliderType.Linear;
                                             break;
                                         case "P":
-                                            tempSlider.Type = SliderType.PassThrough;
+                                            tempSlider.Type = SliderType.Spline;
                                             break;
                                     }
                                     string[] pts = line.SubString(line.nthDexOf(",", 4) + 1, line.nthDexOf(",", 5)).Split(new[] { "|" }, StringSplitOptions.None);
-                                    for (int i = 1; i <= pts.Length - 1; i++)
+                                    for (int i = 0; i <= pts.Length - 1; i++)
                                     {
                                         PointInfo p = new PointInfo(Convert.ToDouble(pts[i].Substring(0, pts[i].IndexOf(":", StringComparison.Ordinal))), Convert.ToDouble(pts[i].Substring(pts[i].IndexOf(":", StringComparison.Ordinal) + 1)));
                                         tempSlider.Points.Add(p);
@@ -600,17 +602,17 @@ namespace BMAPI
                                             tempSlider.Type = SliderType.Bezier;
                                             break;
                                         case "C":
-                                            tempSlider.Type = SliderType.Spline;
+                                            tempSlider.Type = SliderType.PassThrough;
                                             break;
                                         case "L":
                                             tempSlider.Type = SliderType.Linear;
                                             break;
                                         case "P":
-                                            tempSlider.Type = SliderType.PassThrough;
+                                            tempSlider.Type = SliderType.Spline;
                                             break;
                                     }
                                     string[] pts = line.SubString(line.nthDexOf(",", 4) + 1, line.nthDexOf(",", 5)).Split(new[] { "|" }, StringSplitOptions.None);
-                                    for (int i = 1; i <= pts.Length - 1; i++)
+                                    for (int i = 0; i <= pts.Length - 1; i++)
                                     {
                                         PointInfo p = new PointInfo(Convert.ToDouble(pts[i].Substring(0, pts[i].IndexOf(":", StringComparison.Ordinal))), Convert.ToDouble(pts[i].Substring(pts[i].IndexOf(":", StringComparison.Ordinal) + 1)));
                                         tempSlider.Points.Add(p);

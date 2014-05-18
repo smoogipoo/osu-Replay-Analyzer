@@ -18,5 +18,9 @@ namespace BMAPI
         {
             return Math.Sqrt(Math.Pow(p2.X - X, 2) + Math.Pow(p2.Y - Y, 2));
         }
+        public static PointInfo operator *(PointInfo p, float multiple)
+        {
+            return new PointInfo(p.X * multiple, p.Y * multiple);
+        }
     }
 }

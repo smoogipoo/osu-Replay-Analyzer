@@ -241,7 +241,61 @@ namespace Database_Test
         /// Insert replays into an empty db
         /// </summary>
         private void InsertReplays()
-        { }
+        {
+            SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
+            options |= SqlCeBulkCopyOptions.KeepNulls;
+
+            DataTable replayData = DBHelper.CreateReplayDataTable();
+            DataTable clickData = DBHelper.CreateReplayFrameTable();
+            DataTable[] data = { replayData, clickData };
+
+            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+            {
+                conn.Open();
+                using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+                {
+                    string replayHash;
+                    Replay r;
+                    foreach (string file in Directory.GetFiles(ReplayDir))
+                    {
+                        replayHash = MD5FromFile(file);
+                        //Only add items to the datatable if there isn't any other item with the same hash
+                        if (replayData.AsEnumerable().All(row => replayHash != row.Field<string>("ReplayData_Hash")))
+                        {
+                            try
+                            {
+                                r = new Replay(file);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
+                                return;
+                            }
+                            replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                            foreach (ReplayInfo rI in r.ClickFrames)
+                            {
+                                clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                            }
+                            //Limit memory usage
+                            if (replayData.Rows.Count >= 200 || clickData.Rows.Count > 100000)
+                            {
+                                DBHelper.BulkInsert(bC, data);
+                                replayData.Clear();
+                                clickData.Clear();
+                            }
+                        }
+                        else
+                        {
+                            //TODO Offer to delete duplicate replay
+                        }
+                    }
+                    //Flush any remaining data
+                    DBHelper.BulkInsert(bC, data);
+                    replayData.Clear();
+                    clickData.Clear();
+                }
+            }
+        }
 
         /// <summary>
         /// Insert beatmaps into an empty db

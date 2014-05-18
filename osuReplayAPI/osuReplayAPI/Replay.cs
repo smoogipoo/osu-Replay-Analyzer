@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using smgiFuncs;
 
 namespace ReplayAPI
@@ -74,18 +72,22 @@ namespace ReplayAPI
 
                 IsPerfect = br.ReadByte();
 
-                Mods = (Modifications)int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
+                Mods = (Modifications)Enum.Parse(typeof(Modifications), int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber).ToString(CultureInfo.InvariantCulture));
 
                 bool lifeExists = int.Parse(GetReversedString(br, 1), NumberStyles.HexNumber) == 0x0B;
                 if (lifeExists)
                 {
                     string tempLifeStr = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br)));
-                    foreach (LifeInfo tempLife in Regex.Split(tempLifeStr, ",").Where(splitStr => splitStr != "").Select(tempStr => new LifeInfo
+                    foreach (string splitStr in Regex.Split(tempLifeStr, ","))
                     {
-                        Time = Convert.ToInt32(((sString)tempStr).SubString(0, ((sString)tempStr).nthDexOf("|", 0))),
-                        Percentage = Convert.ToDouble(((sString)tempStr).SubString(((sString)tempStr).nthDexOf("|", 0) + 1)),
-                    }))
-                    {
+                        if (splitStr == "")
+                            continue;
+                        sString tempStr = splitStr;
+                        LifeInfo tempLife = new LifeInfo
+                        {
+                            Time = Convert.ToInt32(tempStr.SubString(0, tempStr.nthDexOf("|", 0))),
+                            Percentage = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1)),
+                        };
                         LifeData.Add(tempLife);
                     }
                 }
@@ -93,7 +95,7 @@ namespace ReplayAPI
                 PlayTime = new DateTime(timeStamp);
 
                 ReplayLength = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
-            
+
                 using (MemoryStream ms = new MemoryStream())
                 {
                     byte[] bytesToWrite = br.ReadBytes(ReplayLength + 1);
@@ -125,15 +127,18 @@ namespace ReplayAPI
                     }
                     int lastTime = 0;
                     KeyData lastKey = new KeyData();
-                    foreach (sString splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
+                    foreach (string splitStr in Regex.Split(outString, ","))
                     {
+                        if (splitStr == "")
+                            continue;
+                        sString tempStr = splitStr;
                         ReplayInfo tempInfo = new ReplayInfo();
-                        tempInfo.TimeDiff = Convert.ToInt64(splitStr.SubString(0, splitStr.nthDexOf("|", 0)));
+                        tempInfo.TimeDiff = Convert.ToInt64(tempStr.SubString(0, tempStr.nthDexOf("|", 0)));
                         lastTime += (int)tempInfo.TimeDiff;
                         tempInfo.Time = lastTime;
-                        tempInfo.X = Convert.ToDouble(splitStr.SubString(splitStr.nthDexOf("|", 0) + 1, splitStr.nthDexOf("|", 1)));
-                        tempInfo.Y = Convert.ToDouble(splitStr.SubString(splitStr.nthDexOf("|", 1) + 1, splitStr.LastIndexOf("|")));
-                        tempInfo.Keys = (KeyData)Convert.ToInt32(splitStr.SubString(splitStr.LastIndexOf("|") + 1));
+                        tempInfo.X = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 0) + 1, tempStr.nthDexOf("|", 1)));
+                        tempInfo.Y = Convert.ToDouble(tempStr.SubString(tempStr.nthDexOf("|", 1) + 1, tempStr.nthDexOf("|", 2)));
+                        tempInfo.Keys = (KeyData)Enum.Parse(typeof(KeyData), tempStr.SubString(tempStr.nthDexOf("|", 2) + 1));
                         if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
                         {
                             ClickFrames.Add(tempInfo);

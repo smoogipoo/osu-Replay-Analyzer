@@ -12,7 +12,6 @@ using ReplayAPI;
 using BMAPI;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-
 namespace Database_Test
 {
     public partial class Form1 : Form
@@ -49,16 +48,19 @@ namespace Database_Test
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-
             ReplayDir = Path.Combine(FindOsuPath(), "Replays");
             BeatmapDir = Path.Combine(FindOsuPath(), "Songs");
+
+            //UpdateReplays();
+            //InsertBeatmaps();
+            await Handler();
+        }
+
+        private async Task Handler()
+        {
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            ////UpdateReplays();
-            ////UpdateBeatmaps();
-            await InsertReplays();
-            //InsertBeatmaps();
-            //Handler();
+            await Task.WhenAll(UpdateBeatmaps(), InsertReplays());
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
         }
@@ -174,61 +176,64 @@ namespace Database_Test
         /// <summary>
         /// Updates a beatmap record if it exists, otherwise inserts it
         /// </summary>
-        private void UpdateBeatmaps()
+        private async Task UpdateBeatmaps()
         {
-            SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
-            options |= SqlCeBulkCopyOptions.KeepNulls;
+            Task.Run(() =>
+               {
+                   SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
+                   options |= SqlCeBulkCopyOptions.KeepNulls;
 
-            DataTable beatmapData = DBHelper.CreateBeatmapDataTable();
-            DataTable beatmapTagData = DBHelper.CreateBeatmapTagTable();
-            DataTable beatmapData_beatmapTagData = DBHelper.CreateBeatmapData_BeatmapTagTable();
-            DataTable[] data = { beatmapData, beatmapTagData, beatmapData_beatmapTagData };
+                   DataTable beatmapData = DBHelper.CreateBeatmapDataTable();
+                   DataTable beatmapTagData = DBHelper.CreateBeatmapTagTable();
+                   DataTable beatmapData_beatmapTagData = DBHelper.CreateBeatmapData_BeatmapTagTable();
+                   DataTable[] data = { beatmapData, beatmapTagData, beatmapData_beatmapTagData };
 
-            string[] beatmapFiles = Directory.GetFiles(BeatmapDir, "*.osu", SearchOption.AllDirectories);
+                   string[] beatmapFiles = Directory.GetFiles(BeatmapDir, "*.osu", SearchOption.AllDirectories);
 
-            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
-            {
-                conn.Open();
-                using (SqlCeCommand cmd = new SqlCeCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Filename" });
-                    using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
-                    {
-                        Beatmap b;
-                        foreach (string file in beatmapFiles)
-                        {
-                            if (!DBHelper.RecordExists(conn, "BeatmapData", "BeatmapData_Hash", MD5FromFile(file)))
-                            {
-                                try
-                                {
-                                    b = new Beatmap(file);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine("Beatmap failed loading: " + ex.StackTrace);
-                                    return;
-                                }
-                                beatmapData.Rows.Add(b.BeatmapHash, b.Creator, b.AudioFilename, b.Filename, b.HPDrainRate, b.CircleSize, b.OverallDifficulty, b.ApproachRate, b.Title, b.Artist, b.Version);
-                                foreach (var tag in b.Tags)
-                                {
-                                    // only add tag if not already in the datatable or db
-                                    if (tag.Length > 2 && !beatmapTagData.AsEnumerable().Any(row => String.Equals(row.Field<String>("BeatmapTag_Name"), tag, StringComparison.InvariantCultureIgnoreCase)) && !DBHelper.RecordExists(conn, "BeatmapTag", "BeatmapTag_Name", tag))
-                                    {
-                                        beatmapTagData.Rows.Add(tag);
-                                        beatmapData_beatmapTagData.Rows.Add(b.BeatmapHash, tag);
-                                    };
-                                }
-                            }
-                        }
-                        DBHelper.BulkInsert(bC, data);
-                        //Flush any remaining data
-                        beatmapData.Clear();
-                        beatmapTagData.Clear();
-                        beatmapData_beatmapTagData.Clear();
-                    }
-                }
-            }
+                   using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+                   {
+                       conn.Open();
+                       using (SqlCeCommand cmd = new SqlCeCommand())
+                       {
+                           cmd.Connection = conn;
+                           cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Filename" });
+                           using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+                           {
+                               Beatmap b;
+                               foreach (string file in beatmapFiles)
+                               {
+                                   if (!DBHelper.RecordExists(conn, "BeatmapData", "BeatmapData_Hash", MD5FromFile(file)))
+                                   {
+                                       try
+                                       {
+                                           b = new Beatmap(file);
+                                       }
+                                       catch (Exception ex)
+                                       {
+                                           Debug.WriteLine("Beatmap failed loading: " + ex.StackTrace);
+                                           return;
+                                       }
+                                       beatmapData.Rows.Add(b.BeatmapHash, b.Creator, b.AudioFilename, b.Filename, b.HPDrainRate, b.CircleSize, b.OverallDifficulty, b.ApproachRate, b.Title, b.Artist, b.Version);
+                                       foreach (var tag in b.Tags)
+                                       {
+                                           // only add tag if not already in the datatable or db
+                                           if (tag.Length > 2 && !beatmapTagData.AsEnumerable().Any(row => String.Equals(row.Field<String>("BeatmapTag_Name"), tag, StringComparison.InvariantCultureIgnoreCase)) && !DBHelper.RecordExists(conn, "BeatmapTag", "BeatmapTag_Name", tag))
+                                           {
+                                               beatmapTagData.Rows.Add(tag);
+                                               beatmapData_beatmapTagData.Rows.Add(b.BeatmapHash, tag);
+                                           };
+                                       }
+                                   }
+                               }
+                               DBHelper.BulkInsert(bC, data);
+                               //Flush any remaining data
+                               beatmapData.Clear();
+                               beatmapTagData.Clear();
+                               beatmapData_beatmapTagData.Clear();
+                           }
+                       }
+                   }
+               });
         }
 
         /// <summary>
@@ -236,80 +241,80 @@ namespace Database_Test
         /// </summary>
         private async Task InsertReplays()
         {
-            await Task.Run(() =>
-                {
-                    SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
-                    options |= SqlCeBulkCopyOptions.KeepNulls;
+            Task.Run(() =>
+              {
+                  SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
+                  options |= SqlCeBulkCopyOptions.KeepNulls;
 
-                    DataTable replayData = DBHelper.CreateReplayDataTable();
-                    DataTable clickData = DBHelper.CreateReplayFrameTable();
-                    DataTable[] data = { replayData, clickData };
+                  DataTable replayData = DBHelper.CreateReplayDataTable();
+                  DataTable clickData = DBHelper.CreateReplayFrameTable();
+                  DataTable[] data = { replayData, clickData };
 
-                    using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
-                    {
-                        conn.Open();
-                        using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
-                        {
-                            progressBar1.BeginInvoke((MethodInvoker)delegate
-                            {
-                                progressBar1.Maximum = Directory.GetFiles(ReplayDir).Length;
-                            });
-                            string replayHash;
-                            Replay r;
-                            foreach (string file in Directory.GetFiles(ReplayDir))
-                            {
-                                replayHash = MD5FromFile(file);
+                  using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+                  {
+                      conn.Open();
+                      using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+                      {
+                          progressBar1.BeginInvoke((MethodInvoker)delegate
+                          {
+                              progressBar1.Maximum = Directory.GetFiles(ReplayDir).Length;
+                          });
+                          string replayHash;
+                          Replay r;
+                          foreach (string file in Directory.GetFiles(ReplayDir))
+                          {
+                              replayHash = MD5FromFile(file);
 
-                                //Only add items to the datatable if there isn't any other item with the same hash
-                                if (replayData.AsEnumerable().All(row => replayHash != row.Field<string>("ReplayData_Hash")))
-                                {
-                                    try
-                                    {
-                                        r = new Replay(file);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine(file);
-                                        Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
-                                        return;
-                                    }
-                                    replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
-                                    progressBar1.BeginInvoke((MethodInvoker)delegate
-                                    {
-                                        progressBar1.Value += 1;
-                                    });
+                              //Only add items to the datatable if there isn't any other item with the same hash
+                              if (replayData.AsEnumerable().All(row => replayHash != row.Field<string>("ReplayData_Hash")))
+                              {
+                                  try
+                                  {
+                                      r = new Replay(file);
+                                  }
+                                  catch (Exception ex)
+                                  {
+                                      Console.WriteLine(file);
+                                      Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
+                                      return;
+                                  }
+                                  replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+                                  progressBar1.BeginInvoke((MethodInvoker)delegate
+                                  {
+                                      progressBar1.Value += 1;
+                                  });
 
-                                    foreach (ReplayInfo rI in r.ClickFrames)
-                                    {
-                                        clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                                    }
-                                    //Limit memory usage
-                                    if (replayData.Rows.Count >= 200 || clickData.Rows.Count > 100000)
-                                    {
-                                        DBHelper.BulkInsert(bC, data);
-                                        replayData.Clear();
-                                        clickData.Clear();
-                                    }
-                                }
-                                else
-                                {
-                                    //TODO Offer to delete duplicate replay
-                                }
-                            }
-                            //Flush any remaining data
-                            try
-                            {
-                                DBHelper.BulkInsert(bC, data);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message + ex.StackTrace);
-                            }
-                            replayData.Clear();
-                            clickData.Clear();
-                        }
-                    }
-                });
+                                  foreach (ReplayInfo rI in r.ClickFrames)
+                                  {
+                                      clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
+                                  }
+                                  //Limit memory usage
+                                  if (replayData.Rows.Count >= 200 || clickData.Rows.Count > 100000)
+                                  {
+                                      DBHelper.BulkInsert(bC, data);
+                                      replayData.Clear();
+                                      clickData.Clear();
+                                  }
+                              }
+                              else
+                              {
+                                  //TODO Offer to delete duplicate replay
+                              }
+                          }
+                          //Flush any remaining data
+                          try
+                          {
+                              DBHelper.BulkInsert(bC, data);
+                          }
+                          catch (Exception ex)
+                          {
+                              MessageBox.Show(ex.Message + ex.StackTrace);
+                          }
+                          replayData.Clear();
+                          clickData.Clear();
+                      }
+                  }
+              });
         }
 
         /// <summary>

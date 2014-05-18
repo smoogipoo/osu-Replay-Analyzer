@@ -1,5 +1,4 @@
-﻿
-namespace ReplayAPI
+﻿namespace ReplayAPI
 {
     public class LifeInfo
     {

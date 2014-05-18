@@ -84,7 +84,7 @@ namespace Database_Test
         public static DataTable CreateReplayFrameTable()
         {
             DataTable clickData = new DataTable("ReplayFrame");
-            clickData.Columns.Add(new DataColumn { ColumnName = "ReplayData_Hash", DataType = typeof(string), Unique = true });
+            clickData.Columns.Add(new DataColumn { ColumnName = "ReplayData_Hash", DataType = typeof(string)});
             clickData.Columns.Add(new DataColumn("Time", typeof(int)));
             clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
             clickData.Columns.Add(new DataColumn("X", typeof(double)));

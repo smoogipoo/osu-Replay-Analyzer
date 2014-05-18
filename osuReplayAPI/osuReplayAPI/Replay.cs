@@ -124,6 +124,7 @@ namespace ReplayAPI
                         outString = reader.ReadToEnd();
                     }
                     int lastTime = 0;
+                    KeyData lastKey = new KeyData();
                     foreach (sString splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
                     {
                         ReplayInfo tempInfo = new ReplayInfo();
@@ -133,24 +134,12 @@ namespace ReplayAPI
                         tempInfo.X = Convert.ToDouble(splitStr.SubString(splitStr.nthDexOf("|", 0) + 1, splitStr.nthDexOf("|", 1)));
                         tempInfo.Y = Convert.ToDouble(splitStr.SubString(splitStr.nthDexOf("|", 1) + 1, splitStr.LastIndexOf("|")));
                         tempInfo.Keys = (KeyData)Convert.ToInt32(splitStr.SubString(splitStr.LastIndexOf("|") + 1));
-                        ReplayFrames.Add(tempInfo);
-                    }
-                }
-
-                //Get a list of all the individual clicks
-                for (int i = 0; i < ReplayFrames.Count; i++)
-                {
-                    if (ReplayFrames[i].Keys != KeyData.None)
-                    {
-                        ClickFrames.Add(ReplayFrames[i]);
-                    }
-                    for (int n = i; n < ReplayFrames.Count; n++)
-                    {
-                        if (ReplayFrames[n].Keys != ReplayFrames[i].Keys)
+                        if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
                         {
-                            i = n;
-                            break;
+                            ClickFrames.Add(tempInfo);
                         }
+                        ReplayFrames.Add(tempInfo);
+                        lastKey = tempInfo.Keys;
                     }
                 }
             }

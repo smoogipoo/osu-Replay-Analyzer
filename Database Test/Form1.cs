@@ -53,17 +53,12 @@ namespace Database_Test
             BeatmapDir = Path.Combine(FindOsuPath(), "Songs");
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            try
-            {
-                //UpdateReplays();
-                //UpdateBeatmaps();
-                InsertReplays();
-                InsertBeatmaps();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + ex.StackTrace);
-            }
+
+            //UpdateReplays();
+            //UpdateBeatmaps();
+            InsertReplays();
+            InsertBeatmaps();
+
 
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
@@ -259,6 +254,7 @@ namespace Database_Test
                     foreach (string file in Directory.GetFiles(ReplayDir))
                     {
                         replayHash = MD5FromFile(file);
+
                         //Only add items to the datatable if there isn't any other item with the same hash
                         if (replayData.AsEnumerable().All(row => replayHash != row.Field<string>("ReplayData_Hash")))
                         {
@@ -268,10 +264,12 @@ namespace Database_Test
                             }
                             catch (Exception ex)
                             {
+                                Console.WriteLine(file);
                                 Debug.WriteLine("Replay failed loading: " + ex.StackTrace);
                                 return;
                             }
                             replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.ReplayLength);
+
                             foreach (ReplayInfo rI in r.ClickFrames)
                             {
                                 clickData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
@@ -290,7 +288,14 @@ namespace Database_Test
                         }
                     }
                     //Flush any remaining data
-                    DBHelper.BulkInsert(bC, data);
+                    try
+                    {
+                        DBHelper.BulkInsert(bC, data);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message+ex.StackTrace);
+                    }
                     replayData.Clear();
                     clickData.Clear();
                 }

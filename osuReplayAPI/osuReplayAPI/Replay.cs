@@ -147,23 +147,6 @@ namespace ReplayAPI
                         lastKey = tempInfo.Keys;
                     }
                 }
-
-                //Get a list of all the individual clicks
-                for (int i = 0; i < ReplayFrames.Count; i++)
-                {
-                    if (ReplayFrames[i].Keys != KeyData.None)
-                    {
-                        ClickFrames.Add(ReplayFrames[i]);
-                    }
-                    for (int n = i; n < ReplayFrames.Count; n++)
-                    {
-                        if (ReplayFrames[n].Keys != ReplayFrames[i].Keys)
-                        {
-                            i = n;
-                            break;
-                        }
-                    }
-                }
             }
         }
 

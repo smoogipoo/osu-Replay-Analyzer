@@ -25,21 +25,25 @@ namespace BMAPI
                 case SliderType.Linear:
                     endTime = StartTime + Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) / Velocity;
                     T = (endTime - StartTime) / Time;
-                    return LInterpolate(Points[0], Points[1], T);
+                    return LinInterpolate(Points[0], Points[1], T);
                 case SliderType.CSpline:
                 case SliderType.Spline:
                     Spline spl = new Spline(Points);
-                    endTime = StartTime + spl.Length()  / Velocity;
+                    endTime = StartTime + spl.Length() / Velocity;
                     T = (endTime - StartTime) / Time;
                     return SplInterpolate(spl, T);
                 case SliderType.Bezier:
-                    //Todo:
+                    //Doing this with the length is likely **extremely** inefficient
+                    //Todo: Improve!
+                    endTime = StartTime + BezierLength(Points) / Velocity;
+                    T = (endTime - StartTime) / Time;
+                    return BezInterpolate(Points, T);
+                default:
                     return new PointInfo();
             }
-            return null;
         }
 
-        public PointInfo LInterpolate(PointInfo P1, PointInfo P2, double T)
+        public PointInfo LinInterpolate(PointInfo P1, PointInfo P2, double T)
         {
             return new PointInfo((1 - T) * P1.X + T * P2.X, (1 - T) * P1.Y + T * P2.Y);
         }
@@ -53,6 +57,39 @@ namespace BMAPI
             return it.Eval(T);
         }
 
+        public PointInfo BezInterpolate(List<PointInfo> Pts, double T)
+        {
+            //This can be done recursively, current method is probably ineffective
+            int n = Pts.Count - 1;
+            PointInfo[] points = new PointInfo[Pts.Count];
+
+            for (int i = 0; i <= n; i++)
+            {
+                points[i] = Pts[i];
+            }
+            for (int k = 1; k <= n; k++)
+            {
+                for (int i = 0; i <= n - k; i++)
+                {
+                    points[i] = (1 - T) * points[i] + T * points[i + 1];
+                }
+            }
+            return points[0];
+        }
+
+        public double BezierLength(List<PointInfo> Pts, double prec = 0.01)
+        {
+            double ret = 0;
+            for (double f = 0; f < 1d; f += prec)
+            {
+                PointInfo a = BezInterpolate(Pts, f);
+                PointInfo b = BezInterpolate(Pts, f + prec);
+                ret += Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
+            }
+            return ret;
+        }
+
+
         public override bool ContainsPoint(PointInfo Point)
         {
             return ContainsPoint(Point, 0);
@@ -63,6 +100,8 @@ namespace BMAPI
             return Math.Sqrt(Math.Pow(Point.X - pAtTime.X, 2) + Math.Pow(Point.Y - pAtTime.Y, 2)) <= Radius;            
         }
     }
+
+
     public class Spline : List<SplineFunction>
     {
         public Spline(IReadOnlyList<PointInfo> Points)
@@ -122,7 +161,7 @@ namespace BMAPI
         }
 
 
-        public double Length(double prec = 0.01f)
+        public double Length(double prec = 0.01)
         {
             double ret = 0;
             for (double f = 0; f < 1d; f += prec)

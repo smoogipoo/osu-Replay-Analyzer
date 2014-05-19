@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BMAPI
 {
@@ -17,16 +18,41 @@ namespace BMAPI
 
         public PointInfo PositionAtTime(int Time)
         {
+
+            double endTime, T;
             switch (Type)
             {
                 case SliderType.Linear:
-                    double angle = Math.Atan2(Points[1].Y - Points[0].Y, Points[1].X - Points[0].X);
-                    return new PointInfo(Points[0].X + Time * Velocity * Math.Cos(angle), Points[0].Y + Time * Velocity * Math.Sin(angle));
+                    endTime = StartTime + Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) / Velocity;
+                    T = (endTime - StartTime) / Time;
+                    return LInterpolate(Points[0], Points[1], T);
                 case SliderType.CSpline:
-                    return Location;
+                case SliderType.Spline:
+                    Spline spl = new Spline(Points);
+                    endTime = StartTime + spl.Length()  / Velocity;
+                    T = (endTime - StartTime) / Time;
+                    return SplInterpolate(spl, T);
+                case SliderType.Bezier:
+                    //Todo:
+                    return new PointInfo();
             }
             return null;
         }
+
+        public PointInfo LInterpolate(PointInfo P1, PointInfo P2, double T)
+        {
+            return new PointInfo((1 - T) * P1.X + T * P2.X, (1 - T) * P1.Y + T * P2.Y);
+        }
+
+        public PointInfo SplInterpolate(Spline Spline, double T)
+        {
+            if (Spline.Count == 0) return new PointInfo();
+
+            Spline.Sort();
+            SplineFunction it = Spline.LastOrDefault(sf => sf.T <= T);
+            return it.Eval(T);
+        }
+
         public override bool ContainsPoint(PointInfo Point)
         {
             return ContainsPoint(Point, 0);
@@ -35,6 +61,105 @@ namespace BMAPI
         {
             PointInfo pAtTime = PositionAtTime(Time);
             return Math.Sqrt(Math.Pow(Point.X - pAtTime.X, 2) + Math.Pow(Point.Y - pAtTime.Y, 2)) <= Radius;            
+        }
+    }
+    public class Spline : List<SplineFunction>
+    {
+        public Spline(IReadOnlyList<PointInfo> Points)
+        {
+            List<double> Times = new List<double>();
+            for (double i = 0; i <= 1; i += 1d / (Points.Count - 1))
+            {
+                Times.Add(i);
+            }
+            int n = Points.Count - 1;
+
+            PointInfo[] b = new PointInfo[n];
+            PointInfo[] d = new PointInfo[n];
+            PointInfo[] a = new PointInfo[n];
+            PointInfo[] c = new PointInfo[n + 1];
+            PointInfo[] l = new PointInfo[n + 1];
+            PointInfo[] u = new PointInfo[n + 1];
+            PointInfo[] z = new PointInfo[n + 1];
+            double[] h = new double[n + 1];
+
+            l[0] = new PointInfo(1);
+            u[0] = new PointInfo(0);
+            z[0] = new PointInfo(0);
+            h[0] = Times[1] - Times[0];
+
+            for (int i = 1; i < n; i++)
+            {
+                h[i] = Times[i + 1] - Times[i];
+                l[i] = 2 * (Times[i + 1] - Times[i - 1]) - (h[i - 1] * u[i - 1]);
+                u[i] = h[i] / l[i];
+                a[i] = (3 / h[i]) * (Points[i + 1] - Points[i]) - ((3 / h[i - 1]) * (Points[i] - Points[i - 1]));
+                z[i] = (a[i] - (h[i - 1] * z[i - 1])) / l[i];
+            }
+            l[n] = new PointInfo(1);
+            z[n] = c[n] = new PointInfo(0);
+
+            for (int j = n - 1; j >= 0; j--)
+            {
+                c[j] = z[j] - (u[j] * c[j + 1]);
+                b[j] = (Points[j + 1] - Points[j]) / h[j] - (h[j] * (c[j + 1] + 2 * c[j])) / 3;
+                d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                Add(new SplineFunction(Times[i], Points[i], b[i], c[i], d[i]));
+            }
+        }
+
+        private PointInfo Interpolate(double T)
+        {
+            if (Count == 0) return new PointInfo();
+
+            Sort();
+            SplineFunction it = this.LastOrDefault(sf => sf.T <= T);
+            return it.Eval(T);
+        }
+
+
+        public double Length(double prec = 0.01f)
+        {
+            double ret = 0;
+            for (double f = 0; f < 1d; f += prec)
+            {
+                PointInfo a = Interpolate(f);
+                PointInfo b = Interpolate(f + prec);
+                ret += Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
+            }
+            return ret;
+        }
+    }
+    public class SplineFunction : IComparable
+    {
+        internal PointInfo _a, _b, _c, _d;
+        internal double T { get; set; }
+
+        public SplineFunction(double x)
+        {
+            T = x;
+        }
+        public SplineFunction(double x, PointInfo a, PointInfo b, PointInfo c, PointInfo d)
+        {
+            _a = a;
+            _b = b;
+            _c = c;
+            _d = d;
+            T = x;
+        }
+        public int CompareTo(object Obj)
+        {
+            return Obj == null ? 1 : T.CompareTo(((SplineFunction)Obj).T);
+        }
+
+        public PointInfo Eval(double x)
+        {
+            double xix = x - T;
+            return _a + _b * xix + _c * (xix * xix) + _d * (xix * xix * xix);
         }
     }
 }

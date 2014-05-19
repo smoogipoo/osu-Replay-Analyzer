@@ -1,4 +1,4 @@
-﻿namespace o_RA.oRAControls
+﻿namespace o_RA.Controls
 {
     partial class LanguageBox
     {

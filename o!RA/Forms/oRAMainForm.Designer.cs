@@ -1,6 +1,6 @@
-﻿using o_RA.oRAControls;
+﻿using o_RA.Controls;
 
-namespace o_RA.oRAForms
+namespace o_RA.Forms
 {
     partial class oRAMainForm
     {
@@ -48,8 +48,8 @@ namespace o_RA.oRAForms
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.ReplaysList = new System.Windows.Forms.TreeView();
             this.ReplayTimeline = new System.Windows.Forms.DataGridView();
-            this.Progress = new o_RA.oRAProgressBar();
-            this.MainContainer = new o_RA.oRAControls.oRATabControl();
+            this.Progress = new oRAProgressBar();
+            this.MainContainer = new oRATabControl();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ReplayTimeline)).BeginInit();
             this.SuspendLayout();

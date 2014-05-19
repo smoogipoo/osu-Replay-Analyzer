@@ -1,4 +1,4 @@
-﻿namespace o_RA.oRAControls
+﻿namespace o_RA.Controls
 {
     partial class oRATabControl
     {
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.TabContainer = new System.Windows.Forms.Panel();
-            this.TabPages = new o_RA.oRAControls.PageCollection();
+            this.TabPages = new PageCollection();
             this.SuspendLayout();
             // 
             // TabContainer

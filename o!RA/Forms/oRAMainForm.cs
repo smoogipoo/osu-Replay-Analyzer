@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -7,16 +8,14 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 using System.Xml;
 using BMAPI;
 using oRAInterface;
-using o_RA.Globals;
-using o_RA.oRAControls;
+using o_RA.Controls;
+using o_RA.GlobalClasses;
 using ReplayAPI;
-using System.Collections.Concurrent;
 
-namespace o_RA.oRAForms
+namespace o_RA.Forms
 {
     public partial class oRAMainForm : Form
     {

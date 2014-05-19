@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using o_RA.oRAForms;
+using o_RA.Forms;
 
-namespace o_RA.oRAControls
+namespace o_RA.Controls
 {
 
     public partial class LanguageBox : UserControl

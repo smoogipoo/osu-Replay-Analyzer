@@ -15,28 +15,71 @@ namespace BMAPI
         public int RepeatCount { get; set; }
         public double Velocity { get; set; }
         public double MaxPoints { get; set; }
-
-        public PointInfo PositionAtTime(int Time)
+        public double Length
         {
-
-            double endTime, T;
+            get
+            {
+                switch (Type)
+                {
+                    case SliderType.Linear:
+                        return Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) * RepeatCount;
+                    case SliderType.CSpline:
+                    case SliderType.Spline:
+                        Spline spl = new Spline(Points);
+                        return spl.Length() * RepeatCount;
+                    case SliderType.Bezier:
+                        return BezierLength(Points) * RepeatCount;
+                    default:
+                        return 0;
+                }
+            }
+        }
+        public double SegmentLength
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case SliderType.Linear:
+                        return Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2));
+                    case SliderType.CSpline:
+                    case SliderType.Spline:
+                        Spline spl = new Spline(Points);
+                        return spl.Length();
+                    case SliderType.Bezier:
+                        return BezierLength(Points);
+                    default:
+                        return 0;
+                }
+            }
+        }
+        public double SegmentEndTime(int SegmentNumber)
+        {
             switch (Type)
             {
                 case SliderType.Linear:
-                    endTime = StartTime + Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) / Velocity;
-                    T = (endTime - StartTime) / Time;
+                    return StartTime + (SegmentLength * SegmentNumber) / Velocity;
+                case SliderType.CSpline:
+                case SliderType.Spline:
+                    return StartTime + (SegmentLength * SegmentNumber) / Velocity;
+                case SliderType.Bezier:
+                    return StartTime + (SegmentLength * SegmentNumber) / Velocity;
+                default:
+                    return 0;
+            }
+        }
+        public PointInfo PositionAtTime(int Time)
+        {
+            double T = (SegmentEndTime(1) - StartTime) / Time;
+            switch (Type)
+            {
+                case SliderType.Linear:
                     return LinInterpolate(Points[0], Points[1], T);
                 case SliderType.CSpline:
                 case SliderType.Spline:
                     Spline spl = new Spline(Points);
-                    endTime = StartTime + spl.Length() / Velocity;
-                    T = (endTime - StartTime) / Time;
                     return SplInterpolate(spl, T);
                 case SliderType.Bezier:
-                    //Doing this with the length is likely **extremely** inefficient
-                    //Todo: Improve!
-                    endTime = StartTime + BezierLength(Points) / Velocity;
-                    T = (endTime - StartTime) / Time;
                     return BezInterpolate(Points, T);
                 default:
                     return new PointInfo();

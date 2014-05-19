@@ -1,4 +1,4 @@
-﻿namespace o_RA.oRAForms
+﻿namespace o_RA.Forms
 {
     partial class PluginSettingsForm
     {

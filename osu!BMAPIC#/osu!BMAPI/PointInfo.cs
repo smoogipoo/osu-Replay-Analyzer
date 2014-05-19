@@ -19,7 +19,19 @@ namespace BMAPI
             this.X = X;
             this.Y = Y;
         }
-
+        public double Length
+        {
+            get
+            {
+                return Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2));                
+            }
+        }
+        public void Normalize()
+        {
+            double length = Length; //Cache for minor performance improvement
+            X = X / length;
+            Y = Y / length;
+        }
         public double DistanceTo(PointInfo P)
         {
             return Math.Sqrt(Math.Pow(P.X - X, 2) + Math.Pow(P.Y - Y, 2));

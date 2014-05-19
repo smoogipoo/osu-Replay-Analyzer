@@ -1,4 +1,4 @@
-﻿namespace o_RA
+﻿namespace o_RA.Controls
 {
     partial class oRAProgressBar
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using o_RA.oRAForms;
+using o_RA.Forms;
 
 namespace o_RA
 {

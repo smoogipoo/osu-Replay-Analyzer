@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace o_RA.oRAForms
+namespace o_RA.Forms
 {
     public partial class PluginSettingsForm : Form
     {

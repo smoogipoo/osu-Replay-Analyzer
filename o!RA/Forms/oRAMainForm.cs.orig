@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using BMAPI;
+<<<<<<< HEAD:o!RA/oRAForms/oRAMainForm.cs
 using o_RA.Globals;
 using o_RA.oRAControls;
 using oRAInterface;
@@ -17,8 +18,14 @@ using ReplayAPI;
 using System.Data.SqlServerCe;
 using System.Data;
 using o_RA.Tables;
+=======
+using oRAInterface;
+using o_RA.Controls;
+using o_RA.GlobalClasses;
+using ReplayAPI;
+>>>>>>> alpha:o!RA/Forms/oRAMainForm.cs
 
-namespace o_RA.oRAForms
+namespace o_RA.Forms
 {
     public partial class oRAMainForm : Form
     {

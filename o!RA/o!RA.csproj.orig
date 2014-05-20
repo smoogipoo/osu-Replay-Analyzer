@@ -61,12 +61,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\oRALabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
+<<<<<<< HEAD
     <Compile Include="Tables\Beatmap.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="AccessPoint.cs" />
+    <Compile Include="oRAControls\oRALabel.cs">
+=======
+    <Compile Include="Controls\oRALabel.cs">
+>>>>>>> alpha
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Forms\oRAMainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -107,11 +111,19 @@
     <Compile Include="GlobalClasses\tpHitObject.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GlobalClasses\oRAFuncs.cs" />
+<<<<<<< HEAD
+    <Compile Include="Globals\oRAFuncs.cs" />
     <Compile Include="Tables\BeatmapTag.cs" />
     <Compile Include="Tables\Beatmap_BeatmapTag.cs" />
     <Compile Include="Tables\Replay.cs" />
     <Compile Include="Tables\ClickFrame.cs" />
+    <EmbeddedResource Include="oRAControls\oRAProgressBar.resx">
+=======
+    <Compile Include="GlobalClasses\oRAFuncs.cs" />
+    <EmbeddedResource Include="Controls\oRAProgressBar.resx">
+>>>>>>> alpha
+      <DependentUpon>oRAProgressBar.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\oRAMainForm.resx">
       <DependentUpon>oRAMainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -151,6 +163,10 @@
     <None Include="Resources\enUSFlag.png" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+=======
+    <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
+>>>>>>> alpha
     <None Include="Resources\Menu_H.png" />
     <None Include="Resources\Menu_N.png" />
     <Content Include="ToDo.txt" />

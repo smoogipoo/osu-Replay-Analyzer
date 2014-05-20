@@ -1,6 +1,6 @@
-﻿using o_RA.oRAControls;
+﻿using o_RA.Controls;
 
-namespace o_RA.oRAForms
+namespace o_RA.Forms
 {
     partial class LocaleSelectForm
     {

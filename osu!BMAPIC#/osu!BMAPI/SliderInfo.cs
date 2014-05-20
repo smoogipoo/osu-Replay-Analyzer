@@ -15,42 +15,57 @@ namespace BMAPI
         public int RepeatCount { get; set; }
         public double Velocity { get; set; }
         public double MaxPoints { get; set; }
+
+        private double? S_Length { get; set; }
+        private double? S_SegmentLength { get; set; }
         public double Length
         {
             get
             {
+                if (S_Length != null) return (double) S_Length;
                 switch (Type)
                 {
                     case SliderType.Linear:
-                        return Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) * RepeatCount;
+                        S_Length = Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) * RepeatCount;
+                        break;
                     case SliderType.CSpline:
                     case SliderType.Spline:
                         Spline spl = new Spline(Points);
-                        return spl.Length() * RepeatCount;
+                        S_Length = spl.Length() * RepeatCount;
+                        break;
                     case SliderType.Bezier:
-                        return BezierLength(Points) * RepeatCount;
+                        S_Length = BezierLength(Points) * RepeatCount;
+                        break;
                     default:
-                        return 0;
+                        S_Length = 0;
+                        break;
                 }
+                return (double)S_Length;
             }
         }
         public double SegmentLength
         {
             get
             {
+                if (S_SegmentLength != null) return (double)S_SegmentLength;
                 switch (Type)
                 {
                     case SliderType.Linear:
-                        return Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2));
+                        S_SegmentLength = Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2));
+                        break;
                     case SliderType.CSpline:
                     case SliderType.Spline:
                         Spline spl = new Spline(Points);
-                        return spl.Length();
+                        S_SegmentLength = spl.Length();
+                        break;
                     case SliderType.Bezier:
-                        return BezierLength(Points);
+                        S_SegmentLength = BezierLength(Points);
+                        break;
                     default:
-                        return 0;
+                        S_SegmentLength = 0;
+                        break;
                 }
+                return (double)S_SegmentLength;
             }
         }
         public double SegmentEndTime(int SegmentNumber)

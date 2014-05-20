@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,7 +23,7 @@ namespace BMAPI
         {
             get
             {
-                if (S_Length != null) return (double) S_Length;
+                if (S_Length != null) return (double)S_Length;
                 switch (Type)
                 {
                     case SliderType.Linear:

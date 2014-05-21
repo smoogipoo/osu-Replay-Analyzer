@@ -74,6 +74,7 @@ namespace ReplayAPI
         public void Open(string replayFile)
         {
             Filename = replayFile;
+            Dispose(true); //Clear any previous data
             try
             {
                 replayFileStream = new FileStream(replayFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);

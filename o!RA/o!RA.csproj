@@ -46,10 +46,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DLLs\System.Data.SqlServerCe.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -105,6 +101,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalClasses\oRAFuncs.cs" />
+    <EmbeddedResource Include="Controls\oRAProgressBar.resx">
+      <DependentUpon>oRAProgressBar.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\oRAMainForm.resx">
       <DependentUpon>oRAMainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -144,6 +143,7 @@
     <None Include="Resources\enUSFlag.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
     <None Include="Resources\Menu_H.png" />
     <None Include="Resources\Menu_N.png" />
     <Content Include="ToDo.txt" />

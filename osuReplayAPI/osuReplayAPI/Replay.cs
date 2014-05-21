@@ -40,6 +40,7 @@ namespace ReplayAPI
         private FileStream replayFileStream;
         private BinaryReader replayReader;
 
+        public Replay() { }
         public Replay(string replayFile)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US", false);

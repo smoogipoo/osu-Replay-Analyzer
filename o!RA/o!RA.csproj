@@ -64,9 +64,6 @@
     <Compile Include="Controls\oRALabel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Tables\Beatmap.cs" />
-    <Compile Include="DBHelper.cs" />
-    <Compile Include="AccessPoint.cs" />
     <Compile Include="Forms\oRAMainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,10 +105,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalClasses\oRAFuncs.cs" />
-    <Compile Include="Tables\BeatmapTag.cs" />
-    <Compile Include="Tables\Beatmap_BeatmapTag.cs" />
-    <Compile Include="Tables\Replay.cs" />
-    <Compile Include="Tables\ClickFrame.cs" />
     <EmbeddedResource Include="Forms\oRAMainForm.resx">
       <DependentUpon>oRAMainForm.cs</DependentUpon>
     </EmbeddedResource>

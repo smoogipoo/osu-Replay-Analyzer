@@ -1,4 +1,6 @@
-﻿using System;
+﻿//Todo: Try/Catch Load() Methods
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -7,12 +9,11 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using smgiFuncs;
 
 namespace ReplayAPI
 {
-    public class Replay
+    public class Replay : IDisposable
     {
         public GameModes GameMode;
         public string Filename;
@@ -36,50 +37,65 @@ namespace ReplayAPI
         public List<ReplayInfo> ReplayFrames = new List<ReplayInfo>();
         public List<ReplayInfo> ClickFrames = new List<ReplayInfo>();
 
+        private FileStream replayFileStream;
+        private BinaryReader replayReader;
+
         public Replay(string replayFile)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US", false);
-            Parse(replayFile);
+            Open(replayFile);
+            LoadReplayData();
         }
 
-        public void Parse(string replayFile)
+        ~Replay()
+        {
+            Dispose(true);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool state)
+        {
+            if (replayFileStream != null)
+                replayFileStream.Dispose();
+            if (replayReader != null)
+                replayReader.Dispose();
+            ReplayFrames.Clear();
+            LifeData.Clear();
+            ClickFrames.Clear();
+        }
+
+
+        public void Open(string replayFile)
         {
             Filename = replayFile;
-            using (FileStream fs = new FileStream(replayFile, FileMode.Open, FileAccess.Read))
-            using (BinaryReader br = new BinaryReader(fs))
+            try
             {
-                GameMode = (GameModes)Enum.Parse(typeof(GameModes), br.ReadByte().ToString(CultureInfo.InvariantCulture));
+                replayFileStream = new FileStream(replayFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                replayReader = new BinaryReader(replayFileStream);
+            }
+            catch
+            {
+                throw new IOException("The replay file could not be opened! Make sure that the replay file is not in use and try again.");
+            }
+        }
 
-                FileFormat = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
-
-                br.ReadByte();
-                MapHash = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br))); //Hash type: MD5
-
-                br.ReadByte();
-                PlayerName = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br)));
-
-                br.ReadByte();
-                ReplayHash = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br))); //Hash type: MD5
-
-                Count_300 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                Count_100 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                Count_50 = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                Count_Geki = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                Count_Katu = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-                Count_Miss = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-
-                TotalScore = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
-
-                MaxCombo = int.Parse(GetReversedString(br, 2), NumberStyles.HexNumber);
-
-                IsPerfect = br.ReadByte();
-
-                Mods = (Modifications)int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
-
-                bool lifeExists = int.Parse(GetReversedString(br, 1), NumberStyles.HexNumber) == 0x0B;
+        public void LoadReplayData()
+        {
+            if (replayReader != null)
+            {
+                if (replayReader.BaseStream.Position == 0)
+                {
+                    LoadMetadata();
+                }
+                bool lifeExists = int.Parse(GetReversedString(replayReader, 1), NumberStyles.HexNumber) == 0x0B;
                 if (lifeExists)
                 {
-                    string tempLifeStr = Encoding.ASCII.GetString(br.ReadBytes(GetChunkLength(br)));
+                    string tempLifeStr = Encoding.ASCII.GetString(replayReader.ReadBytes(GetChunkLength(replayReader)));
                     foreach (LifeInfo tempLife in Regex.Split(tempLifeStr, ",").Where(splitStr => splitStr != "").Select(tempStr => new LifeInfo
                     {
                         Time = Convert.ToInt32(((sString)tempStr).SubString(0, ((sString)tempStr).nthDexOf("|", 0))),
@@ -89,14 +105,14 @@ namespace ReplayAPI
                         LifeData.Add(tempLife);
                     }
                 }
-                long timeStamp = long.Parse(GetReversedString(br, 8), NumberStyles.HexNumber);
+                long timeStamp = long.Parse(GetReversedString(replayReader, 8), NumberStyles.HexNumber);
                 PlayTime = new DateTime(timeStamp);
 
-                ReplayLength = int.Parse(GetReversedString(br, 4), NumberStyles.HexNumber);
+                ReplayLength = int.Parse(GetReversedString(replayReader, 4), NumberStyles.HexNumber);
 
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    byte[] bytesToWrite = br.ReadBytes(ReplayLength + 1);
+                    byte[] bytesToWrite = replayReader.ReadBytes(ReplayLength + 1);
                     ms.Write(bytesToWrite, 0, bytesToWrite.Length);
                     ms.Position = 0;
 
@@ -142,6 +158,40 @@ namespace ReplayAPI
                         lastKey = tempInfo.Keys;
                     }
                 }
+            }      
+        }
+
+        public void LoadMetadata()
+        {
+            if (replayReader != null)
+            {
+                GameMode = (GameModes)Enum.Parse(typeof(GameModes), replayReader.ReadByte().ToString(CultureInfo.InvariantCulture));
+
+                FileFormat = int.Parse(GetReversedString(replayReader, 4), NumberStyles.HexNumber);
+
+                replayReader.ReadByte();
+                MapHash = Encoding.ASCII.GetString(replayReader.ReadBytes(GetChunkLength(replayReader))); //Hash type: MD5
+
+                replayReader.ReadByte();
+                PlayerName = Encoding.ASCII.GetString(replayReader.ReadBytes(GetChunkLength(replayReader)));
+
+                replayReader.ReadByte();
+                ReplayHash = Encoding.ASCII.GetString(replayReader.ReadBytes(GetChunkLength(replayReader))); //Hash type: MD5
+
+                Count_300 = int.Parse(GetReversedString(replayReader, 2), NumberStyles.HexNumber);
+                Count_100 = int.Parse(GetReversedString(replayReader, 2), NumberStyles.HexNumber);
+                Count_50 = int.Parse(GetReversedString(replayReader, 2), NumberStyles.HexNumber);
+                Count_Geki = int.Parse(GetReversedString(replayReader, 2), NumberStyles.HexNumber);
+                Count_Katu = int.Parse(GetReversedString(replayReader, 2), NumberStyles.HexNumber);
+                Count_Miss = int.Parse(GetReversedString(replayReader, 2), NumberStyles.HexNumber);
+
+                TotalScore = int.Parse(GetReversedString(replayReader, 4), NumberStyles.HexNumber);
+
+                MaxCombo = int.Parse(GetReversedString(replayReader, 2), NumberStyles.HexNumber);
+
+                IsPerfect = replayReader.ReadByte();
+
+                Mods = (Modifications)int.Parse(GetReversedString(replayReader, 4), NumberStyles.HexNumber);
             }
         }
 

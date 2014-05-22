@@ -268,11 +268,7 @@ namespace Database_Test
                                     beatmapData.Rows.Add(b.BeatmapHash, b.Creator ?? "", b.AudioFilename ?? "", b.Filename, b.HPDrainRate, b.CircleSize, b.OverallDifficulty, b.ApproachRate, b.Title ?? "", b.Artist ?? "", b.Version ?? "");
                                     foreach (var tag in b.Tags)
                                     {
-                                        // only add tag if not already in the datatable or db
-                                        if (tag.Length > 2 && !beatmapTagData.AsEnumerable().Any(row => String.Equals(row.Field<String>("BeatmapTag_Name"), tag, StringComparison.InvariantCultureIgnoreCase)) && !DBHelper.RecordExists(conn, "BeatmapTag", "BeatmapTag_Name", tag))
-                                        {
-                                            beatmapTagData.Rows.Add(b.BeatmapHash, tag);
-                                        };
+                                        beatmapTagData.Rows.Add(b.BeatmapHash, tag);
                                     }
                                        
                                     if (beatmapData.Rows.Count >= 1000)

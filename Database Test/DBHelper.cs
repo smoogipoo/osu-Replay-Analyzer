@@ -1,6 +1,6 @@
 ﻿
 
-//Can't some values as parameters
+//Can't pass some values as parameters
 //See http://stackoverflow.com/questions/6843065/error-with-sqlce-parameters
 
 using System.Data;
@@ -27,14 +27,6 @@ namespace Database_Test
             }
         }
 
-        public static DataTable CreateBeatmapData_BeatmapTagTable()
-        {
-            DataTable beatmapData_BeatmapTag = new DataTable("BeatmapData_BeatmapTag");
-            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
-            beatmapData_BeatmapTag.Columns.Add(new DataColumn("BeatmapTag_Name", typeof(string)));
-            return beatmapData_BeatmapTag;
-        }
-
         public static DataTable CreateBeatmapDataTable()
         {
             DataTable beatmapData = new DataTable("BeatmapData");
@@ -55,7 +47,8 @@ namespace Database_Test
         public static DataTable CreateBeatmapTagTable()
         {
             DataTable beatmapTag = new DataTable("BeatmapTag");
-            beatmapTag.Columns.Add(new DataColumn { ColumnName = "BeatmapTag_Name", DataType = typeof(string), Unique = true });
+            beatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
+            beatmapTag.Columns.Add(new DataColumn("BeatmapTag_Name", typeof(string)));
             return beatmapTag;
         }
 
@@ -140,6 +133,24 @@ namespace Database_Test
         }
 
         /// <summary>
+        /// Get all records in a column of the table
+        /// </summary>
+        /// <returns>All records from the column searchColumn in the table</returns>
+        public static DataTable GetRecords(SqlCeConnection conn, string table, string searchColumn)
+        {
+            using (SqlCeCommand cmd = new SqlCeCommand())
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT " + EscapeLiteral(searchColumn) + " FROM [" + EscapeLiteral(table) + "];";
+                SqlCeDataAdapter da = new SqlCeDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                da.Dispose();
+                return dt;
+            }
+        }
+
+        /// <summary>
         /// Checks if Records satisfying a condition exist
         /// </summary>
         /// <returns>True if at least one record is found, else false</returns>
@@ -172,7 +183,7 @@ namespace Database_Test
 
         private static string EscapeLiteral(string value)
         {
-            return value.Replace("'", "\"\"");
+            return value.Replace("'", "''");
         }
     }
 }

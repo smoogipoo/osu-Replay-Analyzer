@@ -121,14 +121,18 @@ namespace Database_Test
         /// Gets all records that match a condition
         /// </summary>
         /// <returns>All records that match a condition</returns>
-        public static SqlCeDataReader GetRecords(SqlCeConnection conn, string table, string searchColumn, string searchValue)
+        public static DataTable GetRecords(SqlCeConnection conn, string table, string searchColumn, string searchValue)
         {
             using (SqlCeCommand cmd = new SqlCeCommand())
             {
                 cmd.Connection = conn;
                 cmd.CommandText = "SELECT * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
                 cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
-                return cmd.ExecuteReader();
+                SqlCeDataAdapter da = new SqlCeDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                da.Dispose();
+                return dt;
             }
         }
 

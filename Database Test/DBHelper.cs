@@ -128,11 +128,12 @@ namespace Database_Test
                 cmd.Connection = conn;
                 cmd.CommandText = "SELECT * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
                 cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
-                SqlCeDataAdapter da = new SqlCeDataAdapter(cmd);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                da.Dispose();
-                return dt;
+                using (SqlCeDataAdapter da = new SqlCeDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    return dt;
+                }
             }
         }
 
@@ -146,11 +147,12 @@ namespace Database_Test
             {
                 cmd.Connection = conn;
                 cmd.CommandText = "SELECT " + EscapeLiteral(searchColumn) + " FROM [" + EscapeLiteral(table) + "];";
-                SqlCeDataAdapter da = new SqlCeDataAdapter(cmd);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                da.Dispose();
-                return dt;
+                using (SqlCeDataAdapter da = new SqlCeDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    return dt;
+                }
             }
         }
 

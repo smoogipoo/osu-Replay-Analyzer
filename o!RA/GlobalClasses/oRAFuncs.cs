@@ -90,7 +90,7 @@ namespace o_RA.GlobalClasses
         }
     }
     #endregion
-    #region "Settings"
+    #region "Application Settings"
     public class Settings
     {
         internal readonly Dictionary<string, string> s_settings = new Dictionary<string, string>();
@@ -236,7 +236,7 @@ namespace o_RA.GlobalClasses
             int camnt = -1;
             int indx = _data.IndexOf(splitter, StringComparison.Ordinal);
             camnt += 1;
-            while (!((camnt == count) | (indx == -1)))
+            while (camnt != count || indx == -1)
             {
                 indx = _data.IndexOf(splitter, indx + 1, StringComparison.Ordinal);
                 if (indx == -1)

@@ -30,7 +30,7 @@ namespace BMAPI
                         S_Length = Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2)) * RepeatCount;
                         break;
                     case SliderType.CSpline:
-                    case SliderType.Spline:
+                    case SliderType.PSpline:
                         Spline spl = new Spline(Points);
                         S_Length = spl.Length() * RepeatCount;
                         break;
@@ -55,7 +55,7 @@ namespace BMAPI
                         S_SegmentLength = Math.Sqrt(Math.Pow(Points[1].X - Points[0].X, 2) + Math.Pow(Points[1].Y - Points[0].Y, 2));
                         break;
                     case SliderType.CSpline:
-                    case SliderType.Spline:
+                    case SliderType.PSpline:
                         Spline spl = new Spline(Points);
                         S_SegmentLength = spl.Length();
                         break;
@@ -76,7 +76,7 @@ namespace BMAPI
                 case SliderType.Linear:
                     return StartTime + (SegmentLength * SegmentNumber) / Velocity;
                 case SliderType.CSpline:
-                case SliderType.Spline:
+                case SliderType.PSpline:
                     return StartTime + (SegmentLength * SegmentNumber) / Velocity;
                 case SliderType.Bezier:
                     return StartTime + (SegmentLength * SegmentNumber) / Velocity;
@@ -92,7 +92,7 @@ namespace BMAPI
                 case SliderType.Linear:
                     return LinInterpolate(Points[0], Points[1], T);
                 case SliderType.CSpline:
-                case SliderType.Spline:
+                case SliderType.PSpline:
                     Spline spl = new Spline(Points);
                     return SplInterpolate(spl, T);
                 case SliderType.Bezier:

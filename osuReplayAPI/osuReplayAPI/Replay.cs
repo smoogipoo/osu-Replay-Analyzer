@@ -2,14 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading;
-using smgiFuncs;
 
 namespace ReplayAPI
 {
@@ -98,10 +95,10 @@ namespace ReplayAPI
                 if (lifeExists)
                 {
                     string tempLifeStr = Encoding.ASCII.GetString(replayReader.ReadBytes(GetChunkLength(replayReader)));
-                    foreach (LifeInfo tempLife in Regex.Split(tempLifeStr, ",").Where(splitStr => splitStr != "").Select(tempStr => new LifeInfo
+                    foreach (LifeInfo tempLife in tempLifeStr.Split(',').Select(lifeStr => lifeStr.Split('|')).Where(lifeStr => lifeStr.Length > 1).Select(lifeStr => new LifeInfo
                     {
-                        Time = Convert.ToInt32(((sString)tempStr).SubString(0, ((sString)tempStr).nthDexOf("|", 0))),
-                        Percentage = Convert.ToDouble(((sString)tempStr).SubString(((sString)tempStr).nthDexOf("|", 0) + 1)),
+                        Time = Convert.ToInt32(lifeStr[0]),
+                        Percentage = Convert.ToDouble(lifeStr[1]),
                     }))
                     {
                         LifeData.Add(tempLife);
@@ -143,15 +140,16 @@ namespace ReplayAPI
                     }
                     int lastTime = 0;
                     KeyData lastKey = KeyData.None;
-                    foreach (sString splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
+                    foreach (string splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
                     {
+                        string[] reSplit = splitStr.Split('|');
                         ReplayInfo tempInfo = new ReplayInfo();
-                        tempInfo.TimeDiff = Convert.ToInt64(splitStr.SubString(0, splitStr.nthDexOf("|", 0)));
+                        tempInfo.TimeDiff = Convert.ToInt64(reSplit[0]);
                         lastTime += (int)tempInfo.TimeDiff;
                         tempInfo.Time = lastTime;
-                        tempInfo.X = Convert.ToDouble(splitStr.SubString(splitStr.nthDexOf("|", 0) + 1, splitStr.nthDexOf("|", 1)));
-                        tempInfo.Y = Convert.ToDouble(splitStr.SubString(splitStr.nthDexOf("|", 1) + 1, splitStr.LastIndexOf("|")));
-                        tempInfo.Keys = (KeyData)Convert.ToInt32(splitStr.SubString(splitStr.LastIndexOf("|") + 1));
+                        tempInfo.X = Convert.ToDouble(reSplit[1]);
+                        tempInfo.Y = Convert.ToDouble(reSplit[2]);
+                        tempInfo.Keys = (KeyData)Convert.ToInt32(reSplit[3]);
                         if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
                         {
                             ClickFrames.Add(tempInfo);

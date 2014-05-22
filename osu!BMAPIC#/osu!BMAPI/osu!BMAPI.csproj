@@ -55,7 +55,6 @@
     <Compile Include="Enums.cs" />
     <Compile Include="PointInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="sFuncs.cs" />
     <Compile Include="SliderInfo.cs" />
     <Compile Include="SpinnerInfo.cs" />
     <Compile Include="TimingPointInfo.cs" />

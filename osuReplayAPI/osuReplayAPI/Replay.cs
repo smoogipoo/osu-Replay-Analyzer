@@ -7,11 +7,13 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading;
+using SevenZip;
 
 namespace ReplayAPI
 {
     public class Replay : IDisposable
     {
+
         public GameModes GameMode;
         public string Filename;
         public int FileFormat;
@@ -34,6 +36,7 @@ namespace ReplayAPI
         public List<ReplayInfo> ReplayFrames = new List<ReplayInfo>();
         public List<ReplayInfo> ClickFrames = new List<ReplayInfo>();
 
+        private LZMACoder coder = new LZMACoder();
         private FileStream replayFileStream;
         private BinaryReader replayReader;
 
@@ -113,25 +116,8 @@ namespace ReplayAPI
                 {
                     byte[] bytesToWrite = replayReader.ReadBytes(ReplayLength + 1);
                     ms.Write(bytesToWrite, 0, bytesToWrite.Length);
-                    ms.Position = 0;
 
-                    byte[] properties = new byte[5];
-                    if (ms.Read(properties, 0, 5) != 5) { }
-                    SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder();
-                    decoder.SetDecoderProperties(properties);
-                    long outSize = 0;
-                    for (int i = 0; i < 8; i++)
-                    {
-                        int v = ms.ReadByte();
-                        if (v < 0)
-                            break;
-                        outSize |= ((long)(byte)v) << (8 * i);
-                    }
-                    long compressedSize = ms.Length - ms.Position;
-                    MemoryStream outStream = new MemoryStream();
-                    decoder.Code(ms, outStream, compressedSize, outSize, null);
-                    outStream.Flush();
-                    outStream.Position = 0;
+                    MemoryStream outStream = coder.Decompress(ms);
 
                     string outString;
                     using (StreamReader reader = new StreamReader(outStream))
@@ -193,6 +179,71 @@ namespace ReplayAPI
 
                 Mods = (Modifications)int.Parse(GetReversedString(replayReader, 4), NumberStyles.HexNumber);
             }
+        }
+
+        public void WriteToFile(string file)
+        {
+            using (BinaryWriter bW = new BinaryWriter(new FileStream(file, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite)))
+            {
+                bW.Write((char)GameMode);
+                bW.Write(FileFormat);
+                bW.Write((char)0x0B);
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(MapHash));
+                bW.Flush();
+                bW.Write((char)0x0B);
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(PlayerName));
+                bW.Write((char)0x0B);
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(ReplayHash));
+                bW.Write((Int16)Count_300);
+                bW.Write((Int16)Count_100);
+                bW.Write((Int16)Count_50);
+                bW.Write((Int16)Count_Geki);
+                bW.Write((Int16)Count_Katu);
+                bW.Write((Int16)Count_Miss);
+                bW.Write(TotalScore);
+                bW.Write((Int16)MaxCombo);
+                bW.Write((char)IsPerfect);
+                bW.Write((int)Mods);
+                bW.Write(LifeData.Count != 0 ? (char)0x0B : (char)0);
+
+                string concattedLife = LifeData.Aggregate("", (current, lI) => current + (lI.Time + "|" + lI.Percentage + ","));
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(concattedLife));
+                bW.Write(PlayTime.Ticks);
+                bW.Write(ReplayLength);
+
+                string concattedClickData = ReplayFrames.Aggregate("", (current, cD) => current + (cD.TimeDiff + "|" + cD.X + "|" + cD.Y + "|" + (int)cD.Keys + ","));
+                byte[] clickDataBytes = Encoding.ASCII.GetBytes(concattedClickData);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    ms.Write(clickDataBytes, 0, clickDataBytes.Length);
+
+                    MemoryStream outStream = coder.Compress(ms);
+
+                    byte[] bytesToWrite = new byte[outStream.Length];
+                    outStream.Read(bytesToWrite, 0, bytesToWrite.Length);
+
+                    bW.Write(bytesToWrite);
+
+                }
+            }
+        }
+
+        private static void WriteVLQ(BinaryWriter writer, byte[] bytes)
+        {
+            int n = bytes.Length;
+            bool first = true;
+            while (first || n > 0)
+            {
+                first = false;
+                byte lower7bits = (byte)(n & 0x7f);
+                n >>= 7;
+                if (n > 0)
+                    lower7bits |= 128;
+                writer.Write(lower7bits);
+            }
+
+            writer.Write(bytes);
         }
 
         static string GetReversedString(BinaryReader br, int length)

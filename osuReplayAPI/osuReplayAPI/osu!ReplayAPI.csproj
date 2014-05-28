@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Enums.cs" />
     <Compile Include="LifeInfo.cs" />
+    <Compile Include="LZMACoder.cs" />
     <Compile Include="LZMA\CommandLineParser.cs" />
     <Compile Include="LZMA\CRC.cs" />
     <Compile Include="LZMA\ICoder.cs" />

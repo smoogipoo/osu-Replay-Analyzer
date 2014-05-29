@@ -10,27 +10,18 @@ namespace ReplayAPI
         {
             inStream.Position = 0;
 
-            Int32 posStateBits = 2;
-            Int32 litContextBits = 3;
-            Int32 litPosBits = 0;
-            Int32 algorithm = 2;
-
-            bool eos = true;
-
             CoderPropID[] propIDs =  {
                 CoderPropID.PosStateBits,
                 CoderPropID.LitContextBits,
                 CoderPropID.LitPosBits,
-                CoderPropID.Algorithm,
-                CoderPropID.EndMarker
+                CoderPropID.Algorithm
             };
 
             object[] properties = {
-                (Int32)(posStateBits),
-                (Int32)(litContextBits),
-                (Int32)(litPosBits),
-                (Int32)(algorithm),
-                eos
+                2,
+                3,
+                0,
+                2
             };
 
             var outStream = new MemoryStream();

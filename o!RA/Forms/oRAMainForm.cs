@@ -301,8 +301,6 @@ namespace o_RA.Forms
         {
             using (Replay = new Replay(Path.Combine(oRAData.ReplayDirectory, e.Node.Text)))
             {
-                Replay.WriteToFile(@"D:\test.osr");
-
                 var file = oRAData.BeatmapHashes.FirstOrDefault(kvp => kvp.Value.Contains(Replay.MapHash));
                 if (file.Key != null)
                 {

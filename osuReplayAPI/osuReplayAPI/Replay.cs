@@ -112,37 +112,32 @@ namespace ReplayAPI
 
                 ReplayLength = int.Parse(GetReversedString(replayReader, 4), NumberStyles.HexNumber);
 
-                using (MemoryStream ms = new MemoryStream())
+
+                MemoryStream outStream = coder.Decompress(replayFileStream);
+
+                string outString;
+                using (StreamReader reader = new StreamReader(outStream))
                 {
-                    byte[] bytesToWrite = replayReader.ReadBytes(ReplayLength + 1);
-                    ms.Write(bytesToWrite, 0, bytesToWrite.Length);
-
-                    MemoryStream outStream = coder.Decompress(ms);
-
-                    string outString;
-                    using (StreamReader reader = new StreamReader(outStream))
+                    outString = reader.ReadToEnd();
+                }
+                int lastTime = 0;
+                KeyData lastKey = KeyData.None;
+                foreach (string splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
+                {
+                    string[] reSplit = splitStr.Split('|');
+                    ReplayInfo tempInfo = new ReplayInfo();
+                    tempInfo.TimeDiff = Convert.ToInt64(reSplit[0]);
+                    lastTime += (int)tempInfo.TimeDiff;
+                    tempInfo.Time = lastTime;
+                    tempInfo.X = Convert.ToDouble(reSplit[1]);
+                    tempInfo.Y = Convert.ToDouble(reSplit[2]);
+                    tempInfo.Keys = (KeyData)Convert.ToInt32(reSplit[3]);
+                    if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
                     {
-                        outString = reader.ReadToEnd();
+                        ClickFrames.Add(tempInfo);
                     }
-                    int lastTime = 0;
-                    KeyData lastKey = KeyData.None;
-                    foreach (string splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
-                    {
-                        string[] reSplit = splitStr.Split('|');
-                        ReplayInfo tempInfo = new ReplayInfo();
-                        tempInfo.TimeDiff = Convert.ToInt64(reSplit[0]);
-                        lastTime += (int)tempInfo.TimeDiff;
-                        tempInfo.Time = lastTime;
-                        tempInfo.X = Convert.ToDouble(reSplit[1]);
-                        tempInfo.Y = Convert.ToDouble(reSplit[2]);
-                        tempInfo.Keys = (KeyData)Convert.ToInt32(reSplit[3]);
-                        if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
-                        {
-                            ClickFrames.Add(tempInfo);
-                        }
-                        ReplayFrames.Add(tempInfo);
-                        lastKey = tempInfo.Keys;
-                    }
+                    ReplayFrames.Add(tempInfo);
+                    lastKey = tempInfo.Keys;
                 }
             }      
         }
@@ -211,8 +206,12 @@ namespace ReplayAPI
                 bW.Write(PlayTime.Ticks);
                 bW.Write(ReplayLength);
 
-                string concattedClickData = ReplayFrames.Aggregate("", (current, cD) => current + (cD.TimeDiff + "|" + cD.X + "|" + cD.Y + "|" + (int)cD.Keys + ","));
-                byte[] clickDataBytes = Encoding.ASCII.GetBytes(concattedClickData);
+                StringBuilder sBuilder = new StringBuilder();
+                foreach (ReplayInfo rI in ReplayFrames)
+                {
+                    sBuilder.Append(rI.TimeDiff + "|" + rI.X + "|" + rI.Y + "|" + (int)rI.Keys + ",");
+                }
+                byte[] clickDataBytes = Encoding.ASCII.GetBytes(sBuilder.ToString());
 
                 using (MemoryStream ms = new MemoryStream())
                 {

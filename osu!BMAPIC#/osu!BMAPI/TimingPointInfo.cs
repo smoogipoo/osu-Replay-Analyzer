@@ -3,8 +3,8 @@ namespace BMAPI
 {
     public class TimingPointInfo
     {
-        public double Time = 0.0f;
-        public double BpmDelay = 0.0f;
+        public double Time { get; set; }
+        public double BpmDelay { get; set; }
         public int TimeSignature = 4;
         public int SampleSet = 0;
         public int CustomSampleSet = 0;

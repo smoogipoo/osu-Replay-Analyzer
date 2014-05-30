@@ -176,7 +176,7 @@ namespace ReplayAPI
             }
         }
 
-        public void WriteToFile(string file)
+        public void Save(string file)
         {
             using (BinaryWriter bW = new BinaryWriter(new FileStream(file, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite)))
             {

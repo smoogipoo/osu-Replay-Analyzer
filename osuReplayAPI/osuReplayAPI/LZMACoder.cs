@@ -11,17 +11,19 @@ namespace ReplayAPI
             inStream.Position = 0;
 
             CoderPropID[] propIDs =  {
+                CoderPropID.DictionarySize,
                 CoderPropID.PosStateBits,
                 CoderPropID.LitContextBits,
                 CoderPropID.LitPosBits,
-                CoderPropID.Algorithm
+                CoderPropID.Algorithm,
             };
 
             object[] properties = {
+                (1 << 16),
                 2,
                 3,
                 0,
-                2
+                2,
             };
 
             var outStream = new MemoryStream();

@@ -184,7 +184,6 @@ namespace ReplayAPI
                 bW.Write(FileFormat);
                 bW.Write((char)0x0B);
                 WriteVLQ(bW, Encoding.ASCII.GetBytes(MapHash));
-                bW.Flush();
                 bW.Write((char)0x0B);
                 WriteVLQ(bW, Encoding.ASCII.GetBytes(PlayerName));
                 bW.Write((char)0x0B);

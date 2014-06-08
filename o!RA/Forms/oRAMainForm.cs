@@ -120,29 +120,32 @@ namespace o_RA.Forms
             //Load Plugins
             if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
             {
-                foreach (string pluginFile in Directory.GetDirectories(Environment.CurrentDirectory + @"\Plugins\").SelectMany(dir => Directory.GetFiles(dir, "*.dll").Where(file => !Settings.ContainsSetting("DisabledPlugins") || !Settings.GetSetting("DisabledPlugins").Split(new[] { '|' }).Contains(file))))
+                foreach (string pluginFile in Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "Plugins"), "*.dll", SearchOption.AllDirectories))
                 {
-                    Plugin p = Plugins.LoadPlugin(pluginFile);
-                    if (p == null)
-                        continue;
-                    p.Instance.p_Data = oRAData;
-                    p.Instance.p_Controls = oRAControls;
-                    if (p.Instance.p_PluginTabItem != null)
+                    if (!Settings.ContainsSetting("DisabledPlugins") || !Settings.GetSetting("DisabledPlugins").Split(new[] { '|' }).Contains(pluginFile))
                     {
-                        p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
-                        oRAPage page = new oRAPage
+                        Plugin p = Plugins.LoadPlugin(pluginFile);
+                        if (p == null)
+                            continue;
+                        p.Instance.p_Data = oRAData;
+                        p.Instance.p_Controls = oRAControls;
+                        if (p.Instance.p_PluginTabItem != null)
                         {
-                            Description = p.Instance.p_Description,
-                            Name = p.Instance.p_Name,
-                            Contents = p.Instance.p_PluginTabItem,
-                            Icon_Hot = p.Instance.p_PluginTabIcon_H,
-                            Icon_Normal = p.Instance.p_PluginTabIcon_N,
-                        };
-                        MainContainer.TabPages.Add(page);
-                    }
-                    if (p.Instance.p_PluginMenuItem != null)
-                    {
-                        PluginsMenuItem.DropDownItems.Add(p.Instance.p_PluginMenuItem);
+                            p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
+                            oRAPage page = new oRAPage
+                            {
+                                Description = p.Instance.p_Description,
+                                Name = p.Instance.p_Name,
+                                Contents = p.Instance.p_PluginTabItem,
+                                Icon_Hot = p.Instance.p_PluginTabIcon_H,
+                                Icon_Normal = p.Instance.p_PluginTabIcon_N,
+                            };
+                            MainContainer.TabPages.Add(page);
+                        }
+                        if (p.Instance.p_PluginMenuItem != null)
+                        {
+                            PluginsMenuItem.DropDownItems.Add(p.Instance.p_PluginMenuItem);
+                        }
                     }
                 }
             }

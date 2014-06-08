@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using oRAInterface;
 
 namespace o_RA.GlobalClasses
@@ -287,7 +288,10 @@ namespace o_RA.GlobalClasses
         {
             try
             {
-                Assembly pluginAssembly = Assembly.LoadFrom(File);
+                //For some reason, Assembly.LoadFrom likes to add file:/// to the start of filenames
+                //And obviously it can't load them, so we'll load them ourselves.
+                byte[] fileBytes = System.IO.File.ReadAllBytes(File);
+                Assembly pluginAssembly = Assembly.Load(fileBytes);
                 foreach (Type pType in pluginAssembly.GetTypes())
                 {
                     if (pType.IsPublic && !pType.IsAbstract)

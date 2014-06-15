@@ -44,6 +44,7 @@
             // 
             this.TWChart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
             chartArea1.AxisX.Title = "Clicks";
+            chartArea1.AxisY.LabelStyle.Format = "#";
             chartArea1.AxisY.MinorGrid.Enabled = true;
             chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             chartArea1.AxisY.Title = "Error rate (ms)";

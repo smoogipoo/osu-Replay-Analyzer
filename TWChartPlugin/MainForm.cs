@@ -75,6 +75,8 @@ namespace TWChartPlugin
             TWChart.Series[3].Points.Clear();
             TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
+            TWChart.ChartAreas[0].AxisY.Minimum = -oRA.Data.TimingWindows[0];
+            TWChart.ChartAreas[0].AxisY.Maximum = oRA.Data.TimingWindows[0];
             for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++)
             {
                 TWChart.Series[3].Points.AddXY(i + 1, oRA.Data.ReplayObjects[i].Frame.Time - oRA.Data.ReplayObjects[i].Object.StartTime); 

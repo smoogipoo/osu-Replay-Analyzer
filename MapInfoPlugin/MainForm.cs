@@ -62,7 +62,11 @@ namespace MapInfoPlugin
                 customListView1.Items.Add(li);
             }
             customListView1.Items.Add(new ListViewItem());
-            int totalTime = b.HitObjects[b.HitObjects.Count - 1].StartTime - b.HitObjects[0].StartTime;
+            int totalTime = 0;
+            if (b.HitObjects.Count > 0)
+            {
+                totalTime = b.HitObjects[b.HitObjects.Count - 1].StartTime - b.HitObjects[0].StartTime;
+            }
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapTotalTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
             totalTime = b.Events.Where(brk => brk.GetType() == typeof(BreakInfo)).Aggregate(totalTime, (current, brk) => current - (((BreakInfo)brk).EndTime - brk.StartTime));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapDrainTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));

@@ -55,7 +55,9 @@ namespace ReplayInfoPlugin
                 //We must calculate this before the actual unstable rate
                 unstableRate += oRA.Data.ReplayObjects[i].Frame.Time - oRA.Data.ReplayObjects[i].Object.StartTime;
             }
-            unstableRate /= oRA.Data.ReplayObjects.Count;
+            if (oRA.Data.ReplayObjects.Count > 0)
+                unstableRate /= oRA.Data.ReplayObjects.Count;
+
             for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++)
             {
                 double diff = oRA.Data.ReplayObjects[i].Frame.Time - oRA.Data.ReplayObjects[i].Object.StartTime;

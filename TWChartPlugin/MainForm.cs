@@ -75,19 +75,19 @@ namespace TWChartPlugin
             TWChart.Series[3].Points.Clear();
             TWChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             TWChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-            for (int i = 0; i < oRA.Data.TimingDifference.Count; i++)
+            for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++)
             {
-                TWChart.Series[3].Points.AddXY(i + 1, oRA.Data.TimingDifference[i]); 
+                TWChart.Series[3].Points.AddXY(i + 1, oRA.Data.ReplayObjects[i].Frame.Time - oRA.Data.ReplayObjects[i].Object.StartTime); 
             }         
             TWChart.Series[0].Points.Clear();
             TWChart.Series[0].Points.AddXY(0, oRA.Data.TimingWindows[2], -oRA.Data.TimingWindows[2]);
-            TWChart.Series[0].Points.AddXY(oRA.Data.TimingDifference.Count, oRA.Data.TimingWindows[2], -oRA.Data.TimingWindows[2]);
+            TWChart.Series[0].Points.AddXY(oRA.Data.ReplayObjects.Count, oRA.Data.TimingWindows[2], -oRA.Data.TimingWindows[2]);
             TWChart.Series[1].Points.Clear();
             TWChart.Series[1].Points.AddXY(0, oRA.Data.TimingWindows[1], -oRA.Data.TimingWindows[1]);
-            TWChart.Series[1].Points.AddXY(oRA.Data.TimingDifference.Count, oRA.Data.TimingWindows[1], -oRA.Data.TimingWindows[1]);
+            TWChart.Series[1].Points.AddXY(oRA.Data.ReplayObjects.Count, oRA.Data.TimingWindows[1], -oRA.Data.TimingWindows[1]);
             TWChart.Series[2].Points.Clear();
             TWChart.Series[2].Points.AddXY(0, oRA.Data.TimingWindows[0], -oRA.Data.TimingWindows[0]);
-            TWChart.Series[2].Points.AddXY(oRA.Data.TimingDifference.Count, oRA.Data.TimingWindows[0], -oRA.Data.TimingWindows[0]);
+            TWChart.Series[2].Points.AddXY(oRA.Data.ReplayObjects.Count, oRA.Data.TimingWindows[0], -oRA.Data.TimingWindows[0]);
         }
         private void HandleFrameChanged(int index)
         {

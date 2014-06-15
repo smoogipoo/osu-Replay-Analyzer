@@ -44,8 +44,47 @@ namespace ReplayInfoPlugin
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepKatuCount"], r.Count_Katu.ToString(CultureInfo.InvariantCulture) }));
             customListView1.Items.Add(new ListViewItem());
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMods"], r.Mods.ToString() }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], oRA.Data.NegativeErrorAverage.ToString(".00") + "ms ~ " + "+" + oRA.Data.PositiveErrorAverage.ToString(".00") + "ms" }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_UnstableRate"], oRA.Data.UnstableRate.ToString()}));
+
+            //Calculate UR and avg timing windows
+            double unstableRate = 0, negativeErrorAverage = 0, positiveErrorAverage = 0, max = 0, min = 0, variance = 0;
+            int nErrAvgCount = 0, pErrAvgCount = 0;
+
+            for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++)
+            {
+                //For now, this will be used as the mean
+                //We must calculate this before the actual unstable rate
+                unstableRate += oRA.Data.ReplayObjects[i].Frame.Time - oRA.Data.ReplayObjects[i].Object.StartTime;
+            }
+            unstableRate /= oRA.Data.ReplayObjects.Count;
+            for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++)
+            {
+                double diff = oRA.Data.ReplayObjects[i].Frame.Time - oRA.Data.ReplayObjects[i].Object.StartTime;
+
+                if (diff > 0)
+                {
+                    positiveErrorAverage += diff;
+                    pErrAvgCount += 1;
+                }
+                else
+                {
+                    negativeErrorAverage += diff;
+                    nErrAvgCount += 1;
+                }
+                variance += Math.Pow(diff - unstableRate, 2);
+                if (diff > max)
+                    max = diff;
+                if (diff < min)
+                    min = diff;
+            }
+            positiveErrorAverage = pErrAvgCount != 0 ? positiveErrorAverage / pErrAvgCount : 0;
+            negativeErrorAverage = nErrAvgCount != 0 ? negativeErrorAverage / nErrAvgCount : 0;
+            if (oRA.Data.ReplayObjects.Count > 0)
+            {
+                //Calculate unstable rate
+                unstableRate = Math.Round(Math.Sqrt(variance / oRA.Data.ReplayObjects.Count) * 10, 2);
+            }
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], negativeErrorAverage.ToString(".00") + "ms ~ " + "+" + positiveErrorAverage.ToString(".00") + "ms" }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_UnstableRate"], unstableRate.ToString("0.00") }));
         }
     }
 }

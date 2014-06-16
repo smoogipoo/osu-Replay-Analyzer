@@ -202,17 +202,17 @@ namespace ReplayInfoPlugin
                         keyUnstableRate[i] = Math.Round(Math.Sqrt(keyVariance[i] / keyCount[i]) * 10, 2);
                 }
             }
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], negativeErrorAverage.ToString(".00") + "ms ~ " + "+" + positiveErrorAverage.ToString(".00") + "ms" }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], negativeErrorAverage.ToString("0.00") + "ms ~ " + "+" + positiveErrorAverage.ToString("0.00") + "ms" }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_UnstableRate"], unstableRate.ToString("0.00") }));
             customListView1.Items.Add(new ListViewItem());
             if (keyNAverageCount[0] != 0 || keyPAverageCount[0] != 0)
-                customListView1.Items.Add(new ListViewItem(new[] { "K1 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[0].ToString(".00") + "ms ~ " + "+" + keyPAverage[0].ToString(".00") + "ms" }));
+                customListView1.Items.Add(new ListViewItem(new[] { "K1 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[0].ToString("0.00") + "ms ~ " + "+" + keyPAverage[0].ToString("0.00") + "ms" }));
             if (keyNAverageCount[1] != 0 || keyPAverageCount[1] != 0)
-                customListView1.Items.Add(new ListViewItem(new[] { "K2 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[1].ToString(".00") + "ms ~ " + "+" + keyPAverage[1].ToString(".00") + "ms" }));
+                customListView1.Items.Add(new ListViewItem(new[] { "K2 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[1].ToString("0.00") + "ms ~ " + "+" + keyPAverage[1].ToString("0.00") + "ms" }));
             if (keyNAverageCount[2] != 0 || keyPAverageCount[2] != 0)
-                customListView1.Items.Add(new ListViewItem(new[] { "M1 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[2].ToString(".00") + "ms ~ " + "+" + keyPAverage[2].ToString(".00") + "ms" }));
+                customListView1.Items.Add(new ListViewItem(new[] { "M1 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[2].ToString("0.00") + "ms ~ " + "+" + keyPAverage[2].ToString("0.00") + "ms" }));
             if (keyNAverageCount[3] != 0 || keyPAverageCount[3] != 0)
-                customListView1.Items.Add(new ListViewItem(new[] { "M2 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[3].ToString(".00") + "ms ~ " + "+" + keyPAverage[3].ToString(".00") + "ms" }));
+                customListView1.Items.Add(new ListViewItem(new[] { "M2 " + oRA.Data.Language["info_ErrorRate"], keyNAverage[3].ToString("0.00") + "ms ~ " + "+" + keyPAverage[3].ToString("0.00") + "ms" }));
             if (keyCount[0] != 0)
                 customListView1.Items.Add(new ListViewItem(new[] { "K1 " + oRA.Data.Language["info_UnstableRate"], keyUnstableRate[0].ToString("0.00") }));
             if (keyCount[1] != 0)

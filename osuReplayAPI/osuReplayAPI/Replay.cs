@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading;
-using SevenZip;
 
 namespace ReplayAPI
 {

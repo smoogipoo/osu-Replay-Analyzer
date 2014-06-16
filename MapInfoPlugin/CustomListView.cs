@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Text;
-using System.Globalization;
-using System.IO;
-using System.Security.Cryptography;
 using System.Windows.Forms;
 using System.Linq;
 using o_RA;
-using BMAPI;
-using ReplayAPI;
 
 namespace MapInfoPlugin
 {
     class CustomListView : ListView
     {
+        public override sealed Color BackColor
+        {
+            get { return base.BackColor; }
+            set { base.BackColor = value; }
+        }
+
+        protected override sealed bool DoubleBuffered
+        {
+            get { return base.DoubleBuffered; }
+            set { base.DoubleBuffered = value; }
+        }
+
         public CustomListView()
         {
             DoubleBuffered = true;

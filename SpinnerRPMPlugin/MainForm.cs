@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using BMAPI;
@@ -146,7 +142,12 @@ namespace SpinnerRPMPlugin
                 {
                     valueAmnt += frame.Value;
                     count += 1;
-                    spinnerSeries.Points.AddXY(frame.Key, Convert.ToInt32(valueAmnt / count));
+                    if (count == 5)
+                    {
+                        spinnerSeries.Points.AddXY(frame.Key, Convert.ToInt32(valueAmnt / count));
+                        count = 0;
+                        valueAmnt = 0;
+                    }
                 }
                 SRPMChart.Series.Add(spinnerSeries);
                 currentSpinnerNumber += 1;

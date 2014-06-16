@@ -9,6 +9,18 @@ namespace ReplayInfoPlugin
 {
     class CustomListView : ListView
     {
+        public override sealed Color BackColor
+        {
+            get { return base.BackColor; }
+            set { base.BackColor = value; }
+        }
+
+        protected override sealed bool DoubleBuffered
+        {
+            get { return base.DoubleBuffered; }
+            set { base.DoubleBuffered = value; }
+        }
+
         public CustomListView()
         {
             DoubleBuffered = true;

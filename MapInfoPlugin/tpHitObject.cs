@@ -1,12 +1,11 @@
 ﻿using System;
 using BMAPI;
 
-namespace o_RA.GlobalClasses
+namespace MapInfoPlugin
 {
-    class tpHitObject
+    public class tpHitObject
     {
         
-
         // Factor by how much speed / aim strain decays per second. Those values are results of tweaking a lot and taking into account general feedback.
         public static readonly double[] DECAY_BASE = { 0.3, 0.15 }; // Opinionated observation: Speed is easier to maintain than accurate jumps.
 

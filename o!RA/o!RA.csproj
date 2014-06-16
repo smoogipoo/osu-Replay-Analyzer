@@ -96,8 +96,6 @@
     <Compile Include="Forms\PluginSettingsForm.Designer.cs">
       <DependentUpon>PluginSettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="GlobalClasses\oRAtpDifficulty.cs" />
-    <Compile Include="GlobalClasses\tpHitObject.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalClasses\oRAFuncs.cs" />

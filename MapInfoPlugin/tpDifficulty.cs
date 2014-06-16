@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using BMAPI;
 
-namespace o_RA.GlobalClasses
+namespace MapInfoPlugin
 {
     /// <summary>
     /// osu!tp's difficulty calculator ported to oRA.
@@ -19,71 +19,14 @@ namespace o_RA.GlobalClasses
 
 
         // We will store the HitObjects as a member variable.
-        List<tpHitObject> tpHitObjects;
+        public List<tpHitObject> tpHitObjects;
 
 
-        private const double STAR_SCALING_FACTOR = 0.045;
-        private const double EXTREME_SCALING_FACTOR = 0.5;
-
-        public void RunAllRules(Beatmap beatmap)
-        {
-            // Mods are not yet supported. TODO
-
-
-            // Fill our custom tpHitObject class, that carries additional information
-            tpHitObjects = new List<tpHitObject>(beatmap.HitObjects.Count);
-
-            foreach (BaseCircle hitObject in beatmap.HitObjects)
-            {
-                tpHitObjects.Add(new tpHitObject(hitObject));
-            }
-
-            if (CalculateStrainValues() == false)
-            {
-                Debug.WriteLine("Could not compute strain values. Aborting difficulty calculation.");
-                return;
-            }
-
-
-            double SpeedDifficulty = CalculateDifficulty(DifficultyType.Speed);
-            double AimDifficulty = CalculateDifficulty(DifficultyType.Aim);
-
-            // OverallDifficulty is not considered in this algorithm and neither is HpDrainRate. That means, that in this form the algorithm determines how hard it physically is
-            // to play the map, assuming, that too much of an error will not lead to a death.
-            // It might be desirable to include OverallDifficulty into map difficulty, but in my personal opinion it belongs more to the weighting of the actual peformance
-            // and is superfluous in the beatmap difficulty rating.
-            // If it were to be considered, then I would look at the hit window of normal HitCircles only, since Sliders and Spinners are (almost) "free" 300s and take map length
-            // into account as well.
-
-            Debug.WriteLine("Speed difficulty: {0} | Aim difficulty: {1}", SpeedDifficulty, AimDifficulty);
-
-            // The difficulty can be scaled by any desired metric.
-            // In osu!tp it gets squared to account for the rapid increase in difficulty as the limit of a human is approached. (Of course it also gets scaled afterwards.)
-            // It would not be suitable for a star rating, therefore:
-
-            // The following is a proposal to forge a star rating from 0 to 5. It consists of taking the square root of the difficulty, since by simply scaling the easier
-            // 5-star maps would end up with one star.
-            double SpeedStars = Math.Sqrt(SpeedDifficulty) * STAR_SCALING_FACTOR;
-            double AimStars = Math.Sqrt(AimDifficulty) * STAR_SCALING_FACTOR;
-
-            Debug.WriteLine("Speed stars: {0} | Aim stars: {1}", SpeedStars, AimStars);
-
-            // Again, from own observations and from the general opinion of the community a map with high speed and low aim (or vice versa) difficulty is harder,
-            // than a map with mediocre difficulty in both. Therefore we can not just add both difficulties together, but will introduce a scaling that favors extremes.
-            double StarRating = SpeedStars + AimStars + Math.Abs(SpeedStars - AimStars) * EXTREME_SCALING_FACTOR;
-            // Another approach to this would be taking Speed and Aim separately to a chosen power, which again would be equivalent. This would be more convenient if
-            // the hit window size is to be considered as well.
-
-            // Note: The star rating is tuned extremely tight! Airman (/b/104229) and Freedom Dive (/b/126645), two of the hardest ranked maps, both score ~4.66 stars.
-            // Expect the easier kind of maps that officially get 5 stars to obtain around 2 by this metric. The tutorial still scores about half a star.
-            // Tune by yourself as you please. ;)
-            Debug.WriteLine("Total star rating: {0}", StarRating);
-
-        }
-
+        public const double STAR_SCALING_FACTOR = 0.045;
+        public const double EXTREME_SCALING_FACTOR = 0.5;
 
         // Exceptions would be nicer to handle errors, but for this small project it shall be ignored.
-        private bool CalculateStrainValues()
+        public bool CalculateStrainValues()
         {
             // Traverse hitObjects in pairs to calculate the strain value of NextHitObject from the strain value of CurrentHitObject and environment.
             List<tpHitObject>.Enumerator HitObjectsEnumerator = tpHitObjects.GetEnumerator();
@@ -115,7 +58,7 @@ namespace o_RA.GlobalClasses
         // The weighting of each strain value decays to 0.9 * it's previous value
         private const double DECAY_WEIGHT = 0.9;
 
-        private double CalculateDifficulty(DifficultyType Type)
+        public double CalculateDifficulty(DifficultyType Type)
         {
             // Find the highest strain value within each strain step
             List<double> HighestStrains = new List<double>();

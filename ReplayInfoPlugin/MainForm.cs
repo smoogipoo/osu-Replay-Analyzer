@@ -221,7 +221,6 @@ namespace ReplayInfoPlugin
                 customListView1.Items.Add(new ListViewItem(new[] { "M1 " + oRA.Data.Language["info_UnstableRate"], keyUnstableRate[2].ToString("0.00") }));
             if (keyCount[3] != 0)
                 customListView1.Items.Add(new ListViewItem(new[] { "M2 " + oRA.Data.Language["info_UnstableRate"], keyUnstableRate[3].ToString("0.00") }));
-            
         }
     }
 }

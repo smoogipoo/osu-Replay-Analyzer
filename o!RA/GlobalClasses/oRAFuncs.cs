@@ -40,10 +40,10 @@ namespace o_RA.GlobalClasses
             try
             {
                 WebClient wc = new WebClient();
-                if (File.Exists(Environment.CurrentDirectory + "\\files1updt"))
-                    File.Delete(Environment.CurrentDirectory + "\\files1updt");
-                wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + "/files.updt", Environment.CurrentDirectory + "\\files1updt");
-                using (StreamReader sR = new StreamReader(Environment.CurrentDirectory + "\\files1updt"))
+                if (File.Exists(Environment.CurrentDirectory + "\\files1.updt"))
+                    File.Delete(Environment.CurrentDirectory + "\\files1.updt");
+                wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + "/files.updt", Environment.CurrentDirectory + "\\files1.updt");
+                using (StreamReader sR = new StreamReader(Environment.CurrentDirectory + "\\files1.updt"))
                 {
                     while (sR.Peek() != -1)
                     {
@@ -129,8 +129,8 @@ namespace o_RA.GlobalClasses
             {
                 MessageBox.Show(@"Malformed updater signature received: " + e.Message);
             }
-            if (File.Exists(Environment.CurrentDirectory + "\\files1updt"))
-                File.Delete(Environment.CurrentDirectory + "\\files1updt");
+            if (File.Exists(Environment.CurrentDirectory + "\\files1.updt"))
+                File.Delete(Environment.CurrentDirectory + "\\files1.updt");
             settings.Save();
         }
     }

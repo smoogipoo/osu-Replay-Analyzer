@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using BMAPI;
-using o_RA;
 using ReplayAPI;
 
 namespace ReplayInfoPlugin
@@ -17,33 +17,11 @@ namespace ReplayInfoPlugin
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            BackColor = oRAColours.Colour_BG_P0;
             oRA.Data.ReplayChanged += HandleReplayChanged;
         }
 
         public void HandleReplayChanged(Replay r, Beatmap b)
         {
-            customListView1.Items.Clear();
-            customListView1.Items.Add(new ListViewItem());
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Format"], r.FileFormat.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FName"], r.Filename }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FSize"], File.OpenRead(r.Filename).Length + " " + oRA.Data.Language["text_bytes"] }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], r.ReplayHash }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ReplayFrames"], r.ReplayFrames.Count.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_KeysPressed"], r.ClickFrames.Count.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem());
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMode"], r.GameMode.ToString() }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepPlayer"], r.PlayerName }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepScore"], r.TotalScore.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepCombo"], r.MaxCombo.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Rep300Count"], r.Count_300.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Rep100Count"], r.Count_100.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Rep50Count"], r.Count_50.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMissCount"], r.Count_Miss.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepGekiCount"], r.Count_Geki.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepKatuCount"], r.Count_Katu.ToString(CultureInfo.InvariantCulture) }));
-            customListView1.Items.Add(new ListViewItem());
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMods"], r.Mods.ToString() }));
 
             //Calculate UR and avg timing windows
             double unstableRate = 0, negativeErrorAverage = 0, positiveErrorAverage = 0, max = 0, min = 0, variance = 0;
@@ -97,7 +75,7 @@ namespace ReplayInfoPlugin
             {
                 unstableRate /= oRA.Data.ReplayObjects.Count;
                 for (int i = 0; i < 4; i++)
-                {   
+                {
                     if (keyCount[i] != 0)
                         keyUnstableRate[i] /= keyCount[i];
                 }
@@ -182,7 +160,7 @@ namespace ReplayInfoPlugin
 
             positiveErrorAverage = pErrAvgCount != 0 ? positiveErrorAverage / pErrAvgCount : 0;
             negativeErrorAverage = nErrAvgCount != 0 ? negativeErrorAverage / nErrAvgCount : 0;
-            for (int i = 0; i < 4; i++ )
+            for (int i = 0; i < 4; i++)
             {
                 //Calculate error rate
                 if (keyPAverageCount[i] != 0)
@@ -200,6 +178,37 @@ namespace ReplayInfoPlugin
                         keyUnstableRate[i] = Math.Round(Math.Sqrt(keyVariance[i] / keyCount[i]) * 10, 2);
                 }
             }
+
+            customListView1.Items.Clear();
+            customListView1.Items.Add(new ListViewItem());
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Format"], r.FileFormat.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FName"], r.Filename }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FSize"], File.OpenRead(r.Filename).Length + " " + oRA.Data.Language["text_bytes"] }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], r.ReplayHash }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ReplayFrames"], r.ReplayFrames.Count.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_KeysPressed"], r.ClickFrames.Count.ToString(CultureInfo.InvariantCulture) }));
+            //Display individual key counts
+            if (keyCount[0] != 0)
+                customListView1.Items.Add(new ListViewItem(new[] { "K1 " + oRA.Data.Language["info_PressCount"], keyCount[0].ToString(CultureInfo.InvariantCulture) }));
+            if (keyCount[1] != 0)
+                customListView1.Items.Add(new ListViewItem(new[] { "K2 " + oRA.Data.Language["info_PressCount"], keyCount[1].ToString(CultureInfo.InvariantCulture) }));
+            if (keyCount[2] != 0)
+                customListView1.Items.Add(new ListViewItem(new[] { "M1 " + oRA.Data.Language["info_PressCount"], keyCount[2].ToString(CultureInfo.InvariantCulture) }));
+            if (keyCount[3] != 0)
+                customListView1.Items.Add(new ListViewItem(new[] { "M2 " + oRA.Data.Language["info_PressCount"], keyCount[3].ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem());
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMode"], r.GameMode.ToString() }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepPlayer"], r.PlayerName }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepScore"], r.TotalScore.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepCombo"], r.MaxCombo.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Rep300Count"], r.Count_300.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Rep100Count"], r.Count_100.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Rep50Count"], r.Count_50.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMissCount"], r.Count_Miss.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepGekiCount"], r.Count_Geki.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepKatuCount"], r.Count_Katu.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem());
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMods"], r.Mods.ToString() }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], negativeErrorAverage.ToString("0.00") + "ms ~ " + "+" + positiveErrorAverage.ToString("0.00") + "ms" }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_UnstableRate"], unstableRate.ToString("0.00") }));
             customListView1.Items.Add(new ListViewItem());

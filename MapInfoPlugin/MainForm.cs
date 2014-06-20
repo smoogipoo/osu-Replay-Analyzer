@@ -26,13 +26,25 @@ namespace MapInfoPlugin
 
         public void HandleReplayChanged(Replay r, Beatmap b)
         {
+            string beatmapHash;
+            oRA.Data.BeatmapHashes.TryGetValue(b.Filename, out beatmapHash);
+
+            int totalTime = 0;
+            if (b.HitObjects.Count > 0)
+                totalTime = b.HitObjects[b.HitObjects.Count - 1].StartTime - b.HitObjects[0].StartTime;
+
+            tpDifficulty tp = new tpDifficulty();
+            tp.tpHitObjects = new List<tpHitObject>(b.HitObjects.Count);
+            foreach (BaseCircle hitObject in b.HitObjects)
+                tp.tpHitObjects.Add(new tpHitObject(hitObject));
+
+
+
             customListView1.Items.Clear();
             customListView1.Items.Add(new ListViewItem());
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Format"], b.Format.ToString() }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FName"], b.Filename }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FSize"], File.OpenRead(b.Filename).Length + " bytes" }));
-            string beatmapHash;
-            oRA.Data.BeatmapHashes.TryGetValue(b.Filename, out beatmapHash);
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], beatmapHash }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_TotalHitObjects"], b.HitObjects.Count.ToString(CultureInfo.InvariantCulture) }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapAFN"], b.AudioFilename }));
@@ -63,35 +75,24 @@ namespace MapInfoPlugin
                 customListView1.Items.Add(li);
             }
             customListView1.Items.Add(new ListViewItem());
-            int totalTime = 0;
-            if (b.HitObjects.Count > 0)
-            {
-                totalTime = b.HitObjects[b.HitObjects.Count - 1].StartTime - b.HitObjects[0].StartTime;
-            }
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapTotalTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
             totalTime = b.Events.Where(brk => brk.GetType() == typeof(BreakInfo)).Aggregate(totalTime, (current, brk) => current - (((BreakInfo)brk).EndTime - brk.StartTime));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapDrainTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
-            customListView1.Items.Add(new ListViewItem());
-
-            tpDifficulty tp = new tpDifficulty();
-            tp.tpHitObjects = new List<tpHitObject>(b.HitObjects.Count);
-
-            foreach (BaseCircle hitObject in b.HitObjects)
+            if (tp.CalculateStrainValues())
             {
-                tp.tpHitObjects.Add(new tpHitObject(hitObject));
+                double SpeedDifficulty = tp.CalculateDifficulty(tpDifficulty.DifficultyType.Speed);
+                double AimDifficulty = tp.CalculateDifficulty(tpDifficulty.DifficultyType.Aim);
+                double SpeedStars = Math.Sqrt(SpeedDifficulty) * tpDifficulty.STAR_SCALING_FACTOR;
+                double AimStars = Math.Sqrt(AimDifficulty) * tpDifficulty.STAR_SCALING_FACTOR;
+                double StarRating = SpeedStars + AimStars + Math.Abs(SpeedStars - AimStars) * tpDifficulty.EXTREME_SCALING_FACTOR;
+                customListView1.Items.Add(new ListViewItem());
+                customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_SpeedDifficulty"], SpeedDifficulty.ToString("0.00") }));
+                customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_AimDifficulty"], AimDifficulty.ToString("0.00") }));
+                customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_SpeedStars"], SpeedStars.ToString("0.00") }));
+                customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_AimStars"], AimStars.ToString("0.00") }));
+                customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_TotalStars"], StarRating.ToString("0.00") }));
             }
-            if (tp.CalculateStrainValues() == false)
-                return;
-            double SpeedDifficulty = tp.CalculateDifficulty(tpDifficulty.DifficultyType.Speed);
-            double AimDifficulty = tp.CalculateDifficulty(tpDifficulty.DifficultyType.Aim);
-            double SpeedStars = Math.Sqrt(SpeedDifficulty) * tpDifficulty.STAR_SCALING_FACTOR;
-            double AimStars = Math.Sqrt(AimDifficulty) * tpDifficulty.STAR_SCALING_FACTOR;
-            double StarRating = SpeedStars + AimStars + Math.Abs(SpeedStars - AimStars) * tpDifficulty.EXTREME_SCALING_FACTOR;
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_SpeedDifficulty"], SpeedDifficulty.ToString("0.00")}));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_AimDifficulty"], AimDifficulty.ToString("0.00") }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_SpeedStars"], SpeedStars.ToString("0.00") }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_AimStars"], AimStars.ToString("0.00") }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_TotalStars"], StarRating.ToString("0.00") }));
+
         }
     }
 }

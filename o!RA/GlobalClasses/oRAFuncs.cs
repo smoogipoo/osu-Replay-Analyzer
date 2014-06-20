@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using oRAInterface;
 
 namespace o_RA.GlobalClasses
@@ -15,12 +17,12 @@ namespace o_RA.GlobalClasses
 
         public void Start(Settings settings)
         {
-            foreach (string f in Directory.GetFiles(Environment.CurrentDirectory, "*.*", SearchOption.TopDirectoryOnly).Where(f => f.Contains(".") && f.Substring(f.LastIndexOf(".", StringComparison.Ordinal)) == ".old"))
+            foreach (string f in Directory.GetFiles(Environment.CurrentDirectory, "*.*", SearchOption.AllDirectories).Where(f => f.Contains(".") && f.Substring(f.LastIndexOf(".", StringComparison.Ordinal)) == ".old"))
             {
                 File.Delete(f);
             }
             Dictionary<string, string> versions = new Dictionary<string, string>();
-            foreach (sString f in Directory.GetFiles(Environment.CurrentDirectory, "*.*", SearchOption.TopDirectoryOnly))
+            foreach (sString f in Directory.GetFiles(Environment.CurrentDirectory, "*.*", SearchOption.AllDirectories))
             {
                 settings.AddSetting("v_" + f.SubString(f.LastIndexOf("\\") + 1), "1.0.0", false);
             }
@@ -37,55 +39,98 @@ namespace o_RA.GlobalClasses
             }
             try
             {
-                System.Net.WebClient wc = new System.Net.WebClient();
+                WebClient wc = new WebClient();
                 if (File.Exists(Environment.CurrentDirectory + "\\files.updt"))
-                {
                     File.Delete(Environment.CurrentDirectory + "\\files.updt");
-                }
                 wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + "/files.updt", Environment.CurrentDirectory + "\\files.updt");
                 using (StreamReader sR = new StreamReader(Environment.CurrentDirectory + "\\files.updt"))
                 {
                     while (sR.Peek() != -1)
                     {
-                        //Example /asdf.exe:\asdf.exe:1.0.1
-                        sString line = sR.ReadLine();
-                        if (line != null)
+                        /* Examples:
+                         * ADD:/asdf.exe:\asdf.exe:1.0.1 //Add file
+                         * ADD:\asdf                     //Add directory
+                         * DEL:\asdf.exe                 //Delete file
+                         * DEL:\asdf                     //Delete directory
+                         */
+                        string[] lineSplit = sR.ReadLine().Split(new[] { ':' });
+
+                        if (lineSplit[0] == "ADD" || lineSplit[0] == "DEL")
                         {
-                            string onlinepath = line.SubString(0, line.nthDexOf(":", 0));
-                            sString localpath = line.SubString(line.nthDexOf(":", 0) + 1, line.nthDexOf(":", 1));
-                            string version = line.SubString(line.nthDexOf(":", 1) + 1);
-                            string name = localpath.SubString(localpath.LastIndexOf("\\") + 1);
-                            if (versions.ContainsKey(name) == false)
+                            switch (lineSplit[0])
                             {
-                                wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + onlinepath, Environment.CurrentDirectory + localpath);
-                                settings.AddSetting("v_" + name, version);
-                                if (updateReady != null)
-                                    updateReady(null, new EventArgs());
-                            }
-                            else
-                            {
-                                if (version != versions[name])
-                                {
-                                    if (File.Exists(Environment.CurrentDirectory + localpath + ".old"))
+                                case "DEL":
+                                    //Check if we must delete a directory
+                                    if (lineSplit[1].Length >= 3 && lineSplit[1][lineSplit[1].Length - 3] != '.')
                                     {
-                                        File.Delete(Environment.CurrentDirectory + localpath + ".old");
+                                        //Directory
+                                        if (Directory.Exists(Environment.CurrentDirectory + lineSplit[1]))
+                                            Directory.Delete(Environment.CurrentDirectory + lineSplit[1], true);
                                     }
-                                    File.Move(Environment.CurrentDirectory + localpath, Environment.CurrentDirectory + localpath + ".old");
-                                    wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + onlinepath, Environment.CurrentDirectory + localpath);
-                                    settings.AddSetting("v_" + name, version);
-                                    if (updateReady != null)
-                                        updateReady(null, new EventArgs());
-                                }
+                                    else
+                                    {
+                                        //File
+                                        if (File.Exists(Environment.CurrentDirectory + lineSplit[1]))
+                                            File.Delete(Environment.CurrentDirectory + lineSplit[1]);
+                                    }
+                                    break;
+                                case "ADD":
+                                    //Check if we must add a directory
+                                    if (lineSplit[1].Length >= 3 && lineSplit[1][lineSplit[1].Length - 3] != '.')
+                                    {
+                                        //Directory
+                                        if (!Directory.Exists(Environment.CurrentDirectory + lineSplit[1]))
+                                            Directory.CreateDirectory(Environment.CurrentDirectory + lineSplit[1]);
+                                    }
+                                    else
+                                    {
+                                        //File
+                                        string fileName = lineSplit[2].Substring(lineSplit[1].LastIndexOf("\\", StringComparison.InvariantCulture) + 1);
+                                        if (versions.ContainsKey(fileName) == false)
+                                        {
+                                            wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + lineSplit[1], Environment.CurrentDirectory + lineSplit[2]);
+                                            settings.AddSetting("v_" + fileName, fileName);
+                                            if (updateReady != null)
+                                                updateReady(null, new EventArgs());
+                                        }
+                                        else
+                                        {
+                                            if (lineSplit[3] != versions[fileName])
+                                            {
+                                                if (File.Exists(Environment.CurrentDirectory + lineSplit[2] + ".old"))
+                                                    File.Delete(Environment.CurrentDirectory + lineSplit[2] + ".old");
+                                                File.Move(Environment.CurrentDirectory + lineSplit[2], Environment.CurrentDirectory + lineSplit[2] + ".old");
+                                                wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + lineSplit[1], Environment.CurrentDirectory + lineSplit[2]);
+                                                settings.AddSetting("v_" + fileName, lineSplit[3]);
+                                                if (updateReady != null)
+                                                    updateReady(null, new EventArgs());
+                                            }
+                                        }
+                                    }
+
+                                    break;
+
+                                default:
+                                    throw new NotImplementedException(lineSplit[0]);
                             }
                         }
                     }
                 }
             }
-            catch { }
-            if (File.Exists(Environment.CurrentDirectory + "\\files.updt"))
+            catch (AccessViolationException e)
             {
-                File.Delete(Environment.CurrentDirectory + "\\files.updt");
+                MessageBox.Show(@"Update could not be completed. A file access exception has occurred: " + e.Message + "\nStackTrace: " + e.StackTrace);
             }
+            catch (WebException e)
+            {
+                MessageBox.Show(@"Update could not be completed. The file address is invalid: " + e.Message + "\nStackTrace: " + e.StackTrace);
+            }
+            catch (NotImplementedException e)
+            {
+                MessageBox.Show(@"Malformed updater signature received: " + e.Message);
+            }
+            if (File.Exists(Environment.CurrentDirectory + "\\files.updt"))
+                File.Delete(Environment.CurrentDirectory + "\\files.updt");
             settings.Save();
         }
     }

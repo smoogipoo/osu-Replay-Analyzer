@@ -42,7 +42,7 @@ namespace o_RA.GlobalClasses
                 WebClient wc = new WebClient();
                 if (File.Exists(Environment.CurrentDirectory + "\\files1.updt"))
                     File.Delete(Environment.CurrentDirectory + "\\files1.updt");
-                wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + "/files.updt", Environment.CurrentDirectory + "\\files1.updt");
+                wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + "/files1.updt", Environment.CurrentDirectory + "\\files1.updt");
                 using (StreamReader sR = new StreamReader(Environment.CurrentDirectory + "\\files1.updt"))
                 {
                     while (sR.Peek() != -1)
@@ -61,7 +61,7 @@ namespace o_RA.GlobalClasses
                             {
                                 case "DEL":
                                     //Check if we must delete a directory
-                                    if (lineSplit[1].Length >= 3 && lineSplit[1][lineSplit[1].Length - 3] != '.')
+                                    if (lineSplit[1].Length >= 3 && lineSplit[1][lineSplit[1].Length - 4] != '.')
                                     {
                                         //Directory
                                         if (Directory.Exists(Environment.CurrentDirectory + lineSplit[1]))
@@ -76,7 +76,7 @@ namespace o_RA.GlobalClasses
                                     break;
                                 case "ADD":
                                     //Check if we must add a directory
-                                    if (lineSplit[1].Length >= 3 && lineSplit[1][lineSplit[1].Length - 3] != '.')
+                                    if (lineSplit[1].Length >= 3 && lineSplit[1][lineSplit[1].Length - 4] != '.')
                                     {
                                         //Directory
                                         if (!Directory.Exists(Environment.CurrentDirectory + lineSplit[1]))
@@ -85,7 +85,7 @@ namespace o_RA.GlobalClasses
                                     else
                                     {
                                         //File
-                                        string fileName = lineSplit[2].Substring(lineSplit[1].LastIndexOf("\\", StringComparison.InvariantCulture) + 1);
+                                        string fileName = lineSplit[2].Substring(lineSplit[2].LastIndexOf("\\", StringComparison.InvariantCulture) + 1);
                                         if (versions.ContainsKey(fileName) == false)
                                         {
                                             wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + lineSplit[1], Environment.CurrentDirectory + lineSplit[2]);

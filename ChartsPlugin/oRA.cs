@@ -2,21 +2,21 @@
 using System.Windows.Forms;
 using oRAInterface;
 
-namespace TWChartPlugin
+namespace ChartsPlugin
 {
     public class oRA : IPlugin
     {
         #region Plugin Constants (Set these)
-        public static string Name = "Timing Windows";
-        public static string Description = "Displays the player's click timings.";
+        public static string Name = "Charts";
+        public static string Description = "Charted display of replay data.";
         public static string Author = "o!RA Developers";
         public static string Version = "1.0.0";
         public static string HomePage = "";
 
         public static ToolStripMenuItem PluginMenuItem;
-        public static UserControl PluginTabItem = new MainForm();
-        public static Bitmap PluginTabIcon_Normal = Properties.Resources.TimingGraph_N;
-        public static Bitmap PluginTabIcon_Hot = Properties.Resources.TimingGraph_H;
+        public static UserControl PluginTabItem = new Container();
+        public static Bitmap PluginTabIcon_Normal = Properties.Resources.Graphs_N;
+        public static Bitmap PluginTabIcon_Hot = Properties.Resources.Graphs_H;
         #endregion
 
         #region Exposed items

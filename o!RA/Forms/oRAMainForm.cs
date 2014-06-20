@@ -235,7 +235,15 @@ namespace o_RA.Forms
             foreach (string file in beatmapFiles)
             {
                 oRAData.BeatmapHashes.TryAdd(file, MD5FromFile(file));
-                Progress.BeginInvoke((Action)(() => Progress.Value += 1));
+                try
+                {
+                    Progress.BeginInvoke((Action)(() => Progress.Value += 1));
+                }
+                catch
+                {
+                    //We've disposed
+                    return;
+                }
             }
             Progress.BeginInvoke((Action)(() => Progress.Value = 0));
 

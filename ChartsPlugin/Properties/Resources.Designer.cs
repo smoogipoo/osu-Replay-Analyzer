@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TWChartPlugin.Properties {
+namespace ChartsPlugin.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TWChartPlugin.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TWChartPlugin.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ChartsPlugin.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,9 +63,9 @@ namespace TWChartPlugin.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap TimingGraph_H {
+        internal static System.Drawing.Bitmap Graphs_H {
             get {
-                object obj = ResourceManager.GetObject("TimingGraph_H", resourceCulture);
+                object obj = ResourceManager.GetObject("Graphs_H", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace TWChartPlugin.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap TimingGraph_N {
+        internal static System.Drawing.Bitmap Graphs_N {
             get {
-                object obj = ResourceManager.GetObject("TimingGraph_N", resourceCulture);
+                object obj = ResourceManager.GetObject("Graphs_N", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

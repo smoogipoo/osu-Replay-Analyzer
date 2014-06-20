@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapInfoPlugin", "MapInfoPlu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpinnerRPMPlugin", "SpinnerRPMPlugin\SpinnerRPMPlugin.csproj", "{CEA665BD-D5C0-4272-A572-37FAE8AB4588}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TWChartPlugin", "TWChartPlugin\TWChartPlugin.csproj", "{632F8835-2AB0-488A-8EA4-EA47E2808E9A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChartsPlugin", "ChartsPlugin\ChartsPlugin.csproj", "{632F8835-2AB0-488A-8EA4-EA47E2808E9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,11 +7,11 @@ using System.Windows.Forms.DataVisualization.Charting;
 using BMAPI;
 using ReplayAPI;
 
-namespace SpinnerRPMPlugin
+namespace ChartsPlugin
 {
-    public partial class MainForm : UserControl
+    public partial class SRPMChart : UserControl
     {
-        public MainForm()
+        public SRPMChart()
         {
             InitializeComponent();
         }
@@ -22,8 +22,8 @@ namespace SpinnerRPMPlugin
         {
             if (e.Button == MouseButtons.Right)
             {
-                SRPMChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
-                SRPMChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
+                Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+                Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             }
         }
 
@@ -32,50 +32,50 @@ namespace SpinnerRPMPlugin
             if (new Point(e.X, e.Y) == LastHitPoint)
                 return;
             LastHitPoint = new Point(e.X, e.Y);
-            HitTestResult result = SRPMChart.HitTest(e.X, e.Y);
+            HitTestResult result = Chart.HitTest(e.X, e.Y);
             if (result.PointIndex != -1 && result.Series != null && result.Series.BorderWidth != 0)
             {
                 result.Series.BorderWidth = 3;
             }
             else
             {
-                foreach (Series s in SRPMChart.Series.Where(s => !Equals(s.Tag, "1") && s.BorderWidth != 0 && s.BorderWidth != 2))
+                foreach (Series s in Chart.Series.Where(s => !Equals(s.Tag, "1") && s.BorderWidth != 0 && s.BorderWidth != 2))
                 {
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
+                    Chart.Series[Chart.Series.IndexOf(s)].BorderWidth = 2;
                 }
             }
 
             if (result.PointIndex != -1 && result.Series != null && result.PointIndex < result.Series.Points.Count && !Equals(result.Series.Tag, "0"))
             {
-                ChartToolTip.SetToolTip(SRPMChart, result.Series.Points[result.PointIndex].YValues[0] + "RPM");
+                ChartToolTip.SetToolTip(Chart, result.Series.Points[result.PointIndex].YValues[0] + "RPM");
             }
             else
             {
-                ChartToolTip.Hide(SRPMChart);
+                ChartToolTip.Hide(Chart);
             }
         }
 
         private void SRPMChart_MouseDown(object sender, MouseEventArgs e)
         {
-            HitTestResult result = SRPMChart.HitTest(e.X, e.Y);
+            HitTestResult result = Chart.HitTest(e.X, e.Y);
             if (result.PointIndex != -1 && result.Series != null)
             {
                 if (result.Series.BorderWidth == 0)
                 {
-                    foreach (Series s in SRPMChart.Series)
+                    foreach (Series s in Chart.Series)
                     {
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = true;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "";
+                        Chart.Series[Chart.Series.IndexOf(s)].BorderWidth = 2;
+                        Chart.Series[Chart.Series.IndexOf(s)].IsVisibleInLegend = true;
+                        Chart.Series[Chart.Series.IndexOf(s)].Tag = "";
                     }
                 }
                 else
                 {
-                    foreach (Series s in SRPMChart.Series.Where(s => !Equals(s, result.Series)))
+                    foreach (Series s in Chart.Series.Where(s => !Equals(s, result.Series)))
                     {
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 0;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = false;
-                        SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "0";
+                        Chart.Series[Chart.Series.IndexOf(s)].BorderWidth = 0;
+                        Chart.Series[Chart.Series.IndexOf(s)].IsVisibleInLegend = false;
+                        Chart.Series[Chart.Series.IndexOf(s)].Tag = "0";
                     }
                     result.Series.BorderWidth = 3;
                     result.Series.Tag = "1";
@@ -84,11 +84,11 @@ namespace SpinnerRPMPlugin
             }
             else
             {
-                foreach (Series s in SRPMChart.Series)
+                foreach (Series s in Chart.Series)
                 {
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].BorderWidth = 2;
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].IsVisibleInLegend = true;
-                    SRPMChart.Series[SRPMChart.Series.IndexOf(s)].Tag = "";
+                    Chart.Series[Chart.Series.IndexOf(s)].BorderWidth = 2;
+                    Chart.Series[Chart.Series.IndexOf(s)].IsVisibleInLegend = true;
+                    Chart.Series[Chart.Series.IndexOf(s)].Tag = "";
                 }
             }
         }
@@ -100,9 +100,9 @@ namespace SpinnerRPMPlugin
 
         private void HandleReplayChanged(Replay r, Beatmap b)
         {
-            SRPMChart.Series.Clear();
-            SRPMChart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
-            SRPMChart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
+            Chart.Series.Clear();
+            Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
+            Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             int currentSpinnerNumber = 1;
             foreach (var spinner in b.HitObjects.Where(o => o.GetType() == typeof(SpinnerInfo)))
             {
@@ -149,7 +149,7 @@ namespace SpinnerRPMPlugin
                         valueAmnt = 0;
                     }
                 }
-                SRPMChart.Series.Add(spinnerSeries);
+                Chart.Series.Add(spinnerSeries);
                 currentSpinnerNumber += 1;
             }
         }

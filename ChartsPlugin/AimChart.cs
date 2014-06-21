@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -67,10 +68,10 @@ namespace ChartsPlugin
 
         private void HandleReplayChanged(Replay r, Beatmap b)
         {
+            Chart.SuspendLayout();
             Chart.Series[0].Points.Clear();
             Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
-            Chart.SuspendLayout();
             for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++ )
             {
                 Chart.Series[0].Points.AddXY(i + 1, Math.Sqrt(Math.Pow(oRA.Data.ReplayObjects[i].Frame.X - oRA.Data.ReplayObjects[i].Object.Location.X, 2) + 

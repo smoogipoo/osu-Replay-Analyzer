@@ -100,8 +100,8 @@ namespace ChartsPlugin
 
         private void HandleReplayChanged(Replay r, Beatmap b)
         {
-            Chart.Series.Clear();
             Chart.SuspendLayout();
+            Chart.Series.Clear();
             Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             int currentSpinnerNumber = 1;

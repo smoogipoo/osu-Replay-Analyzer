@@ -66,8 +66,8 @@ namespace ChartsPlugin
 
         private void HandleReplayChanged(Replay r, Beatmap b)
         {
-            Chart.Series[3].Points.Clear();
             Chart.SuspendLayout();
+            Chart.Series[3].Points.Clear();
             Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             Chart.ChartAreas[0].AxisY.Minimum = -oRA.Data.TimingWindows[0];

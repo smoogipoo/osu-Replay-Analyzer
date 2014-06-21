@@ -53,7 +53,7 @@
             "Timing Windows",
             "Spinner RPM",
             "Aim Accuracy"});
-            this.DisplaySelectCB.Location = new System.Drawing.Point(383, 8);
+            this.DisplaySelectCB.Location = new System.Drawing.Point(383, 6);
             this.DisplaySelectCB.Name = "DisplaySelectCB";
             this.DisplaySelectCB.Size = new System.Drawing.Size(200, 25);
             this.DisplaySelectCB.TabIndex = 1;

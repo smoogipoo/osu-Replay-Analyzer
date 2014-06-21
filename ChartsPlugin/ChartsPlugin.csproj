@@ -66,6 +66,12 @@
     <Compile Include="SRPMChart.Designer.cs">
       <DependentUpon>SRPMChart.cs</DependentUpon>
     </Compile>
+    <Compile Include="AimChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AimChart.Designer.cs">
+      <DependentUpon>AimChart.cs</DependentUpon>
+    </Compile>
     <Compile Include="TWChart.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -86,6 +92,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SRPMChart.resx">
       <DependentUpon>SRPMChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AimChart.resx">
+      <DependentUpon>AimChart.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TWChart.resx">
       <DependentUpon>TWChart.cs</DependentUpon>

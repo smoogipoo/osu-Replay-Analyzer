@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ChartsPlugin
@@ -33,12 +25,8 @@ namespace ChartsPlugin
             //Todo: Set names as they are in the combobox
             ContentPanel.Controls.Add(new TWChart { Dock = DockStyle.Fill, Name = "Timing Windows", Visible = false });
             ContentPanel.Controls.Add(new SRPMChart { Dock = DockStyle.Fill, Name = "Spinner RPM", Visible = false});
+            ContentPanel.Controls.Add(new AimChart { Dock = DockStyle.Fill, Name = "Aim Accuracy", Visible = false });
             DisplaySelectCB.SelectedIndex = 0;
-        }
-
-        private void ContentPanel_Paint(object sender, PaintEventArgs e)
-        {
-
         }
     }
 }

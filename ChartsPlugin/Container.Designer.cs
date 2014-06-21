@@ -41,7 +41,6 @@
             this.ContentPanel.Name = "ContentPanel";
             this.ContentPanel.Size = new System.Drawing.Size(966, 556);
             this.ContentPanel.TabIndex = 0;
-            this.ContentPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.ContentPanel_Paint);
             // 
             // DisplaySelectCB
             // 

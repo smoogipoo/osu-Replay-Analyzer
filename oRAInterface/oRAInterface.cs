@@ -48,8 +48,6 @@ namespace oRAInterface
             CurrentFrame = FrameIndex;
         }
 
-        public Replay CurrentReplay { get; set; }
-        public Beatmap CurrentBeatmap { get; set; }
         public Dictionary<string, string> Language { get; set; }
         public ConcurrentDictionary<string, string> BeatmapHashes { get; set; }
         public List<TreeNode> Replays { get; set; }

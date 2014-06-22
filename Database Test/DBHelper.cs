@@ -29,8 +29,9 @@ namespace Database_Test
 
         public static DataTable CreateBeatmapDataTable()
         {
-            DataTable beatmapData = new DataTable("BeatmapData");
-            beatmapData.Columns.Add(new DataColumn { ColumnName = "BeatmapData_Hash", DataType = typeof(string), Unique = true});
+            DataTable beatmapData = new DataTable("Beatmap_Data");
+            beatmapData.Columns.Add(new DataColumn { ColumnName = "Beatmap_Data_Hash", DataType = typeof(string), Unique = true});
+            beatmapData.Columns.Add(new DataColumn("GameMode", typeof(byte)));
             beatmapData.Columns.Add(new DataColumn("Creator", typeof(string)));
             beatmapData.Columns.Add(new DataColumn("AudioFilename", typeof(string)));
             beatmapData.Columns.Add(new DataColumn("Filename", typeof(string)));
@@ -46,17 +47,26 @@ namespace Database_Test
 
         public static DataTable CreateBeatmapTagTable()
         {
-            DataTable beatmapTag = new DataTable("BeatmapTag");
-            beatmapTag.Columns.Add(new DataColumn("BeatmapData_Hash", typeof(string)));
-            beatmapTag.Columns.Add(new DataColumn("BeatmapTag_Name", typeof(string)));
+            DataTable beatmapTag = new DataTable("Beatmap_Tag");
+            beatmapTag.Columns.Add(new DataColumn("Beatmap_Data_Hash", typeof(string)));
+            beatmapTag.Columns.Add(new DataColumn("Name", typeof(string)));
             return beatmapTag;
+        }
+
+        public static DataTable CreateClickDataTable()
+        {
+            DataTable clickData = new DataTable("Click_Data");
+            clickData.Columns.Add(new DataColumn("Beatmap_Data_Hash", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Replay_Data_Hash", typeof(string)));
+            clickData.Columns.Add(new DataColumn("Replay_Data_Filename", typeof(string)));
+            return clickData;
         }
 
         public static DataTable CreateReplayDataTable()
         {
-            DataTable replayData = new DataTable("ReplayData");
-            replayData.Columns.Add(new DataColumn { ColumnName = "ReplayData_Hash", DataType = typeof(string), Unique = true });
-            replayData.Columns.Add(new DataColumn("GameMode", typeof(int)));
+            DataTable replayData = new DataTable("Replay_Data");
+            replayData.Columns.Add(new DataColumn { ColumnName = "Replay_Data_Hash", DataType = typeof(string), Unique = true });
+            replayData.Columns.Add(new DataColumn("GameMode", typeof(byte)));
             replayData.Columns.Add(new DataColumn("Filename", typeof(string)));
             replayData.Columns.Add(new DataColumn("MapHash", typeof(string)));
             replayData.Columns.Add(new DataColumn("PlayerName", typeof(string)));
@@ -70,20 +80,30 @@ namespace Database_Test
             replayData.Columns.Add(new DataColumn("MaxCombo", typeof(int)));
             replayData.Columns.Add(new DataColumn("IsPerfect", typeof(int)));
             replayData.Columns.Add(new DataColumn("PlayTime", typeof(long)));
+            replayData.Columns.Add(new DataColumn("Mods", typeof(int)));
             replayData.Columns.Add(new DataColumn("ReplayLength", typeof(int)));
             return replayData;
         }
 
         public static DataTable CreateReplayFrameTable()
         {
-            DataTable clickData = new DataTable("ReplayFrame");
-            clickData.Columns.Add(new DataColumn { ColumnName = "ReplayData_Hash", DataType = typeof(string)});
+            DataTable clickData = new DataTable("Replay_Frame");
+            clickData.Columns.Add(new DataColumn("Replay_Data_Hash", typeof(string)));
             clickData.Columns.Add(new DataColumn("Time", typeof(int)));
             clickData.Columns.Add(new DataColumn("TimeDiff", typeof(int)));
             clickData.Columns.Add(new DataColumn("X", typeof(double)));
             clickData.Columns.Add(new DataColumn("Y", typeof(double)));
             clickData.Columns.Add(new DataColumn("KeyData", typeof(int)));
             return clickData;
+        }
+
+        public static DataTable CreateReplayLifeDataTable()
+        {
+            DataTable lifeData = new DataTable("Replay_LifeData");
+            lifeData.Columns.Add(new DataColumn("Replay_Data_Hash", typeof(string)));
+            lifeData.Columns.Add(new DataColumn("Time", typeof(int)));
+            lifeData.Columns.Add(new DataColumn("Perc", typeof(double)));
+            return lifeData;
         }
 
         /// <summary>

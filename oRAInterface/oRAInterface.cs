@@ -48,20 +48,13 @@ namespace oRAInterface
             CurrentFrame = FrameIndex;
         }
 
-        public Replay CurrentReplay { get; set; }
-        public Beatmap CurrentBeatmap { get; set; }
         public Dictionary<string, string> Language { get; set; }
         public ConcurrentDictionary<string, string> BeatmapHashes { get; set; }
         public List<TreeNode> Replays { get; set; }
-        public List<int> TimingDifference { get; set; }
+        public List<ReplayObject> ReplayObjects { get; set; }
         public string ReplayDirectory { get; set; }
         public string BeatmapDirectory { get; set; }
         public double[] TimingWindows { get; set; }
-        public double PositiveErrorAverage { get; set; }
-        public double NegativeErrorAverage { get; set; }
-        public double UnstableRate { get; set; }
-        public int TimingMax { get; set; }
-        public int TimingMin { get; set; }
         public int CurrentFrame { get; set; }
     }
 
@@ -69,6 +62,12 @@ namespace oRAInterface
     {
         public DataGridView FrameTimeline { get; set; }
         public ToolTip ProgressToolTip { get; set; }
+    }
+
+    public struct ReplayObject
+    {
+        public ReplayInfo Frame { get; set; }
+        public BaseCircle Object { get; set; }
     }
 }
 namespace o_RA

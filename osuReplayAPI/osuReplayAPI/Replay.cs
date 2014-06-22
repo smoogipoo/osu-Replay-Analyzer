@@ -12,6 +12,7 @@ namespace ReplayAPI
 {
     public class Replay : IDisposable
     {
+
         public GameModes GameMode;
         public string Filename;
         public int FileFormat;
@@ -34,6 +35,7 @@ namespace ReplayAPI
         public List<ReplayInfo> ReplayFrames = new List<ReplayInfo>();
         public List<ReplayInfo> ClickFrames = new List<ReplayInfo>();
 
+        private LZMACoder coder = new LZMACoder();
         private FileStream replayFileStream;
         private BinaryReader replayReader;
 
@@ -61,13 +63,16 @@ namespace ReplayAPI
             if (replayFileStream != null)
                 replayFileStream.Dispose();
             if (replayReader != null)
-                replayReader.Dispose();
+                replayReader.Close();
             ReplayFrames.Clear();
             LifeData.Clear();
             ClickFrames.Clear();
         }
 
-
+        /// <summary>
+        /// Creates a new Replay object
+        /// </summary>
+        /// <param name="replayFile">The replay file to open</param>
         public void Open(string replayFile)
         {
             Filename = replayFile;
@@ -83,14 +88,15 @@ namespace ReplayAPI
             }
         }
 
+        /// <summary>
+        /// Loads Metadata if not already loaded and loads Lifedata, Timestamp, Playtime and Clicks.
+        /// </summary>
         public void LoadReplayData()
         {
             if (replayReader != null)
             {
                 if (replayReader.BaseStream.Position == 0)
-                {
                     LoadMetadata();
-                }
                 bool lifeExists = int.Parse(GetReversedString(replayReader, 1), NumberStyles.HexNumber) == 0x0B;
                 if (lifeExists)
                 {
@@ -109,58 +115,38 @@ namespace ReplayAPI
 
                 ReplayLength = int.Parse(GetReversedString(replayReader, 4), NumberStyles.HexNumber);
 
-                using (MemoryStream ms = new MemoryStream())
+                MemoryStream outStream = coder.Decompress(replayFileStream);
+
+                string outString;
+                using (StreamReader reader = new StreamReader(outStream))
                 {
-                    byte[] bytesToWrite = replayReader.ReadBytes(ReplayLength + 1);
-                    ms.Write(bytesToWrite, 0, bytesToWrite.Length);
-                    ms.Position = 0;
-
-                    byte[] properties = new byte[5];
-                    if (ms.Read(properties, 0, 5) != 5) { }
-                    SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder();
-                    decoder.SetDecoderProperties(properties);
-                    long outSize = 0;
-                    for (int i = 0; i < 8; i++)
-                    {
-                        int v = ms.ReadByte();
-                        if (v < 0)
-                            break;
-                        outSize |= ((long)(byte)v) << (8 * i);
-                    }
-                    long compressedSize = ms.Length - ms.Position;
-                    MemoryStream outStream = new MemoryStream();
-                    decoder.Code(ms, outStream, compressedSize, outSize, null);
-                    outStream.Flush();
-                    outStream.Position = 0;
-
-                    string outString;
-                    using (StreamReader reader = new StreamReader(outStream))
-                    {
-                        outString = reader.ReadToEnd();
-                    }
-                    int lastTime = 0;
-                    KeyData lastKey = KeyData.None;
-                    foreach (string splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
-                    {
-                        string[] reSplit = splitStr.Split('|');
-                        ReplayInfo tempInfo = new ReplayInfo();
-                        tempInfo.TimeDiff = Convert.ToInt64(reSplit[0]);
-                        lastTime += (int)tempInfo.TimeDiff;
-                        tempInfo.Time = lastTime;
-                        tempInfo.X = Convert.ToDouble(reSplit[1]);
-                        tempInfo.Y = Convert.ToDouble(reSplit[2]);
-                        tempInfo.Keys = (KeyData)Convert.ToInt32(reSplit[3]);
-                        if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
-                        {
-                            ClickFrames.Add(tempInfo);
-                        }
-                        ReplayFrames.Add(tempInfo);
-                        lastKey = tempInfo.Keys;
-                    }
+                    outString = reader.ReadToEnd();
                 }
-            }      
+                int lastTime = 0;
+                KeyData lastKey = KeyData.None;
+                foreach (string splitStr in outString.Split(',').Where(splitStr => splitStr != ""))
+                {
+                    string[] reSplit = splitStr.Split('|');
+                    ReplayInfo tempInfo = new ReplayInfo();
+                    tempInfo.TimeDiff = Convert.ToInt64(reSplit[0]);
+                    lastTime += (int)tempInfo.TimeDiff;
+                    tempInfo.Time = lastTime;
+                    tempInfo.X = Convert.ToDouble(reSplit[1]);
+                    tempInfo.Y = Convert.ToDouble(reSplit[2]);
+                    tempInfo.Keys = (KeyData)Convert.ToInt32(reSplit[3]);
+                    if (tempInfo.Keys != KeyData.None && lastKey != tempInfo.Keys)
+                    {
+                        ClickFrames.Add(tempInfo);
+                    }
+                    ReplayFrames.Add(tempInfo);
+                    lastKey = tempInfo.Keys;
+                }
+            } 
         }
 
+        /// <summary>
+        /// Loads Metadata (score screen values)
+        /// </summary>
         public void LoadMetadata()
         {
             if (replayReader != null)
@@ -195,12 +181,95 @@ namespace ReplayAPI
             }
         }
 
-        static string GetReversedString(BinaryReader br, int length)
+        /// <summary>
+        /// Saves the replay
+        /// </summary>
+        /// <param name="file">The file to save as</param>
+        public void Save(string file)
+        {
+            using (BinaryWriter bW = new BinaryWriter(new FileStream(file, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite)))
+            {
+                bW.Write((char)GameMode);
+                bW.Write(FileFormat);
+                bW.Write((char)0x0B);
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(MapHash));
+                bW.Write((char)0x0B);
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(PlayerName));
+                bW.Write((char)0x0B);
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(ReplayHash));
+                bW.Write((Int16)Count_300);
+                bW.Write((Int16)Count_100);
+                bW.Write((Int16)Count_50);
+                bW.Write((Int16)Count_Geki);
+                bW.Write((Int16)Count_Katu);
+                bW.Write((Int16)Count_Miss);
+                bW.Write(TotalScore);
+                bW.Write((Int16)MaxCombo);
+                bW.Write((char)IsPerfect);
+                bW.Write((int)Mods);
+                bW.Write(LifeData.Count != 0 ? (char)0x0B : (char)0);
+
+                string concattedLife = LifeData.Aggregate("", (current, lI) => current + (lI.Time + "|" + lI.Percentage + ","));
+                WriteVLQ(bW, Encoding.ASCII.GetBytes(concattedLife));
+                bW.Write(PlayTime.Ticks);
+                bW.Write(ReplayLength);
+
+                StringBuilder sBuilder = new StringBuilder();
+                foreach (ReplayInfo rI in ReplayFrames)
+                {
+                    sBuilder.Append(rI.TimeDiff + "|" + rI.X + "|" + rI.Y + "|" + (int)rI.Keys + ",");
+                }
+                byte[] clickDataBytes = Encoding.ASCII.GetBytes(sBuilder.ToString());
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    ms.Write(clickDataBytes, 0, clickDataBytes.Length);
+
+                    MemoryStream outStream = coder.Compress(ms);
+
+                    byte[] bytesToWrite = new byte[outStream.Length];
+                    outStream.Read(bytesToWrite, 0, bytesToWrite.Length);
+
+                    bW.Write(bytesToWrite);
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes a variable length quantity to the stream
+        /// </summary>
+        /// <param name="writer">The stream to write to</param>
+        /// <param name="bytes">The data to write</param>
+        private static void WriteVLQ(BinaryWriter writer, byte[] bytes)
+        {
+            int n = bytes.Length;
+            bool first = true;
+            while (first || n > 0)
+            {
+                first = false;
+                byte lower7bits = (byte)(n & 0x7f);
+                n >>= 7;
+                if (n > 0)
+                    lower7bits |= 128;
+                writer.Write(lower7bits);
+            }
+
+            writer.Write(bytes);
+        }
+
+        private static string GetReversedString(BinaryReader br, int length)
         {
             byte[] readBytes = br.ReadBytes(length).Reverse().ToArray();
             return readBytes.Aggregate("", (current, b) => current + (b < 16 ? "0" : "") + b.ToString("X"));
         }
-        static int GetChunkLength(BinaryReader br)
+
+        /// <summary>
+        /// Gets the chunk length of a VLQ
+        /// </summary>
+        /// <param name="br">The stream to read from</param>
+        /// <returns>The length in bytes of the VLQ</returns>
+        private static int GetChunkLength(BinaryReader br)
         {
             int shift = 0;
             int chunkLength = 0;
@@ -215,6 +284,9 @@ namespace ReplayAPI
             return chunkLength;
         }
 
+        /// <summary>
+        /// Replay play modes
+        /// </summary>
         public enum GameModes
         {
             osu = 0,

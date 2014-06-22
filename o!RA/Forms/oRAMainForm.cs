@@ -112,7 +112,7 @@ namespace o_RA.Forms
             oRAData.Replays = new List<TreeNode>();
             oRAData.BeatmapHashes = new ConcurrentDictionary<string, string>();
             oRAData.TimingWindows = new double[3];
-            oRAData.TimingDifference = new List<int>();
+            oRAData.ReplayObjects = new List<ReplayObject>();
             oRAControls.ProgressToolTip = new ToolTip();
             oRAControls.FrameTimeline = ReplayTimeline;
             oRAData.FrameChanged += HandleFrameChanged;
@@ -120,29 +120,32 @@ namespace o_RA.Forms
             //Load Plugins
             if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
             {
-                foreach (string pluginFile in Directory.GetDirectories(Environment.CurrentDirectory + @"\Plugins\").SelectMany(dir => Directory.GetFiles(dir, "*.dll").Where(file => !Settings.ContainsSetting("DisabledPlugins") || !Settings.GetSetting("DisabledPlugins").Split(new[] { '|' }).Contains(file))))
+                foreach (string pluginFile in Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "Plugins"), "*.dll", SearchOption.AllDirectories))
                 {
-                    Plugin p = Plugins.LoadPlugin(pluginFile);
-                    if (p == null)
-                        continue;
-                    p.Instance.p_Data = oRAData;
-                    p.Instance.p_Controls = oRAControls;
-                    if (p.Instance.p_PluginTabItem != null)
+                    if (!Settings.ContainsSetting("DisabledPlugins") || !Settings.GetSetting("DisabledPlugins").Split(new[] { '|' }).Contains(pluginFile))
                     {
-                        p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
-                        oRAPage page = new oRAPage
+                        Plugin p = Plugins.LoadPlugin(pluginFile);
+                        if (p == null)
+                            continue;
+                        p.Instance.p_Data = oRAData;
+                        p.Instance.p_Controls = oRAControls;
+                        if (p.Instance.p_PluginTabItem != null)
                         {
-                            Description = p.Instance.p_Description,
-                            Name = p.Instance.p_Name,
-                            Contents = p.Instance.p_PluginTabItem,
-                            Icon_Hot = p.Instance.p_PluginTabIcon_H,
-                            Icon_Normal = p.Instance.p_PluginTabIcon_N,
-                        };
-                        MainContainer.TabPages.Add(page);
-                    }
-                    if (p.Instance.p_PluginMenuItem != null)
-                    {
-                        PluginsMenuItem.DropDownItems.Add(p.Instance.p_PluginMenuItem);
+                            p.Instance.p_PluginTabItem.Dock = DockStyle.Fill;
+                            oRAPage page = new oRAPage
+                            {
+                                Description = p.Instance.p_Description,
+                                Name = p.Instance.p_Name,
+                                Contents = p.Instance.p_PluginTabItem,
+                                Icon_Hot = p.Instance.p_PluginTabIcon_H,
+                                Icon_Normal = p.Instance.p_PluginTabIcon_N,
+                            };
+                            MainContainer.TabPages.Add(page);
+                        }
+                        if (p.Instance.p_PluginMenuItem != null)
+                        {
+                            PluginsMenuItem.DropDownItems.Add(p.Instance.p_PluginMenuItem);
+                        }
                     }
                 }
             }
@@ -232,7 +235,15 @@ namespace o_RA.Forms
             foreach (string file in beatmapFiles)
             {
                 oRAData.BeatmapHashes.TryAdd(file, MD5FromFile(file));
-                Progress.BeginInvoke((Action)(() => Progress.Value += 1));
+                try
+                {
+                    Progress.BeginInvoke((Action)(() => Progress.Value += 1));
+                }
+                catch
+                {
+                    //We've disposed
+                    return;
+                }
             }
             Progress.BeginInvoke((Action)(() => Progress.Value = 0));
 
@@ -307,7 +318,9 @@ namespace o_RA.Forms
                     Beatmap = new Beatmap(file.Key);
 
                     /* Start Timing Windows tab */
+
                     //Determine the timing windows for 300,100,50
+                    //First modify the beatmap attributes according by player mods
                     if ((Replay.Mods & Modifications.HardRock) == Modifications.HardRock)
                     {
                         Beatmap.OverallDifficulty = Math.Min(Beatmap.OverallDifficulty *= 1.4, 10);
@@ -339,58 +352,24 @@ namespace o_RA.Forms
                         oRAData.TimingWindows[i] = Beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (Beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (Beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
                     }
 
+                    oRAData.ReplayObjects.Clear();
+
                     if (Replay.ReplayFrames.Count == 0)
                         return;
 
-                    int inc = 0;
-                    int posErrCount = 0;
-                    int negErrCount = 0;
-                    oRAData.TimingMax = 0;
-                    oRAData.TimingMin = 0;
-                    oRAData.PositiveErrorAverage = 0;
-                    oRAData.NegativeErrorAverage = 0;
-                    oRAData.UnstableRate = 0;
-                    oRAData.TimingDifference.Clear();
-
                     //Match up beatmap objects to replay clicks
                     List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
-                    foreach (BaseCircle hitObject in Beatmap.HitObjects)
+                    for (int i = 0; i < Beatmap.HitObjects.Count; i++)
                     {
-                        ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
-                                        Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
-                                        Replay.ClickFrames.Find(click => (Math.Abs(click.Time - hitObject.StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
+                        //Todo: Consider if hitobject containspoint
+                        ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - Beatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
+                                        Replay.ClickFrames.Find(click => (Math.Abs(click.Time - Beatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
+                                        Replay.ClickFrames.Find(click => (Math.Abs(click.Time - Beatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
                         if (c != null)
                         {
                             iteratedObjects.Add(c);
-                            oRAData.TimingDifference.Add(c.Time - hitObject.StartTime);
-                            if (c.Time - hitObject.StartTime > 0)
-                            {
-                                oRAData.PositiveErrorAverage += c.Time - hitObject.StartTime;
-                                posErrCount += 1;
-                            }
-                            else
-                            {
-                                oRAData.NegativeErrorAverage += c.Time - hitObject.StartTime;
-                                negErrCount += 1;
-                            }
-                            oRAData.UnstableRate += c.Time - hitObject.StartTime;
-                            inc += 1;
+                            oRAData.ReplayObjects.Add(new ReplayObject { Frame = c, Object = Beatmap.HitObjects[i] });
                         }
-                    }
-                    oRAData.PositiveErrorAverage = posErrCount != 0 ? oRAData.PositiveErrorAverage / posErrCount : 0;
-                    oRAData.NegativeErrorAverage = negErrCount != 0 ? oRAData.NegativeErrorAverage / negErrCount : 0;
-                    if (oRAData.TimingDifference.Count > 0)
-                    {
-                        oRAData.TimingMax = oRAData.TimingDifference.Max();
-                        oRAData.TimingMin = oRAData.TimingDifference.Min();
-                    }
-
-                    if (oRAData.TimingDifference.Count > 0 && inc > 0)
-                    {
-                        //Calculate unstable rate
-                        oRAData.UnstableRate /= inc;
-                        double variance = oRAData.TimingDifference.Aggregate((v, newValue) => v + (int)Math.Pow(newValue, 2));
-                        oRAData.UnstableRate = Math.Round(Math.Sqrt(variance / oRAData.TimingDifference.Count) * 10, 2);
                     }
 
                     ReplayTimeline.DataSource = iteratedObjects;

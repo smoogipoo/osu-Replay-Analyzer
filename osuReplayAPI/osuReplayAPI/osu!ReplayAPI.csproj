@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ReplayAPI</RootNamespace>
     <AssemblyName>osu!ReplayAPI</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Enums.cs" />
     <Compile Include="LifeInfo.cs" />
+    <Compile Include="LZMACoder.cs" />
     <Compile Include="LZMA\CommandLineParser.cs" />
     <Compile Include="LZMA\CRC.cs" />
     <Compile Include="LZMA\ICoder.cs" />

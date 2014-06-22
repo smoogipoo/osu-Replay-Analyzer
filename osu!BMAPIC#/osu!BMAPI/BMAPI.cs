@@ -17,6 +17,10 @@ namespace BMAPI
         internal readonly List<string> WriteBuffer = new List<string>();
         internal readonly Dictionary<string, int> SectionLength = new Dictionary<string, int>();
 
+        /// <summary>
+        /// Creates a new Beatmap object
+        /// </summary>
+        /// <param name="beatmapFile">The beatmap file to open</param>
         public Beatmap(string beatmapFile = "")
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US", false);
@@ -135,11 +139,11 @@ namespace BMAPI
                                     break;
                                 }
                                 if ((pi.PropertyType == typeof(double?)) || (pi.PropertyType == typeof(double)))
-                                    pi.SetValue(Info, Convert.ToDouble(cValue));
+                                    pi.SetValue(Info, Convert.ToDouble(cValue), null);
                                 else if ((pi.PropertyType == typeof(int?)) || (pi.PropertyType == typeof(int)))
-                                    pi.SetValue(Info, Convert.ToInt32(cValue));
+                                    pi.SetValue(Info, Convert.ToInt32(cValue), null);
                                 else if (pi.PropertyType == typeof(string))
-                                    pi.SetValue(Info, cValue);
+                                    pi.SetValue(Info, cValue, null);
                                 break;
                             }
                         }
@@ -147,13 +151,12 @@ namespace BMAPI
                     }
 
                     //The following are version-dependent, the version is stored as a numeric value inside Info.Format
-
                     //Do work for [Events] section
                     if (currentSection == "[Events]")
                     {
                         switch (Info.Format)
                         {
-                            case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12:
+                            case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
                                 string[] reSplit = line.Split(',');
                                 if (reSplit[0] == "0")
                                 {
@@ -271,7 +274,7 @@ namespace BMAPI
                                         break;
                                 }
                                 break;
-                            case 6: case 7: case 8: case 9: case 10: case 11: case 12:
+                            case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
                                 tempTimingPoint.Time = Convert.ToDouble(reSplit[0]);
                                 tempTimingPoint.BpmDelay = Convert.ToDouble(reSplit[1]);
                                 tempTimingPoint.TimeSignature = Convert.ToInt32(reSplit[2]);
@@ -302,7 +305,7 @@ namespace BMAPI
                     {
                         switch (Info.Format)
                         {
-                            case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12:
+                            case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
                                 if (line.Substring(0, line.IndexOf(':', 1)).Trim() == "SliderBorder")
                                 {
                                     string value = line.Substring(line.IndexOf(':', 1) + 1).Trim();
@@ -408,7 +411,8 @@ namespace BMAPI
                                     Info.HitObjects.Add(tempSpinner);
                                 }
                                 break;
-                            case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: //Note: Until I found out what the last few bytes at the end of some of these versions represent, I will ignore them
+                            //Note: Until I figure out how to represent the last few bytes, I will ignore them
+                            case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
                                 int circleCount = 5;
                                 if (reSplit[reSplit.Length - 1].Contains(':'))
                                     circleCount = 6;
@@ -498,6 +502,10 @@ namespace BMAPI
             }
         }
 
+        /// <summary>
+        /// Saves the beatmap
+        /// </summary>
+        /// <param name="filename">The file to save the beatmap as</param>
         public void Save(string filename)
         {
             CultureInfo lastCulture = Thread.CurrentThread.CurrentCulture;
@@ -540,7 +548,7 @@ namespace BMAPI
                             }
                             break;
                         case "Events":
-                            if ((Info.Format >= 3) && (Info.Format <= 12))
+                            if ((Info.Format >= 3) && (Info.Format <= 13))
                             {
                                 foreach (BaseEvent o in (IEnumerable<BaseEvent>)f1.GetValue(this))
                                 {
@@ -578,7 +586,7 @@ namespace BMAPI
                                     foreach (TimingPointInfo o in (IEnumerable<TimingPointInfo>)f1.GetValue(this))
                                         Save("TimingPoints", o.Time + "," + o.BpmDelay + "," + o.TimeSignature + "," + o.SampleSet + "," + o.CustomSampleSet);
                                     break;
-                                case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12:
+                                case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
                                     foreach (TimingPointInfo o in (IEnumerable<TimingPointInfo>)f1.GetValue(this))
                                     {
                                         int options = 0;
@@ -592,14 +600,14 @@ namespace BMAPI
                             }
                             break;
                         case "ComboColours":
-                            if ((Info.Format >= 5) && (Info.Format <= 12))
+                            if ((Info.Format >= 5) && (Info.Format <= 13))
                             {
                                 foreach (ComboInfo o in (IEnumerable<ComboInfo>)f1.GetValue(this))
                                     Save("Colours", "Combo" + o.ComboNumber + ':' + o.Colour.R + "," + o.Colour.G + "," + o.Colour.B);
                             }
                             break;
                         case "SliderBorder":
-                            if ((Info.Format >= 5) && (Info.Format <= 12))
+                            if ((Info.Format >= 5) && (Info.Format <= 13))
                             {
                                 ColourInfo o = (ColourInfo)f1.GetValue(this);
                                 Save("Colours", "SliderBorder: " + o.R + "," + o.G + "," + o.B);
@@ -631,7 +639,7 @@ namespace BMAPI
                                         }
                                     }
                                     break;
-                                case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12:
+                                case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13:
                                     foreach (BaseCircle obj in (IEnumerable<BaseCircle>)f1.GetValue(this))
                                     {
                                         int combo = 5;

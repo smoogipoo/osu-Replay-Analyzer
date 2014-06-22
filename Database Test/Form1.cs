@@ -4,6 +4,7 @@ using System.Data.SqlServerCe;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -105,19 +106,10 @@ namespace Database_Test
                     {
                         foreach (string file in beatmapFiles)
                         {
-                            Beatmap b;
-                            try
+                            string beatmapHash = MD5FromFile(file);
+                            if (!DBHelper.RecordExists(conn, "Beatmaps", "Hash", beatmapHash) && beatmapData.AsEnumerable().All(row => (beatmapHash != row.Field<string>("Hash"))))
                             {
-                                b = new Beatmap(file);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("Beatmap failed loading: " + ex.StackTrace);
-                                continue;
-                            }
-                            if (!DBHelper.RecordExists(conn, "Beatmaps", "Hash", b.BeatmapHash) && beatmapData.AsEnumerable().All(row => (b.BeatmapHash != row.Field<string>("Hash"))))
-                            {
-                                beatmapData.Rows.Add(b.BeatmapHash, b.Filename);
+                                beatmapData.Rows.Add(beatmapHash, file);
 
                                 if (beatmapData.Rows.Count >= 1000)
                                 {
@@ -132,6 +124,16 @@ namespace Database_Test
                     }
                 }
             });
+        }
+        private static string MD5FromFile(string fileName)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                using (FileStream stream = File.OpenRead(fileName))
+                {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
+                }
+            }
         }
     }
 }

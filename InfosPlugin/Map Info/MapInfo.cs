@@ -9,11 +9,11 @@ using BMAPI;
 using o_RA;
 using ReplayAPI;
 
-namespace MapInfoPlugin
+namespace InfosPlugin
 {
-    public partial class MainForm : UserControl
+    public partial class MapInfo : UserControl
     {
-        public MainForm()
+        public MapInfo()
         {
             InitializeComponent();
         }

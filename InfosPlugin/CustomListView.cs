@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using o_RA;
 
-namespace ReplayInfoPlugin
+namespace InfosPlugin
 {
     class CustomListView : ListView
     {

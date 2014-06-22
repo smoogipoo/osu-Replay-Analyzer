@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MapInfoPlugin
+namespace InfosPlugin
 {
     /// <summary>
     /// osu!tp's difficulty calculator ported to oRA.

@@ -1,7 +1,7 @@
 ﻿using System;
 using BMAPI;
 
-namespace MapInfoPlugin
+namespace InfosPlugin
 {
     public class tpHitObject
     {

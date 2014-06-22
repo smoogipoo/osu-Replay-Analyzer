@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using BMAPI;
 using ReplayAPI;
 
-namespace ReplayInfoPlugin
+namespace InfosPlugin
 {
-    public partial class MainForm : UserControl
+    public partial class ReplayInfo : UserControl
     {
-        public MainForm()
+        public ReplayInfo()
         {
             InitializeComponent();
         }

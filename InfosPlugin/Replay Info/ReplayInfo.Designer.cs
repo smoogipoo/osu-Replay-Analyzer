@@ -1,6 +1,6 @@
-﻿namespace MapInfoPlugin
+﻿namespace InfosPlugin
 {
-    partial class MainForm
+    partial class ReplayInfo
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,7 +30,7 @@
         {
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.customListView1 = new MapInfoPlugin.CustomListView();
+            this.customListView1 = new CustomListView();
             this.PropertyHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.InformationHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
@@ -58,7 +58,7 @@
             this.customListView1.Location = new System.Drawing.Point(0, 0);
             this.customListView1.Name = "customListView1";
             this.customListView1.OwnerDraw = true;
-            this.customListView1.Size = new System.Drawing.Size(886, 431);
+            this.customListView1.Size = new System.Drawing.Size(886, 549);
             this.customListView1.TabIndex = 0;
             this.customListView1.UseCompatibleStateImageBehavior = false;
             this.customListView1.View = System.Windows.Forms.View.Details;
@@ -66,12 +66,12 @@
             // PropertyHeader
             // 
             this.PropertyHeader.Text = "Property";
-            this.PropertyHeader.Width = 225;
+            this.PropertyHeader.Width = 227;
             // 
             // InformationHeader
             // 
             this.InformationHeader.Text = "Information";
-            this.InformationHeader.Width = 657;
+            this.InformationHeader.Width = 659;
             // 
             // MainForm
             // 
@@ -80,7 +80,7 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.Controls.Add(this.customListView1);
             this.Name = "MainForm";
-            this.Size = new System.Drawing.Size(886, 431);
+            this.Size = new System.Drawing.Size(886, 549);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
 

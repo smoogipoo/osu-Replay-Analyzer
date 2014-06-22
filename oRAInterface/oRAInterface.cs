@@ -49,7 +49,6 @@ namespace oRAInterface
         }
 
         public Dictionary<string, string> Language { get; set; }
-        public ConcurrentDictionary<string, string> BeatmapHashes { get; set; }
         public List<TreeNode> Replays { get; set; }
         public List<ReplayObject> ReplayObjects { get; set; }
         public string ReplayDirectory { get; set; }

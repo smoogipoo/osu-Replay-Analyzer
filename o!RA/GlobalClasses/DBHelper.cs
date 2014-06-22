@@ -1,29 +1,38 @@
-﻿
-
-//Can't pass some values as parameters
+﻿//Can't pass some values as parameters
 //See http://stackoverflow.com/questions/6843065/error-with-sqlce-parameters
 
 using System.Data;
 using System.Data.SqlServerCe;
+using System.Diagnostics;
 using ErikEJ.SqlCe;
 
-namespace Database_Test
+namespace o_RA.GlobalClasses
 {
     internal static class DBHelper
     {
         public static readonly string dbPath = @"Data Source='" + System.IO.Path.Combine(System.Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;";
 
         /// <summary>
+        /// Inserts a DataTable object using SqlCeBulkCopy
+        /// </summary>
+        /// <param name="bC">The SqlBulkCopy connection.</param>
+        /// <param name="data">The data to insert</param>
+        public static void Insert(SqlCeBulkCopy bC, DataTable data)
+        {
+            bC.DestinationTableName = data.TableName;
+            bC.WriteToServer(data);
+        }
+
+        /// <summary>
         /// Inserts DataTable objects using SqlCeBulkCopy
         /// </summary>
-        /// <param name="bC"></param>
-        /// <param name="data"></param>
-        public static void BulkInsert(SqlCeBulkCopy bC, DataTable[] data)
+        /// <param name="bC">The SqlBulkCopy connection.</param>
+        /// <param name="data">The array of data to insert</param>
+        public static void MultiInsert(SqlCeBulkCopy bC, DataTable[] data)
         {
             foreach (DataTable t in data)
             {
-                bC.DestinationTableName = t.TableName;
-                bC.WriteToServer(t);
+                Insert(bC, t);
             }
         }
 
@@ -33,6 +42,30 @@ namespace Database_Test
             beatmapData.Columns.Add(new DataColumn { ColumnName = "Hash", DataType = typeof(string), Unique = true});
             beatmapData.Columns.Add(new DataColumn("Filename", typeof(string)));
             return beatmapData;
+        }
+
+        /// <summary>
+        /// Get first matching record
+        /// </summary>
+        /// <returns>First record that matches a condition</returns>
+        public static DataRow GetRecord(SqlCeConnection conn, string table, string searchColumn, string searchValue)
+        {
+            Stopwatch s = new Stopwatch();
+            s.Start();
+            using (SqlCeCommand cmd = new SqlCeCommand())
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT TOP 1 * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
+                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
+                using (SqlCeDataAdapter da = new SqlCeDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    s.Stop();
+                    Debug.WriteLine(s.ElapsedMilliseconds);
+                    return dt.Rows.Count > 0 ? dt.Rows[0] : null;
+                }
+            }
         }
 
         /// <summary>
@@ -49,22 +82,6 @@ namespace Database_Test
                 return cmd.ExecuteNonQuery();
             }
         }
-
-        /// <summary>
-        /// Get first matching record
-        /// </summary>
-        /// <returns>First record that matches a condition</returns>
-        public static SqlCeDataReader GetRecord(SqlCeConnection conn, string table, string searchColumn, string searchValue)
-        {
-            using (SqlCeCommand cmd = new SqlCeCommand())
-            {
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT TOP 1 * FROM [" + EscapeLiteral(table) + "] WHERE [" + EscapeLiteral(searchColumn) + "] = @Value;";
-                cmd.Parameters.Add(new SqlCeParameter { ParameterName = "@Value", Value = searchValue });
-                return cmd.ExecuteReader();
-            }
-        }
-
 
         /// <summary>
         /// Gets all records that match a condition

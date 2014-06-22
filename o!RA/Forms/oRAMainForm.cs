@@ -1,15 +1,19 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlServerCe;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using BMAPI;
+using ErikEJ.SqlCe;
+using Microsoft.Win32;
 using oRAInterface;
 using o_RA.Controls;
 using o_RA.GlobalClasses;
@@ -26,12 +30,13 @@ namespace o_RA.Forms
         private XmlReader Locale;
         public static Settings Settings = new Settings();
         internal static Updater Updater = new Updater();
+        internal static SqlCeConnection DBConnection = new SqlCeConnection(DBHelper.dbPath);
 
-        Replay Replay;
-        Beatmap Beatmap;
+        private Replay Replay;
+        private Beatmap Beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
-        static DataClass oRAData;
-        static ControlsClass oRAControls;
+        private static DataClass oRAData;
+        private static ControlsClass oRAControls;
 
         public static readonly PluginServices Plugins = new PluginServices();
 
@@ -41,8 +46,8 @@ namespace o_RA.Forms
             InitializePlugins();
             InitializeGameDirs();
             Task.Factory.StartNew(() => Updater.Start(Settings));
-            Task.Factory.StartNew(PopulateLists);
-
+            Task.Factory.StartNew(PopulateReplays);
+            Task.Factory.StartNew(UpdateBeatmaps);
 
             FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory)
             {
@@ -60,8 +65,6 @@ namespace o_RA.Forms
             replayWatcher.Deleted += ReplayDeleted;
             replayWatcher.Renamed += ReplayRenamed;
             beatmapWatcher.Created += BeatmapCreated;
-            beatmapWatcher.Deleted += BeatmapDeleted;
-            beatmapWatcher.Renamed += BeatmapRenamed;
 
             replayWatcher.EnableRaisingEvents = true;
             beatmapWatcher.EnableRaisingEvents = true;
@@ -110,7 +113,6 @@ namespace o_RA.Forms
             oRAControls = new ControlsClass();
             oRAData.Language = Language;
             oRAData.Replays = new List<TreeNode>();
-            oRAData.BeatmapHashes = new ConcurrentDictionary<string, string>();
             oRAData.TimingWindows = new double[3];
             oRAData.ReplayObjects = new List<ReplayObject>();
             oRAControls.ProgressToolTip = new ToolTip();
@@ -153,8 +155,10 @@ namespace o_RA.Forms
 
         private void InitializeGameDirs()
         {
+            string s = Settings.GetSetting("GameDir");
             if (!IsOsuPath(Settings.GetSetting("GameDir")))
             {
+                //Try get the osu! path from processes
                 Process[] procs = Process.GetProcessesByName("osu!");
                 if (procs.Length != 0)
                 {
@@ -171,27 +175,48 @@ namespace o_RA.Forms
                 }
                 else
                 {
-                    if (MessageBox.Show(Language["info_osuClosed"], Language["info_osuClosedMessageBoxTitle"]) == DialogResult.OK)
+                    //Try to get osu! path from registry
+                    try
                     {
-                        using (FolderBrowserDialog fd = new FolderBrowserDialog())
+                        RegistryKey key = Registry.ClassesRoot.OpenSubKey("osu!\\DefaultIcon");
+                        if (key != null)
                         {
-                            while (!IsOsuPath(fd.SelectedPath))
+                            object o = key.GetValue(null);
+                            if (o != null)
                             {
-                                if (fd.ShowDialog() == DialogResult.OK)
+                                var filter = new Regex(@"(?<="")[^\""]*(?="")");
+                                if (IsOsuPath(Path.GetDirectoryName(filter.Match(o.ToString()).ToString())))
+                                    Settings.AddSetting("GameDir", Path.GetDirectoryName(filter.Match(o.ToString()).ToString()));
+                                else
+                                    throw new Exception();
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        //Get the user to select osu! path
+                        if (MessageBox.Show(Language["info_osuClosed"], Language["info_osuClosedMessageBoxTitle"]) == DialogResult.OK)
+                        {
+                            using (FolderBrowserDialog fd = new FolderBrowserDialog())
+                            {
+                                while (!IsOsuPath(fd.SelectedPath))
                                 {
-                                    if (IsOsuPath(fd.SelectedPath))
+                                    if (fd.ShowDialog() == DialogResult.OK)
                                     {
-                                        Settings.AddSetting("GameDir", fd.SelectedPath);
-                                        Settings.Save();
+                                        if (IsOsuPath(fd.SelectedPath))
+                                        {
+                                            Settings.AddSetting("GameDir", fd.SelectedPath);
+                                            Settings.Save();
+                                        }
+                                        else
+                                        {
+                                            MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
+                                        }
                                     }
                                     else
                                     {
-                                        MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
+                                        Environment.Exit(0);
                                     }
-                                }
-                                else
-                                {
-                                    Environment.Exit(0);
                                 }
                             }
                         }
@@ -207,47 +232,21 @@ namespace o_RA.Forms
             return Directory.Exists(Path.Combine(gameDir, "Replays")) && Directory.Exists(Path.Combine(gameDir, "Songs"));
         }
 
-        private void PopulateLists()
+        /// <summary>
+        /// Populates the replays listbox
+        /// </summary>
+        private void PopulateReplays()
         {
-            oRAControls.ProgressToolTip.Tag = Language["info_PopReplays"];
-
             DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
             FileInfo[] files = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
-            Progress.BeginInvoke((Action)(() => Progress.Maximum = files.Length));
+            //Add replays
             foreach (FileInfo file in files)
             {
                 oRAData.Replays.Add(new TreeNode(file.Name));
-                Progress.BeginInvoke((Action)(() => Progress.Value += 1));
             }
+            ReplaysList.BeginInvoke((Action)(() => ReplaysList.Nodes.AddRange(oRAData.Replays.ToArray())));
 
-            Progress.BeginInvoke((Action)(() => ReplaysList.Nodes.AddRange(oRAData.Replays.ToArray())));
-
-            oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
-
-            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
-
-            Progress.BeginInvoke((Action)(() =>
-            {
-                Progress.Value = 0;
-                Progress.Maximum = beatmapFiles.Length;
-            }));
-            foreach (string file in beatmapFiles)
-            {
-                oRAData.BeatmapHashes.TryAdd(file, MD5FromFile(file));
-                try
-                {
-                    Progress.BeginInvoke((Action)(() => Progress.Value += 1));
-                }
-                catch
-                {
-                    //We've disposed
-                    return;
-                }
-            }
-            Progress.BeginInvoke((Action)(() => Progress.Value = 0));
-
-            oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];
 
             ReplaysList.BeginInvoke((Action)(() =>
             {
@@ -259,7 +258,48 @@ namespace o_RA.Forms
             }));
 
         }
+        /// <summary>
+        /// Updates a beatmap record if it exists, otherwise inserts it
+        /// </summary>
+        private void UpdateBeatmaps()
+        {
+            oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
 
+
+            DataTable beatmapData = DBHelper.CreateBeatmapDataTable();
+            string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
+
+            Progress.BeginInvoke((Action)(() => Progress.Maximum = beatmapFiles.Length));
+
+            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+            {
+                conn.Open();
+                using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn))
+                {
+                    foreach (string file in beatmapFiles)
+                    {
+                        string beatmapHash = MD5FromFile(file);
+                        if (!DBHelper.RecordExists(conn, "Beatmaps", "Hash", beatmapHash) && beatmapData.AsEnumerable().All(row => (beatmapHash != row.Field<string>("Hash"))))
+                        {
+                            beatmapData.Rows.Add(beatmapHash, file);
+                            Progress.BeginInvoke((Action)(() => Progress.Value += 1));
+
+                            //Free memory by pushing the rows
+                            if (beatmapData.Rows.Count >= 2000)
+                            {
+                                DBHelper.Insert(bC, beatmapData);
+                                beatmapData.Clear();
+                            }
+                        }
+                    }
+                    //Flush any remaining data
+                    DBHelper.Insert(bC, beatmapData);
+                    beatmapData.Clear();
+                }
+            }
+            Progress.BeginInvoke((Action)(() => Progress.Value = 0));
+            oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];
+        }
         private void ReplayCreated(object sender, FileSystemEventArgs e)
         {
             ReplaysList.BeginInvoke((Action)(() =>
@@ -283,18 +323,22 @@ namespace o_RA.Forms
 
         private static void BeatmapCreated(object sender, FileSystemEventArgs e)
         {
-            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
-        }
-        private static void BeatmapDeleted(object sender, FileSystemEventArgs e)
-        {
-            string s;
-            oRAData.BeatmapHashes.TryRemove(e.FullPath, out s);
-        }
-        private static void BeatmapRenamed(object sender, RenamedEventArgs e)
-        {
-            string s;
-            oRAData.BeatmapHashes.TryRemove(e.OldFullPath, out s);
-            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
+            SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
+            options |= SqlCeBulkCopyOptions.KeepNulls;
+            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+            {
+                conn.Open();
+                using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+                {
+                    string beatmapHash = MD5FromFile(e.FullPath);
+                    if (!DBHelper.RecordExists(conn, "Beatmaps", "Hash", beatmapHash))
+                    {
+                        DataTable dT = DBHelper.CreateBeatmapDataTable();
+                        dT.Rows.Add(beatmapHash, e.FullPath);
+                        DBHelper.Insert(bC, dT);
+                    }
+                }
+            }
         }
 
         private static string MD5FromFile(string fileName)
@@ -312,10 +356,10 @@ namespace o_RA.Forms
         {
             using (Replay = new Replay(Path.Combine(oRAData.ReplayDirectory, e.Node.Text)))
             {
-                var file = oRAData.BeatmapHashes.FirstOrDefault(kvp => kvp.Value.Contains(Replay.MapHash));
-                if (file.Key != null)
+                DataRow dR = DBHelper.GetRecord(DBConnection, "Beatmaps", "Hash", Replay.MapHash);
+                if (dR != null)
                 {
-                    Beatmap = new Beatmap(file.Key);
+                    Beatmap = new Beatmap(dR["Filename"].ToString());
 
                     /* Start Timing Windows tab */
 

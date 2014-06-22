@@ -8,7 +8,7 @@ namespace InfosPlugin
     public class oRA : IPlugin
     {
         #region Plugin Constants (Set these)
-        public static string Name = "Infos";
+        public static string Name = "Information";
         public static string Description = "Replay and Beatmap information.";
         public static string Author = "o!RA Developers";
         public static string Version = "1.0.0";

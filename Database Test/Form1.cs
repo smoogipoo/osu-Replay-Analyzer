@@ -59,7 +59,7 @@ namespace Database_Test
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            await Task.WhenAll(UpdateBeatmaps(), UpdateReplays());
+            await Task.WhenAll(UpdateReplays(), UpdateBeatmaps());
             watch.Stop();
             MessageBox.Show(watch.Elapsed.ToString());
         }
@@ -122,8 +122,9 @@ namespace Database_Test
 
                 DataTable replayData = DBHelper.CreateReplayDataTable();
                 DataTable frameData = DBHelper.CreateReplayFrameTable();
+                DataTable lifeData = DBHelper.CreateReplayLifeDataTable();
 
-                DataTable[] data = { replayData, frameData };
+                DataTable[] data = { replayData, frameData, lifeData };
 
                 using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
                 {
@@ -135,7 +136,8 @@ namespace Database_Test
                         using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
                         {
                             SqlCeDataReader rdr = null;
-                            foreach (string file in Directory.GetFiles(ReplayDir))
+                            Stopwatch s = new Stopwatch();
+                            foreach (string file in Directory.GetFiles(ReplayDir, "*.osr"))
                             {
                                 using (Replay r = new Replay())
                                 {
@@ -151,72 +153,93 @@ namespace Database_Test
                                     }
 
                                     //Only add items to the datatable if there isn't any other item with the same hash
-                                    if (replayData.AsEnumerable().All(row => r.ReplayHash != row.Field<string>("Replay_Data_Hash")))
+                                    //We will try to avoid as much user interraction as possible. If we can load the replay
+                                    //it is not broken. If it has the same replay hash and map hash, then it they are the same
+                                    //if one is different, then one will not work inside osu!, so we tell the user that
+                                    bool skipReplay = false;
+                                    for (int i = 0; i < replayData.Rows.Count; i++)
                                     {
-                                        cmd.CommandText = "SELECT TOP 1 * FROM Replay_Data WHERE Filename = @Filename;";
-                                        cmd.Parameters["@Filename"].Value = file;
-                                        rdr = cmd.ExecuteReader();
-                                        if (rdr.Read())
+                                        if (replayData.Rows[i].Field<string>("Replay_Data_Hash") == r.ReplayHash)
                                         {
-                                            if ((string)rdr["Replay_Data_Hash"] != r.ReplayHash)
+                                            if (replayData.Rows[i].Field<string>("MapHash") == r.MapHash)
                                             {
-                                                r.LoadReplayData();
-                                                //Filename found, but hash is different
-                                                //Delete this replay and its replayframes from the db
-                                                DBHelper.DeleteRecords(conn, "Replay_Data", "Filename", r.Filename);
-                                                //Readd updated replay and its replayframes
-                                                replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.Mods, r.ReplayLength);
-                                                foreach (ReplayInfo rI in r.ClickFrames)
-                                                {
-                                                    frameData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                                                }
+                                                skipReplay = true;
+                                                break;
                                             }
+                                            //Todo: Improve this with more options
+                                            if (MessageBox.Show(String.Format("A duplicate replay has been found. Additional information:\n" +
+                                                                              "---Old replay---\n" + "Filename: {0}\n" + "Player Name: {1}\n" + "Total Score: {2}\n" +
+                                                                              "---New replay---\n" + "Filename: {3}\n" + "Player Name: {4}\n" + "Total Score: {5}\n" +
+                                                                              "One of these replays will not load in osu! - we encourage you to try both of them before proceeding.\n" +
+                                                                              "Would you like to delete the new replay?",
+                                                replayData.Rows[i].Field<string>("Filename"), replayData.Rows[i].Field<string>("PlayerName"), replayData.Rows[i].Field<int>("TotalScore"), r.Filename, r.PlayerName, r.TotalScore), @"Replay action required", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                            {
+                                                r.Dispose();
+                                                File.Delete(file);
+                                            }
+                                            skipReplay = true;
+                                            break;
+                                        }
+                                    }
+                                    if (skipReplay)
+                                        continue;
+
+                                    cmd.CommandText = "SELECT TOP 1 * FROM Replay_Data WHERE Filename = @Filename;";
+                                    cmd.Parameters["@Filename"].Value = file;
+                                    rdr = cmd.ExecuteReader();
+                                    if (rdr.Read())
+                                    {
+                                        if ((string)rdr["Replay_Data_Hash"] != r.ReplayHash)
+                                        {
+                                            //Filename found, but hash is different
+                                            //Delete this replay from the db before re-adding
+                                            //Filename is unique column
+                                            DBHelper.DeleteRecords(conn, "Replay_Data", "Filename", r.Filename);
                                         }
                                         else
                                         {
-                                            cmd.CommandText = String.Format("SELECT TOP 1 * FROM Replay_Data WHERE Replay_Data_Hash = '{0}';", r.ReplayHash);
-                                            rdr = cmd.ExecuteReader();
-                                            if (rdr.Read())
-                                            {
-                                                //Filename not found, but hash found
-                                                //Update filename
-                                                DBHelper.UpdateRecord(conn, "Replay_Data", "Filename", r.Filename, "Replay_Data_Hash", r.ReplayHash);
-                                            }
-                                            else
-                                            {
-                                                r.LoadReplayData();
-                                                replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.Mods, r.ReplayLength);
-                                                foreach (ReplayInfo rI in r.ClickFrames)
-                                                {
-                                                    frameData.Rows.Add(r.ReplayHash, rI.Time, rI.TimeDiff, rI.X, rI.Y, (int)rI.Keys);
-                                                }
-                                            }
-                                        }
-                                        //Limit memory usage
-                                        if (replayData.Rows.Count >= 200 || frameData.Rows.Count > 100000)
-                                        {
-                                            DBHelper.BulkInsert(bC, data);
-                                            foreach (DataRow dr in replayData.Rows)
-                                            {
-                                                InsertReplay(dr["Filename"].ToString());
-                                            }
-                                            replayData.Clear();
-                                            frameData.Clear();
+                                            //All good here, replayhash and replay filename match
+                                            continue;
                                         }
                                     }
                                     else
                                     {
-                                        //TODO Offer to delete duplicate replay
+                                        cmd.CommandText = String.Format("SELECT TOP 1 * FROM Replay_Data WHERE Replay_Data_Hash = '{0}';", r.ReplayHash);
+                                        rdr = cmd.ExecuteReader();
+                                        if (rdr.Read())
+                                        {
+                                            //Filename not found, but hash found
+                                            //Update filename
+                                            DBHelper.UpdateRecord(conn, "Replay_Data", "Filename", r.Filename, "Replay_Data_Hash", r.ReplayHash);
+                                            //No need to re-insert frames as hashes are identical
+                                            continue;
+                                        }
                                     }
+                                    r.LoadReplayData();
+
+                                    //Insert replay metadata
+                                    replayData.Rows.Add(r.ReplayHash, (int)r.GameMode, r.Filename, r.MapHash, r.PlayerName, r.TotalScore, r.Count_300, r.Count_100, r.Count_50, r.Count_Geki, r.Count_Katu, r.Count_Miss, r.MaxCombo, r.IsPerfect, r.PlayTime.Ticks, r.Mods, r.ReplayLength);
+                                    
+                                    //Insert replay frames
+                                    for (int i = 0; i < r.ClickFrames.Count; i++)
+                                        frameData.Rows.Add(r.ReplayHash, r.ClickFrames[i].Time, r.ClickFrames[i].TimeDiff, r.ClickFrames[i].X, r.ClickFrames[i].Y, (int)r.ClickFrames[i].Keys);
+                                    
+                                    //Insert life data
+                                    for (int i = 0; i < r.LifeData.Count; i++)
+                                        lifeData.Rows.Add(r.ReplayHash, r.LifeData[i].Time, r.LifeData[i].Percentage);
+
+                                    //Limit memory usage
+                                    if (frameData.Rows.Count >= 200000)
+                                    {
+                                        DBHelper.BulkInsert(bC, data);
+                                        replayData.Clear();
+                                        frameData.Clear();
+                                    } 
                                 }
                             }
                             rdr.Close();
                             //Flush any remaining data
                             DBHelper.BulkInsert(bC, data);
-                            foreach (DataRow dr in replayData.Rows)
-                            {
-                                InsertReplay(dr["Filename"].ToString());
-                            }
                             replayData.Clear();
                             frameData.Clear();
                         }
@@ -265,20 +288,20 @@ namespace Database_Test
                                         Debug.WriteLine("Beatmap failed loading: " + ex.StackTrace);
                                         continue;
                                     }
+
                                     //Can't have null values here - this might be fixed in BMAPI in a later version
+                                    //Insert the beatmap metadata
                                     beatmapData.Rows.Add(b.BeatmapHash, b.Mode ?? 0, b.Creator ?? "", b.AudioFilename ?? "", b.Filename, b.HPDrainRate, b.CircleSize, b.OverallDifficulty, b.ApproachRate, b.Title ?? "", b.Artist ?? "", b.Version ?? "");
-                                    foreach (var tag in b.Tags)
-                                    {
-                                        TagData.Rows.Add(b.BeatmapHash, tag);
-                                    }
-                                       
+                                    
+                                    //Insert beatmap tags
+                                    for (int i = 0; i < b.Tags.Count; i++)
+                                        TagData.Rows.Add(b.BeatmapHash, b.Tags[i]);
+
+                                    //Todo: Insert beatmap objecst
+
                                     if (beatmapData.Rows.Count >= 1000)
                                     {
                                         DBHelper.BulkInsert(bC, data);
-                                        foreach (DataRow dr in beatmapData.Rows)
-                                        {
-                                            InsertBeatmap(dr["Filename"].ToString(), dr["Beatmap_Data_Hash"].ToString());
-                                        }
                                         beatmapData.Clear();
                                         TagData.Clear();
                                     }
@@ -286,10 +309,6 @@ namespace Database_Test
                             }
                             //Flush any remaining data
                             DBHelper.BulkInsert(bC, data);
-                            foreach (DataRow dr in beatmapData.Rows)
-                            {
-                                InsertBeatmap(dr["Filename"].ToString(), dr["Beatmap_Data_Hash"].ToString());
-                            }
                             beatmapData.Clear();
                             TagData.Clear();
                         }

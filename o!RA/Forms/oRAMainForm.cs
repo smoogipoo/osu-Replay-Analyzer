@@ -373,11 +373,6 @@ namespace o_RA.Forms
                     if ((Replay.Mods & Modifications.HardRock) == Modifications.HardRock)
                     {
                         Beatmap.OverallDifficulty = Math.Min(Beatmap.OverallDifficulty *= 1.4, 10);
-                        Beatmap.CircleSize = (int)(Beatmap.CircleSize * 1.4);
-                        foreach (BaseCircle hitObject in Beatmap.HitObjects)
-                        {
-                            Beatmap.HitObjects[Beatmap.HitObjects.IndexOf(hitObject)].Radius = 40 - 4 * (Beatmap.CircleSize - 2);
-                        }
                         Beatmap.CircleSize = Beatmap.CircleSize * 1.4;
                     }
                     if ((Replay.Mods & Modifications.DoubleTime) == Modifications.DoubleTime)

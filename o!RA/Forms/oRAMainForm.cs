@@ -155,7 +155,6 @@ namespace o_RA.Forms
 
         private void InitializeGameDirs()
         {
-            string s = Settings.GetSetting("GameDir");
             if (!IsOsuPath(Settings.GetSetting("GameDir")))
             {
                 //Try get the osu! path from processes
@@ -185,8 +184,14 @@ namespace o_RA.Forms
                             if (o != null)
                             {
                                 var filter = new Regex(@"(?<="")[^\""]*(?="")");
-                                if (IsOsuPath(Path.GetDirectoryName(filter.Match(o.ToString()).ToString())))
-                                    Settings.AddSetting("GameDir", Path.GetDirectoryName(filter.Match(o.ToString()).ToString()));
+                                string path = Path.GetDirectoryName(filter.Match(o.ToString()).ToString());
+                                if (IsOsuPath(path))
+                                {
+                                    if (MessageBox.Show(@"Found osu! directory at: " + path + '\n' + @"Is this correct?", @"osu! Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                        Settings.AddSetting("GameDir", Path.GetDirectoryName(filter.Match(o.ToString()).ToString()));
+                                    else
+                                        throw new Exception();
+                                }
                                 else
                                     throw new Exception();
                             }

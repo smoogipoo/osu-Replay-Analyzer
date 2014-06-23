@@ -279,18 +279,28 @@ namespace o_RA.Forms
             using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
             {
                 conn.Open();
+                
+                //Get the hashes that are currently in the database
+                List<string> existingHashes = DBHelper.GetRecords(conn, "Beatmaps", "*").AsEnumerable().Select(row => row.Field<string>("Hash")).ToList();
+
                 using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn))
                 {
                     foreach (string file in beatmapFiles)
                     {
                         string beatmapHash = MD5FromFile(file);
-                        if (!DBHelper.RecordExists(conn, "Beatmaps", "Hash", beatmapHash) && beatmapData.AsEnumerable().All(row => (beatmapHash != row.Field<string>("Hash"))))
+                        //Check if hash exists in database
+                        if (!existingHashes.Contains(beatmapHash))
                         {
                             beatmapData.Rows.Add(beatmapHash, file);
+                            existingHashes.Add(beatmapHash);
+
                             Progress.BeginInvoke((Action)(() => Progress.Value += 1));
 
                             //Free memory by pushing the rows
-                            if (beatmapData.Rows.Count >= 2000)
+                            //We don't want to set this too low or we spend more time
+                            //pushing to the database. But we don't want to set it too
+                            //high or user won't have his beatmaps for a long time
+                            if (beatmapData.Rows.Count >= 3000)
                             {
                                 DBHelper.Insert(bC, beatmapData);
                                 beatmapData.Clear();
@@ -300,6 +310,7 @@ namespace o_RA.Forms
                     //Flush any remaining data
                     DBHelper.Insert(bC, beatmapData);
                     beatmapData.Clear();
+                    existingHashes.Clear(); //Final cleanup
                 }
             }
             Progress.BeginInvoke((Action)(() => Progress.Value = 0));

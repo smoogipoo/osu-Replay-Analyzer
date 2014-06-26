@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Drawing;
@@ -49,7 +50,6 @@ namespace oRAInterface
         }
 
         public Dictionary<string, string> Language { get; set; }
-        public List<TreeNode> Replays { get; set; }
         public List<ReplayObject> ReplayObjects { get; set; }
         public string ReplayDirectory { get; set; }
         public string BeatmapDirectory { get; set; }

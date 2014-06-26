@@ -50,8 +50,6 @@ namespace o_RA.GlobalClasses
         /// <returns>First record that matches a condition</returns>
         public static DataRow GetRecord(SqlCeConnection conn, string table, string searchColumn, string searchValue)
         {
-            Stopwatch s = new Stopwatch();
-            s.Start();
             using (SqlCeCommand cmd = new SqlCeCommand())
             {
                 cmd.Connection = conn;
@@ -61,8 +59,6 @@ namespace o_RA.GlobalClasses
                 {
                     DataTable dt = new DataTable();
                     da.Fill(dt);
-                    s.Stop();
-                    Debug.WriteLine(s.ElapsedMilliseconds);
                     return dt.Rows.Count > 0 ? dt.Rows[0] : null;
                 }
             }

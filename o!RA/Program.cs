@@ -12,9 +12,15 @@ namespace o_RA
         [STAThread]
         static void Main()
         {
+            AppDomain.CurrentDomain.UnhandledException += HandleExcep;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new oRAMainForm());
+        }
+
+        static void HandleExcep(object sender, UnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show(((Exception)e.ExceptionObject).Message + '\n' + ((Exception)e.ExceptionObject).InnerException.Message + '\n' + ((Exception)e.ExceptionObject).StackTrace);
         }
     }
 }

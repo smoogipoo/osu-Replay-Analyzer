@@ -26,9 +26,6 @@ namespace InfosPlugin
 
         public void HandleReplayChanged(Replay r, Beatmap b)
         {
-            string beatmapHash;
-            oRA.Data.BeatmapHashes.TryGetValue(b.Filename, out beatmapHash);
-
             int totalTime = 0;
             if (b.HitObjects.Count > 0)
                 totalTime = b.HitObjects[b.HitObjects.Count - 1].StartTime - b.HitObjects[0].StartTime;
@@ -45,7 +42,7 @@ namespace InfosPlugin
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Format"], b.Format.ToString() }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FName"], b.Filename }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FSize"], File.OpenRead(b.Filename).Length + " bytes" }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], beatmapHash }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_FHash"], r.MapHash }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_TotalHitObjects"], b.HitObjects.Count.ToString(CultureInfo.InvariantCulture) }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapAFN"], b.AudioFilename }));
             customListView1.Items.Add(new ListViewItem());

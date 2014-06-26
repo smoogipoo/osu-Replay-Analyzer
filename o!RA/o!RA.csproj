@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ErikEJ.SqlCe40">
+      <HintPath>..\DLLs\ErikEJ.SqlCe40.dll</HintPath>
+    </Reference>
     <Reference Include="oRAInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLLs\oRAInterface.dll</HintPath>
@@ -46,6 +49,11 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\DLLs\System.Data.SqlServerCe.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -96,6 +104,7 @@
     <Compile Include="Forms\PluginSettingsForm.Designer.cs">
       <DependentUpon>PluginSettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalClasses\DBHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalClasses\oRAFuncs.cs" />
@@ -144,9 +153,15 @@
     <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
     <None Include="Resources\Menu_H.png" />
     <None Include="Resources\Menu_N.png" />
+    <Content Include="db.sdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ToDo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y /D /E  "$(SolutionDir)DLLs\*.*" "$(SolutionDir)o!RA\bin\$(ConfigurationName)"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

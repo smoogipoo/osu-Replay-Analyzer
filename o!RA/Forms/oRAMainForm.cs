@@ -1,15 +1,19 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlServerCe;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using BMAPI;
+using ErikEJ.SqlCe;
+using Microsoft.Win32;
 using oRAInterface;
 using o_RA.Controls;
 using o_RA.GlobalClasses;
@@ -23,26 +27,50 @@ namespace o_RA.Forms
         {
             InitializeComponent();
         }
-        private XmlReader Locale;
-        public static Settings Settings = new Settings();
+        internal static Settings Settings = new Settings();
         internal static Updater Updater = new Updater();
+        internal static SqlCeConnection DBConnection;
+        internal Replay CurrentReplay;
+        internal Beatmap CurrentBeatmap;
+        internal XmlReader Locale;
 
-        Replay Replay;
-        Beatmap Beatmap;
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
-        static DataClass oRAData;
-        static ControlsClass oRAControls;
+        private static DataClass oRAData;
+        private static ControlsClass oRAControls;
 
         public static readonly PluginServices Plugins = new PluginServices();
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (!File.Exists(Path.Combine(Application.StartupPath, "db.sdf")))
+            {
+                using (SqlCeEngine eng = new SqlCeEngine(DBHelper.dbPath))
+                    eng.CreateDatabase();
+                using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+                {
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "CREATE TABLE [Beatmaps] " +
+                                          "(" +
+                                          "[Hash] nvarchar(32) NOT NULL, " +
+                                          "[Filename] nvarchar(500) NOT NULL" +
+                                          ")";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "ALTER TABLE [Beatmaps] ADD CONSTRAINT [PK_Beatmaps] PRIMARY KEY ([Hash]) ";
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+            }
+            DBConnection = new SqlCeConnection(DBHelper.dbPath);
+
             InitializeLocale();
             InitializePlugins();
             InitializeGameDirs();
             Task.Factory.StartNew(() => Updater.Start(Settings));
-            Task.Factory.StartNew(PopulateLists);
-
+            Task.Factory.StartNew(PopulateReplays);
+            Task.Factory.StartNew(UpdateBeatmaps);
 
             FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory)
             {
@@ -60,8 +88,6 @@ namespace o_RA.Forms
             replayWatcher.Deleted += ReplayDeleted;
             replayWatcher.Renamed += ReplayRenamed;
             beatmapWatcher.Created += BeatmapCreated;
-            beatmapWatcher.Deleted += BeatmapDeleted;
-            beatmapWatcher.Renamed += BeatmapRenamed;
 
             replayWatcher.EnableRaisingEvents = true;
             beatmapWatcher.EnableRaisingEvents = true;
@@ -109,8 +135,6 @@ namespace o_RA.Forms
             oRAData = new DataClass();
             oRAControls = new ControlsClass();
             oRAData.Language = Language;
-            oRAData.Replays = new List<TreeNode>();
-            oRAData.BeatmapHashes = new ConcurrentDictionary<string, string>();
             oRAData.TimingWindows = new double[3];
             oRAData.ReplayObjects = new List<ReplayObject>();
             oRAControls.ProgressToolTip = new ToolTip();
@@ -155,47 +179,63 @@ namespace o_RA.Forms
         {
             if (!IsOsuPath(Settings.GetSetting("GameDir")))
             {
-                Process[] procs = Process.GetProcessesByName("osu!");
+                //Try get the osu! path from processes
+                Process[] procs = Process.GetProcessesByName("osu!").Union(Process.GetProcessesByName("osu!test")).ToArray();
                 if (procs.Length != 0)
-                {
-                    string gameDir = Path.GetDirectoryName(procs[0].Modules[0].FileName);
-                    if (IsOsuPath(gameDir))
-                    {
-                        Settings.AddSetting("GameDir", gameDir);
-                        Settings.Save();
-                    }
-                    else
-                    {
-                        MessageBox.Show(Language["info_osuWrongDir"], @"o!RA");
-                    }
-                }
+                    Settings.AddSetting("GameDir", procs[0].Modules[0].FileName.Substring(0, procs[0].Modules[0].FileName.LastIndexOf("\\", StringComparison.InvariantCulture)));
                 else
                 {
-                    using (FolderBrowserDialog fd = new FolderBrowserDialog())
+                    //Try to get osu! path from registry
+                    try
                     {
-                        fd.Description = Language["info_osuDirectory"];
-                        while (!IsOsuPath(fd.SelectedPath))
+                        RegistryKey key = Registry.ClassesRoot.OpenSubKey("osu!\\DefaultIcon");
+                        if (key != null)
                         {
-                            if (fd.ShowDialog() == DialogResult.OK)
+                            object o = key.GetValue(null);
+                            if (o != null)
                             {
-                                if (IsOsuPath(fd.SelectedPath))
+                                var filter = new Regex(@"(?<="")[^\""]*(?="")");
+                                string path = Path.GetDirectoryName(filter.Match(o.ToString()).ToString());
+                                if (IsOsuPath(path))
                                 {
-                                    Settings.AddSetting("GameDir", fd.SelectedPath);
-                                    Settings.Save();
+                                    string langString = Language["info_FoundosuDirectory"];
+                                    if (MessageBox.Show(langString.Substring(0, langString.IndexOf('|')) + @": " + path + '\n' + langString.Substring(langString.IndexOf('|') + 1), @"o!RA", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                        Settings.AddSetting("GameDir", Path.GetDirectoryName(filter.Match(o.ToString()).ToString()));
+                                    else
+                                        throw new Exception();
+                                }
+                                else
+                                    throw new Exception();
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        //Get the user to select osu! path
+                        using (FolderBrowserDialog fd = new FolderBrowserDialog())
+                        {
+                            fd.Description = Language["info_osuDirectory"];
+                            while (!IsOsuPath(fd.SelectedPath))
+                            {
+                                if (fd.ShowDialog() == DialogResult.OK)
+                                {
+                                    if (IsOsuPath(fd.SelectedPath))
+                                        Settings.AddSetting("GameDir", fd.SelectedPath);
+                                    else
+                                    {
+                                        MessageBox.Show(Language["info_osuWrongDir"], @"o!RA");
+                                    }
                                 }
                                 else
                                 {
-                                    MessageBox.Show(Language["info_osuWrongDir"], @"o!RA");
+                                    Environment.Exit(0);
                                 }
-                            }
-                            else
-                            {
-                                Environment.Exit(0);
                             }
                         }
                     }
                 }
             }
+            Settings.Save();
             oRAData.ReplayDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Replays");
             oRAData.BeatmapDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Songs");
         }
@@ -205,94 +245,134 @@ namespace o_RA.Forms
             return Directory.Exists(Path.Combine(gameDir, "Replays")) && Directory.Exists(Path.Combine(gameDir, "Songs"));
         }
 
-        private void PopulateLists()
+        /// <summary>
+        /// Populates the replays listbox
+        /// </summary>
+        private void PopulateReplays()
         {
-            oRAControls.ProgressToolTip.Tag = Language["info_PopReplays"];
+            FileInfo[] files = new DirectoryInfo(oRAData.ReplayDirectory).GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
-            DirectoryInfo info = new DirectoryInfo(oRAData.ReplayDirectory);
-            FileInfo[] files = info.GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
+            //Add replays
+            ReplaysList.BeginInvoke((Action)(() => ReplaysList.Nodes.AddRange(files.Select(f => new TreeNode{ Text = f.Name, Name = f.FullName }).ToArray())));
+        }
 
-            Progress.BeginInvoke((Action)(() => Progress.Maximum = files.Length));
-            foreach (FileInfo file in files)
-            {
-                oRAData.Replays.Add(new TreeNode(file.Name));
-                Progress.BeginInvoke((Action)(() => Progress.Value += 1));
-            }
-
-            Progress.BeginInvoke((Action)(() => ReplaysList.Nodes.AddRange(oRAData.Replays.ToArray())));
-
+        /// <summary>
+        /// Updates a beatmap record if it exists, otherwise inserts it
+        /// </summary>
+        private void UpdateBeatmaps()
+        {
             oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
 
+
+            DataTable beatmapData = DBHelper.CreateBeatmapDataTable();
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
 
-            Progress.BeginInvoke((Action)(() =>
+            Progress.BeginInvoke((Action)(() => Progress.Maximum = beatmapFiles.Length));
+
+            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
             {
-                Progress.Value = 0;
-                Progress.Maximum = beatmapFiles.Length;
-            }));
-            foreach (string file in beatmapFiles)
-            {
-                oRAData.BeatmapHashes.TryAdd(file, MD5FromFile(file));
-                try
+                conn.Open();
+                
+                //Get the hashes that are currently in the database
+                DataTable existingRows = DBHelper.GetRecords(conn, "Beatmaps", "*");
+
+                //Hashset performance >>>>> List performance
+                HashSet<string> existingHashes = new HashSet<string>(existingRows.AsEnumerable().Select(row => row.Field<string>("Hash")));
+                HashSet<string> existingFiles = new HashSet<string>(existingRows.AsEnumerable().Select(row => row.Field<string>("Filename")));
+
+                using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn))
                 {
-                    Progress.BeginInvoke((Action)(() => Progress.Value += 1));
-                }
-                catch
-                {
-                    //We've disposed
-                    return;
+                    foreach (string file in beatmapFiles)
+                    {
+                        string beatmapHash = MD5FromFile(file);
+                        //Check if hash exists in database
+                        if (!existingHashes.Contains(beatmapHash))
+                        {
+                            if (existingFiles.Contains(file))
+                            {
+                                //Remove the old file from the database
+                                DBHelper.DeleteRecords(conn, "Beatmaps", "Filename", file);
+                            }
+
+                            //Add the new file
+                            beatmapData.Rows.Add(beatmapHash, file);
+                            existingHashes.Add(beatmapHash);
+
+                            //Increment the progressbar
+                            Progress.BeginInvoke((Action)(() => Progress.Value += 1));
+
+                            //Free memory by pushing the rows
+                            //We don't want to set this too low or we spend more time
+                            //pushing to the database. But we don't want to set it too
+                            //high or user won't have his beatmaps for a long time
+                            if (beatmapData.Rows.Count >= 3000)
+                            {
+                                DBHelper.Insert(bC, beatmapData);
+                                beatmapData.Clear();
+                            }
+                        }
+                    }
+                    //Flush any remaining data
+                    DBHelper.Insert(bC, beatmapData);
+                    beatmapData.Clear();
+                    existingHashes.Clear(); //Final cleanup
+
+                    //Set the first replay in the replayslist as the current replay
+                    ReplaysList.BeginInvoke((Action)(() =>
+                    {
+                        if (ReplaysList.Nodes.Count > 0 && ReplaysList.SelectedNode == null)
+                            ReplaysList.SelectedNode = ReplaysList.Nodes[0];
+                    }));
+
                 }
             }
             Progress.BeginInvoke((Action)(() => Progress.Value = 0));
-
             oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];
-
-            ReplaysList.BeginInvoke((Action)(() =>
-            {
-                if (oRAData.Replays.Count > 0 && ReplaysList.SelectedNode == null)
-                {
-                    ReplaysList.SelectedNode = ReplaysList.Nodes[0];
-                    ReplaysList.Select();
-                }
-            }));
-
         }
 
         private void ReplayCreated(object sender, FileSystemEventArgs e)
         {
             ReplaysList.BeginInvoke((Action)(() =>
             {
-                ReplaysList.Nodes.Insert(0, e.Name);
+                ReplaysList.Nodes.Insert(0, new TreeNode { Text = e.Name, Name = e.FullPath });
                 ReplaysList.SelectedNode = ReplaysList.Nodes[0];
             }));
         }
         private void ReplayDeleted(object sender, FileSystemEventArgs e)
         {
-            ReplaysList.BeginInvoke((Action)(() => ReplaysList.Nodes.RemoveByKey(e.Name)));
+            ReplaysList.BeginInvoke((Action)(() => ReplaysList.Nodes.RemoveByKey(e.FullPath)));
         }
         private void ReplayRenamed(object sender, RenamedEventArgs e)
         {
+            int index = ReplaysList.Nodes.IndexOfKey(e.OldFullPath);
             ReplaysList.BeginInvoke((Action)(() =>
             {
-                ReplaysList.Nodes.RemoveByKey(e.OldName);
-                ReplaysList.Nodes.Insert(0, e.Name);
+                ReplaysList.Nodes[index].Text = e.Name;
+                ReplaysList.Nodes[index].Name = e.FullPath;
             }));
         }
 
         private static void BeatmapCreated(object sender, FileSystemEventArgs e)
         {
-            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
-        }
-        private static void BeatmapDeleted(object sender, FileSystemEventArgs e)
-        {
-            string s;
-            oRAData.BeatmapHashes.TryRemove(e.FullPath, out s);
-        }
-        private static void BeatmapRenamed(object sender, RenamedEventArgs e)
-        {
-            string s;
-            oRAData.BeatmapHashes.TryRemove(e.OldFullPath, out s);
-            oRAData.BeatmapHashes.TryAdd(e.FullPath, MD5FromFile(e.FullPath));
+            SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
+            options |= SqlCeBulkCopyOptions.KeepNulls;
+            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+            {
+                conn.Open();
+                using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
+                {
+                    string beatmapHash = MD5FromFile(e.FullPath);
+                    if (!DBHelper.RecordExists(conn, "Beatmaps", "Hash", beatmapHash))
+                    {
+                        //Remove old record if it exists
+                        if (DBHelper.RecordExists(conn, "Beatmaps", "Filename", e.FullPath))
+                            DBHelper.DeleteRecords(conn, "Beatmaps", "Filename", e.FullPath);
+                        DataTable dT = DBHelper.CreateBeatmapDataTable();
+                        dT.Rows.Add(beatmapHash, e.FullPath);
+                        DBHelper.Insert(bC, dT);
+                    }
+                }
+            }
         }
 
         private static string MD5FromFile(string fileName)
@@ -308,60 +388,67 @@ namespace o_RA.Forms
 
         private void ReplaysList_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            using (Replay = new Replay(Path.Combine(oRAData.ReplayDirectory, e.Node.Text)))
+            //Failsafe
+            if (!File.Exists(Path.Combine(oRAData.ReplayDirectory, e.Node.Text)))
             {
-                var file = oRAData.BeatmapHashes.FirstOrDefault(kvp => kvp.Value.Contains(Replay.MapHash));
-                if (file.Key != null)
+                MessageBox.Show(Language["info_ReplayInexistent"] + '\n' + e.Node.Name);
+                return;
+            }
+            
+            using (CurrentReplay = new Replay(Path.Combine(oRAData.ReplayDirectory, e.Node.Text)))
+            {
+                DataRow dR = DBHelper.GetRecord(DBConnection, "Beatmaps", "Hash", CurrentReplay.MapHash);
+                if (dR != null)
                 {
-                    Beatmap = new Beatmap(file.Key);
+                    CurrentBeatmap = new Beatmap(dR["Filename"].ToString());
 
                     /* Start Timing Windows tab */
 
                     //Determine the timing windows for 300,100,50
                     //First modify the beatmap attributes according by player mods
-                    if ((Replay.Mods & Modifications.HardRock) == Modifications.HardRock)
+                    if ((CurrentReplay.Mods & Modifications.HardRock) == Modifications.HardRock)
                     {
-                        Beatmap.OverallDifficulty = Math.Min(Beatmap.OverallDifficulty *= 1.4, 10);
-                        Beatmap.CircleSize = Beatmap.CircleSize * 1.4;
+                        CurrentBeatmap.OverallDifficulty = Math.Min(CurrentBeatmap.OverallDifficulty *= 1.4, 10);
+                        CurrentBeatmap.CircleSize = CurrentBeatmap.CircleSize * 1.4;
                     }
-                    if ((Replay.Mods & Modifications.DoubleTime) == Modifications.DoubleTime)
+                    if ((CurrentReplay.Mods & Modifications.DoubleTime) == Modifications.DoubleTime)
                     {
-                        Beatmap.OverallDifficulty = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * Beatmap.OverallDifficulty, 11);
-                        Beatmap.ApproachRate = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * Beatmap.ApproachRate, 11);
+                        CurrentBeatmap.OverallDifficulty = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * CurrentBeatmap.OverallDifficulty, 11);
+                        CurrentBeatmap.ApproachRate = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * CurrentBeatmap.ApproachRate, 11);
                     }
-                    if ((Replay.Mods & Modifications.HalfTime) == Modifications.HalfTime)
+                    if ((CurrentReplay.Mods & Modifications.HalfTime) == Modifications.HalfTime)
                     {
-                        Beatmap.OverallDifficulty = (3.0 / 2.0) * Beatmap.OverallDifficulty - 13.0 / 2.0;
-                        Beatmap.ApproachRate = (3.0 / 2.0) * Beatmap.ApproachRate - 13.0 / 2.0;
+                        CurrentBeatmap.OverallDifficulty = (3.0 / 2.0) * CurrentBeatmap.OverallDifficulty - 13.0 / 2.0;
+                        CurrentBeatmap.ApproachRate = (3.0 / 2.0) * CurrentBeatmap.ApproachRate - 13.0 / 2.0;
                     }
-                    if ((Replay.Mods & Modifications.Easy) == Modifications.Easy)
+                    if ((CurrentReplay.Mods & Modifications.Easy) == Modifications.Easy)
                     {
-                        Beatmap.OverallDifficulty = Beatmap.OverallDifficulty / 2;
+                        CurrentBeatmap.OverallDifficulty = CurrentBeatmap.OverallDifficulty / 2;
                     }
 
                     //Timing windows are determined by linear interpolation
                     for (int i = 2; i >= 0; i--)
                     {
-                        oRAData.TimingWindows[i] = Beatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (Beatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (Beatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
+                        oRAData.TimingWindows[i] = CurrentBeatmap.OverallDifficulty < 5 ? (200 - 60 * i) + (CurrentBeatmap.OverallDifficulty) * ((150 - 50 * i) - (200 - 60 * i)) / 5 : (150 - 50 * i) + (CurrentBeatmap.OverallDifficulty - 5) * ((100 - 40 * i) - (150 - 50 * i)) / 5;
                     }
 
                     oRAData.ReplayObjects.Clear();
 
-                    if (Replay.ReplayFrames.Count == 0)
+                    if (CurrentReplay.ReplayFrames.Count == 0)
                         return;
 
                     //Match up beatmap objects to replay clicks
                     HashSet<ReplayInfo> iteratedObjects = new HashSet<ReplayInfo>();
-                    for (int i = 0; i < Beatmap.HitObjects.Count; i++)
+                    for (int i = 0; i < CurrentBeatmap.HitObjects.Count; i++)
                     {
                         //Todo: Consider if hitobject containspoint
-                        ReplayInfo c = Replay.ClickFrames.Find(click => (Math.Abs(click.Time - Beatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
-                                        Replay.ClickFrames.Find(click => (Math.Abs(click.Time - Beatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
-                                        Replay.ClickFrames.Find(click => (Math.Abs(click.Time - Beatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
+                        ReplayInfo c = CurrentReplay.ClickFrames.Find(click => (Math.Abs(click.Time - CurrentBeatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[2]) && !iteratedObjects.Contains(click)) ??
+                                        CurrentReplay.ClickFrames.Find(click => (Math.Abs(click.Time - CurrentBeatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[1]) && !iteratedObjects.Contains(click)) ??
+                                        CurrentReplay.ClickFrames.Find(click => (Math.Abs(click.Time - CurrentBeatmap.HitObjects[i].StartTime) < oRAData.TimingWindows[0]) && !iteratedObjects.Contains(click));
                         if (c != null)
                         {
                             iteratedObjects.Add(c);
-                            oRAData.ReplayObjects.Add(new ReplayObject { Frame = c, Object = Beatmap.HitObjects[i] });
+                            oRAData.ReplayObjects.Add(new ReplayObject { Frame = c, Object = CurrentBeatmap.HitObjects[i] });
                         }
                     }
 
@@ -376,7 +463,7 @@ namespace o_RA.Forms
                     if (ReplayTimeline.Rows.Count > 0)
                         ReplayTimeline.Rows[0].Selected = true;
 
-                    oRAData.UpdateStatus(Replay, Beatmap);
+                    oRAData.UpdateStatus(CurrentReplay, CurrentBeatmap);
                 }
             }
         }

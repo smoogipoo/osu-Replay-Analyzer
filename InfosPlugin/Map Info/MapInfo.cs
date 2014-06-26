@@ -58,10 +58,10 @@ namespace InfosPlugin
                 customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapSetID"], b.BeatmapSetID.ToString() }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapTags"], string.Join(", ", b.Tags) }));
             customListView1.Items.Add(new ListViewItem());
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapOD"], b.OverallDifficulty.ToString(".00") }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapAR"], b.ApproachRate.ToString(".00") }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapHP"], b.HPDrainRate.ToString(".00") }));
-            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapCS"], b.CircleSize.ToString(".00") }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapOD"], b.OverallDifficulty.ToString("0.00") }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapAR"], b.ApproachRate.ToString("0.00") }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapHP"], b.HPDrainRate.ToString("0.00") }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_MapCS"], b.CircleSize.ToString("0.00") }));
             customListView1.Items.Add(new ListViewItem());
             foreach (ComboInfo combo in b.ComboColours)
             {

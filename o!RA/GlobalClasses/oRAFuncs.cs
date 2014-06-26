@@ -17,6 +17,7 @@ namespace o_RA.GlobalClasses
 
         public void Start(Settings settings)
         {
+#if !DEBUG
             foreach (string f in Directory.GetFiles(Environment.CurrentDirectory, "*.*", SearchOption.AllDirectories).Where(f => f.Contains(".") && f.Substring(f.LastIndexOf(".", StringComparison.Ordinal)) == ".old"))
             {
                 File.Delete(f);
@@ -107,9 +108,7 @@ namespace o_RA.GlobalClasses
                                             }
                                         }
                                     }
-
                                     break;
-
                                 default:
                                     throw new NotImplementedException(lineSplit[0]);
                             }
@@ -132,6 +131,7 @@ namespace o_RA.GlobalClasses
             if (File.Exists(Environment.CurrentDirectory + "\\files1.updt"))
                 File.Delete(Environment.CurrentDirectory + "\\files1.updt");
             settings.Save();
+#endif
         }
     }
     #endregion

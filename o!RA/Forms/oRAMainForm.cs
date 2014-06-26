@@ -417,7 +417,7 @@ namespace o_RA.Forms
                         return;
 
                     //Match up beatmap objects to replay clicks
-                    List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
+                    HashSet<ReplayInfo> iteratedObjects = new HashSet<ReplayInfo>();
                     for (int i = 0; i < CurrentBeatmap.HitObjects.Count; i++)
                     {
                         //Todo: Consider if hitobject containspoint
@@ -431,7 +431,7 @@ namespace o_RA.Forms
                         }
                     }
 
-                    ReplayTimeline.DataSource = iteratedObjects;
+                    ReplayTimeline.DataSource = iteratedObjects.ToList();
                     if (ReplayTimeline.Columns.Count > 0)
                     {
                         foreach (DataGridViewColumn c in ReplayTimeline.Columns)

@@ -67,7 +67,15 @@ namespace o_RA_Locale_Generator
                     }
                 }
                 sB.AppendLine("</Language>");
+#if DEBUG
                 string targetDirectory = Directory.GetParent(Directory.GetParent(Directory.GetParent(Application.StartupPath).FullName).FullName).FullName + @"\o!RA\bin\Debug\Locales\";
+                if (!Directory.Exists(targetDirectory))
+                    Directory.CreateDirectory(targetDirectory);
+#else
+                string targetDirectory = Directory.GetParent(Directory.GetParent(Directory.GetParent(Application.StartupPath).FullName).FullName).FullName + @"\o!RA\bin\Release\Locales\";
+                if (!Directory.Exists(targetDirectory))
+                    Directory.CreateDirectory(targetDirectory);
+#endif
                 File.WriteAllText(targetDirectory + language + ".xml", sB.ToString());
             }
         }

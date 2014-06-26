@@ -346,6 +346,9 @@ namespace o_RA.Forms
                     string beatmapHash = MD5FromFile(e.FullPath);
                     if (!DBHelper.RecordExists(conn, "Beatmaps", "Hash", beatmapHash))
                     {
+                        //Remove old record if it exists
+                        if (DBHelper.RecordExists(conn, "Beatmaps", "Filename", e.FullPath))
+                            DBHelper.DeleteRecords(conn, "Beatmaps", "Filename", e.FullPath);
                         DataTable dT = DBHelper.CreateBeatmapDataTable();
                         dT.Rows.Add(beatmapHash, e.FullPath);
                         DBHelper.Insert(bC, dT);

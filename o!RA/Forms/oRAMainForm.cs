@@ -166,33 +166,31 @@ namespace o_RA.Forms
                     }
                     else
                     {
-                        MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
+                        MessageBox.Show(Language["info_osuWrongDir"], @"o!RA");
                     }
                 }
                 else
                 {
-                    if (MessageBox.Show(Language["info_osuClosed"], Language["info_osuClosedMessageBoxTitle"]) == DialogResult.OK)
+                    using (FolderBrowserDialog fd = new FolderBrowserDialog())
                     {
-                        using (FolderBrowserDialog fd = new FolderBrowserDialog())
+                        fd.Description = Language["info_osuDirectory"];
+                        while (!IsOsuPath(fd.SelectedPath))
                         {
-                            while (!IsOsuPath(fd.SelectedPath))
+                            if (fd.ShowDialog() == DialogResult.OK)
                             {
-                                if (fd.ShowDialog() == DialogResult.OK)
+                                if (IsOsuPath(fd.SelectedPath))
                                 {
-                                    if (IsOsuPath(fd.SelectedPath))
-                                    {
-                                        Settings.AddSetting("GameDir", fd.SelectedPath);
-                                        Settings.Save();
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show(Language["info_osuWrongDir"], Language["info_osuClosedMessageBoxTitle"]);
-                                    }
+                                    Settings.AddSetting("GameDir", fd.SelectedPath);
+                                    Settings.Save();
                                 }
                                 else
                                 {
-                                    Environment.Exit(0);
+                                    MessageBox.Show(Language["info_osuWrongDir"], @"o!RA");
                                 }
+                            }
+                            else
+                            {
+                                Environment.Exit(0);
                             }
                         }
                     }

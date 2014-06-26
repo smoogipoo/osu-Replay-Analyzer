@@ -367,7 +367,7 @@ namespace o_RA.Forms
                         }
                     }
 
-                    ReplayTimeline.DataSource = iteratedObjects;
+                    ReplayTimeline.DataSource = iteratedObjects.ToList();
                     if (ReplayTimeline.Columns.Count > 0)
                     {
                         foreach (DataGridViewColumn c in ReplayTimeline.Columns)

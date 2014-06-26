@@ -206,6 +206,8 @@ namespace InfosPlugin
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMissCount"], r.Count_Miss.ToString(CultureInfo.InvariantCulture) }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepGekiCount"], r.Count_Geki.ToString(CultureInfo.InvariantCulture) }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepKatuCount"], r.Count_Katu.ToString(CultureInfo.InvariantCulture) }));
+            customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_Grade"], GetRank(r.Count_300, r.Count_100, r.Count_50, r.Count_Miss, (r.Mods & Modifications.FlashLight) > 0 || (r.Mods & Modifications.Hidden) > 0) }));
+
             customListView1.Items.Add(new ListViewItem());
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_RepMods"], r.Mods.ToString() }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["info_ErrorRate"], negativeErrorAverage.ToString("0.00") + "ms ~ " + "+" + positiveErrorAverage.ToString("0.00") + "ms" }));
@@ -227,6 +229,21 @@ namespace InfosPlugin
                 customListView1.Items.Add(new ListViewItem(new[] { "M1 " + oRA.Data.Language["info_UnstableRate"], keyUnstableRate[2].ToString("0.00") }));
             if (keyCount[3] != 0)
                 customListView1.Items.Add(new ListViewItem(new[] { "M2 " + oRA.Data.Language["info_UnstableRate"], keyUnstableRate[3].ToString("0.00") }));
+        }
+
+        private string GetRank(int count_300, int count_100, int count_50, int count_miss, bool isSpecial)
+        {
+            int totalCount = count_300 + count_100 + count_50 + count_miss;
+            double[] ratios = { (double)count_300 / totalCount, (double)count_100 / totalCount, (double)count_50 / totalCount, (double)count_miss / totalCount };
+            if (Math.Abs(ratios[0] - 1) < 0.00001)
+                return isSpecial ? "SSH" : "SS";
+            if (ratios[0] >= 0.9 && ratios[2] < 0.1 && count_miss == 0)
+                return isSpecial ? "SH" : "S";
+            if ((ratios[0] >= 0.8 && count_miss == 0) || (ratios[0] >= 0.9))
+                return "A";
+            if ((ratios[0] >= 0.7 && count_miss == 0) || (ratios[0] >= 0.8))
+                return "B";
+            return ratios[0] >= 0.6 ? "C" : "D";
         }
     }
 }

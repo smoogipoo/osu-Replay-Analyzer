@@ -153,9 +153,6 @@
     <Content Include="bin\Debug\Plugins\CursorTracer.dll" />
     <None Include="Resources\Menu_H.png" />
     <None Include="Resources\Menu_N.png" />
-    <Content Include="db.sdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="ToDo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

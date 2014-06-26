@@ -157,12 +157,9 @@ namespace o_RA.Forms
             if (!IsOsuPath(Settings.GetSetting("GameDir")))
             {
                 //Try get the osu! path from processes
-                Process[] procs = Process.GetProcessesByName("osu!");
+                Process[] procs = Process.GetProcessesByName("osu!").Union(Process.GetProcessesByName("osu!test")).ToArray();
                 if (procs.Length != 0)
-                {
-                    Settings.AddSetting("GameDir", procs[0].Modules[0].FileName);
-                    Settings.Save();
-                }
+                    Settings.AddSetting("GameDir", procs[0].Modules[0].FileName.Substring(0, procs[0].Modules[0].FileName.LastIndexOf("\\", StringComparison.InvariantCulture)));
                 else
                 {
                     //Try to get osu! path from registry
@@ -200,10 +197,7 @@ namespace o_RA.Forms
                                 if (fd.ShowDialog() == DialogResult.OK)
                                 {
                                     if (IsOsuPath(fd.SelectedPath))
-                                    {
                                         Settings.AddSetting("GameDir", fd.SelectedPath);
-                                        Settings.Save();
-                                    }
                                     else
                                     {
                                         MessageBox.Show(Language["info_osuWrongDir"], @"o!RA");
@@ -218,6 +212,7 @@ namespace o_RA.Forms
                     }
                 }
             }
+            Settings.Save();
             oRAData.ReplayDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Replays");
             oRAData.BeatmapDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Songs");
         }

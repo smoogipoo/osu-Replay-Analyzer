@@ -56,7 +56,6 @@ namespace o_RA.GlobalClasses
                          * DEL:\asdf                     //Delete directory
                          */
                         string[] lineSplit = sR.ReadLine().Split(new[] { ':' });
-
                         if (lineSplit[0] == "ADD" || lineSplit[0] == "DEL")
                         {
                             switch (lineSplit[0])
@@ -112,8 +111,6 @@ namespace o_RA.GlobalClasses
                                         }
                                     }
                                     break;
-                                default:
-                                    throw new NotImplementedException(lineSplit[0]);
                             }
                         }
                     }
@@ -126,10 +123,6 @@ namespace o_RA.GlobalClasses
             catch (WebException e)
             {
                 MessageBox.Show(@"Update could not be completed. The file address is invalid: " + e.Message + "\nStackTrace: " + e.StackTrace);
-            }
-            catch (NotImplementedException e)
-            {
-                MessageBox.Show(@"Malformed updater signature received: " + e.Message);
             }
             if (File.Exists(Environment.CurrentDirectory + "\\files1.updt"))
                 File.Delete(Environment.CurrentDirectory + "\\files1.updt");

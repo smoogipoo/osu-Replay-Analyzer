@@ -29,7 +29,7 @@ namespace o_RA.Forms
         }
         internal static Settings Settings = new Settings();
         internal static Updater Updater = new Updater();
-        internal static SqlCeConnection DBConnection = new SqlCeConnection(DBHelper.dbPath);
+        internal static SqlCeConnection DBConnection;
         internal Replay CurrentReplay;
         internal Beatmap CurrentBeatmap;
         internal XmlReader Locale;
@@ -42,6 +42,29 @@ namespace o_RA.Forms
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (!File.Exists(Path.Combine(Application.StartupPath, "db.sdf")))
+            {
+                using (SqlCeEngine eng = new SqlCeEngine(DBHelper.dbPath))
+                    eng.CreateDatabase();
+                using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+                {
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "CREATE TABLE [Beatmaps] " +
+                                          "(" +
+                                          "[Hash] nvarchar(32) NOT NULL, " +
+                                          "[Filename] nvarchar(500) NOT NULL" +
+                                          ")";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "ALTER TABLE [Beatmaps] ADD CONSTRAINT [PK_Beatmaps] PRIMARY KEY ([Hash]) ";
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+            }
+            DBConnection = new SqlCeConnection(DBHelper.dbPath);
+
             InitializeLocale();
             InitializePlugins();
             InitializeGameDirs();

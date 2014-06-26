@@ -32,7 +32,6 @@ namespace o_RA.Forms
         internal static SqlCeConnection DBConnection;
         internal Replay CurrentReplay;
         internal Beatmap CurrentBeatmap;
-        internal XmlReader Locale;
 
         private readonly Dictionary<string, string> Language = new Dictionary<string, string>();
         private static DataClass oRAData;
@@ -102,30 +101,36 @@ namespace o_RA.Forms
             }
             try
             {
-                Locale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml"));
+                using (FileStream localeStream = new FileStream(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml", FileMode.Open))
+                using (XmlReader locale = XmlReader.Create(localeStream))
+                {
+                    while (locale.Read())
+                    {
+                        string n = locale.Name;
+                        locale.Read();
+                        if (!Language.ContainsKey(n) && locale.Value != "")
+                            Language.Add(n, locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
+                    }
+                    if (Settings.GetSetting("ApplicationLocale") != "en")
+                    {
+                        using (FileStream enLocaleStream = new FileStream(Application.StartupPath + "\\locales\\en.xml", FileMode.Open))
+                        using (XmlReader enLocale = XmlReader.Create(enLocaleStream))
+                        {
+                            while (enLocale.Read())
+                            {
+                                string n = enLocale.Name;
+                                enLocale.Read();
+                                if (!Language.ContainsKey(n))
+                                    Language.Add(n, enLocale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
+                            }
+                        }
+                    }
+                }
             }
             catch (FileNotFoundException)
             {
                 MessageBox.Show(@"Selected locale does not exist. Application will now exit.");
                 Environment.Exit(1);
-            }
-            while (Locale.Read())
-            {
-                string n = Locale.Name;
-                Locale.Read();
-                if (!Language.ContainsKey(n) && Locale.Value != "")
-                    Language.Add(n, Locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
-            }
-            if (Settings.GetSetting("ApplicationLocale") != "en")
-            {
-                XmlReader enLocale = XmlReader.Create(File.OpenRead(Application.StartupPath + "\\locales\\en.xml"));
-                while (enLocale.Read())
-                {
-                    string n = enLocale.Name;
-                    enLocale.Read();
-                    if (!Language.ContainsKey(n))
-                        Language.Add(n, enLocale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
-                }
             }
         }
 

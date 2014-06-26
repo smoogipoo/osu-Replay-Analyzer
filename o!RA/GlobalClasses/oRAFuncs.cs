@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -91,6 +92,7 @@ namespace o_RA.GlobalClasses
                                         {
                                             wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + lineSplit[1], Environment.CurrentDirectory + lineSplit[2]);
                                             settings.AddSetting("v_" + fileName, fileName);
+                                            settings.Save();
                                             if (updateReady != null)
                                                 updateReady(null, new EventArgs());
                                         }
@@ -103,6 +105,7 @@ namespace o_RA.GlobalClasses
                                                 File.Move(Environment.CurrentDirectory + lineSplit[2], Environment.CurrentDirectory + lineSplit[2] + ".old");
                                                 wc.DownloadFile("http://repo.smgi.me/" + Assembly.GetExecutingAssembly().GetName().Name + lineSplit[1], Environment.CurrentDirectory + lineSplit[2]);
                                                 settings.AddSetting("v_" + fileName, lineSplit[3]);
+                                                settings.Save();
                                                 if (updateReady != null)
                                                     updateReady(null, new EventArgs());
                                             }
@@ -130,7 +133,6 @@ namespace o_RA.GlobalClasses
             }
             if (File.Exists(Environment.CurrentDirectory + "\\files1.updt"))
                 File.Delete(Environment.CurrentDirectory + "\\files1.updt");
-            settings.Save();
 #endif
         }
     }

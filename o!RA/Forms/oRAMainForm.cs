@@ -353,7 +353,7 @@ namespace o_RA.Forms
                         return;
 
                     //Match up beatmap objects to replay clicks
-                    List<ReplayInfo> iteratedObjects = new List<ReplayInfo>();
+                    HashSet<ReplayInfo> iteratedObjects = new HashSet<ReplayInfo>();
                     for (int i = 0; i < Beatmap.HitObjects.Count; i++)
                     {
                         //Todo: Consider if hitobject containspoint

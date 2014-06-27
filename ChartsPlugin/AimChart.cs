@@ -35,7 +35,7 @@ namespace ChartsPlugin
                         {
                             var point = Chart.Series[0].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
                             if (point != null)
-                                point.Color = oRAColours.Colour_BG_P1;
+                                point.Color = oRAColours.Colour_Item_BG_1;
                             Chart.Series[0].Points[result.PointIndex].Color = oRAColours.Colour_Item_BG_0;
                             oRA.Data.ChangeFrame(result.PointIndex);
                         }
@@ -70,6 +70,7 @@ namespace ChartsPlugin
         {
             Chart.SuspendLayout();
             Chart.Series[0].Points.Clear();
+            Chart.Series[0].Color = oRAColours.Colour_Item_BG_1;
             Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++ )
@@ -85,7 +86,7 @@ namespace ChartsPlugin
                 return;
             var point = Chart.Series[0].Points.FirstOrDefault(p => p.Color == oRAColours.Colour_Item_BG_0);
             if (point != null)
-                point.Color = oRAColours.Colour_BG_P1;
+                point.Color = oRAColours.Colour_Item_BG_1;
             Chart.Series[0].Points[index].Color = oRAColours.Colour_Item_BG_0;
         }
     }

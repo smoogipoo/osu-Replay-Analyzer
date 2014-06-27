@@ -40,12 +40,14 @@
             // Chart
             // 
             this.Chart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
+            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gray;
             chartArea1.AxisX.Title = "Clicks";
             chartArea1.AxisY.LabelStyle.Format = "#";
+            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
             chartArea1.AxisY.Maximum = 200D;
             chartArea1.AxisY.Minimum = 0D;
             chartArea1.AxisY.MinorGrid.Enabled = true;
-            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
             chartArea1.AxisY.Title = "Displacement";
             chartArea1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(232)))), ((int)(((byte)(232)))));
             chartArea1.CursorX.IsUserSelectionEnabled = true;
@@ -65,7 +67,7 @@
             this.Chart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
             series1.ChartArea = "ChartArea1";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StackedColumn;
-            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
+            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(255)))));
             series1.Legend = "Legend1";
             series1.Name = "Accuracy";
             this.Chart.Series.Add(series1);

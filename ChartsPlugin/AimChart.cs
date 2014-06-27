@@ -70,7 +70,6 @@ namespace ChartsPlugin
         {
             Chart.SuspendLayout();
             Chart.Series[0].Points.Clear();
-            Chart.Series[0].Color = oRAColours.Colour_Item_BG_1;
             Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             for (int i = 0; i < oRA.Data.ReplayObjects.Count; i++ )

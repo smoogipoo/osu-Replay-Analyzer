@@ -3,14 +3,40 @@
 
 using System.Data;
 using System.Data.SqlServerCe;
-using System.Diagnostics;
+using System.IO;
+using System.Windows.Forms;
 using ErikEJ.SqlCe;
 
 namespace o_RA.GlobalClasses
 {
     internal static class DBHelper
     {
-        public static readonly string dbPath = @"Data Source='" + System.IO.Path.Combine(System.Environment.CurrentDirectory, "db.sdf") + @"';Max Database Size=1024;";
+        private static readonly string dbPath = @"Data Source='" + Path.Combine(Application.StartupPath, "db.sdf") + @"';Max Database Size=1024;";
+        public static SqlCeConnection CreateDBConnection()
+        {
+            if (!File.Exists(Path.Combine(Application.StartupPath, "db.sdf")))
+            {
+                using (SqlCeEngine eng = new SqlCeEngine(dbPath))
+                    eng.CreateDatabase();
+                using (SqlCeConnection conn = new SqlCeConnection(dbPath))
+                {
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "CREATE TABLE [Beatmaps] " +
+                                          "(" +
+                                          "[Hash] nvarchar(32) NOT NULL, " +
+                                          "[Filename] nvarchar(500) NOT NULL" +
+                                          ")";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "ALTER TABLE [Beatmaps] ADD CONSTRAINT [PK_Beatmaps] PRIMARY KEY ([Hash]) ";
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+            }
+            return new SqlCeConnection(dbPath);
+        }
 
         /// <summary>
         /// Inserts a DataTable object using SqlCeBulkCopy

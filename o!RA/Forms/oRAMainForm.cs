@@ -29,7 +29,7 @@ namespace o_RA.Forms
         }
         internal static Settings Settings = new Settings();
         internal static Updater Updater = new Updater();
-        internal static SqlCeConnection DBConnection;
+        internal static SqlCeConnection DBConnection = DBHelper.CreateDBConnection();
         internal Replay CurrentReplay;
         internal Beatmap CurrentBeatmap;
 
@@ -41,55 +41,13 @@ namespace o_RA.Forms
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            if (!File.Exists(Path.Combine(Application.StartupPath, "db.sdf")))
-            {
-                using (SqlCeEngine eng = new SqlCeEngine(DBHelper.dbPath))
-                    eng.CreateDatabase();
-                using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
-                {
-                    conn.Open();
-                    using (SqlCeCommand cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = "CREATE TABLE [Beatmaps] " +
-                                          "(" +
-                                          "[Hash] nvarchar(32) NOT NULL, " +
-                                          "[Filename] nvarchar(500) NOT NULL" +
-                                          ")";
-                        cmd.ExecuteNonQuery();
-                        cmd.CommandText = "ALTER TABLE [Beatmaps] ADD CONSTRAINT [PK_Beatmaps] PRIMARY KEY ([Hash]) ";
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-
-            }
-            DBConnection = new SqlCeConnection(DBHelper.dbPath);
-
             InitializeLocale();
             InitializePlugins();
             InitializeGameDirs();
             Task.Factory.StartNew(() => Updater.Start(Settings));
             Task.Factory.StartNew(PopulateReplays);
-            Task.Factory.StartNew(UpdateBeatmaps);
-
-            FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory)
-            {
-                NotifyFilter = NotifyFilters.FileName,
-                Filter = "*.osr",
-            };
-            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(oRAData.BeatmapDirectory)
-            {
-                NotifyFilter = NotifyFilters.FileName,
-                Filter = "*.osu",
-                IncludeSubdirectories = true,
-            };
-
-            replayWatcher.Created += ReplayCreated;
-            replayWatcher.Deleted += ReplayDeleted;
-            replayWatcher.Renamed += ReplayRenamed;
-            beatmapWatcher.Created += BeatmapCreated;
-
-            replayWatcher.EnableRaisingEvents = true;
-            beatmapWatcher.EnableRaisingEvents = true;
+            Task.Factory.StartNew(PopulateBeatmaps);
+            Task.Factory.StartNew(InitializeWatchers);
         }
 
         private void InitializeLocale()
@@ -268,17 +226,16 @@ namespace o_RA.Forms
         /// <summary>
         /// Updates a beatmap record if it exists, otherwise inserts it
         /// </summary>
-        private void UpdateBeatmaps()
+        private void PopulateBeatmaps()
         {
             oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
-
 
             DataTable beatmapData = DBHelper.CreateBeatmapDataTable();
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
 
             Progress.BeginInvoke((Action)(() => Progress.Maximum = beatmapFiles.Length));
 
-            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+            using (SqlCeConnection conn = DBHelper.CreateDBConnection())
             {
                 conn.Open();
                 
@@ -339,6 +296,29 @@ namespace o_RA.Forms
             oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];
         }
 
+        private void InitializeWatchers()
+        {
+            FileSystemWatcher replayWatcher = new FileSystemWatcher(oRAData.ReplayDirectory)
+            {
+                NotifyFilter = NotifyFilters.FileName,
+                Filter = "*.osr",
+            };
+            FileSystemWatcher beatmapWatcher = new FileSystemWatcher(oRAData.BeatmapDirectory)
+            {
+                NotifyFilter = NotifyFilters.FileName,
+                Filter = "*.osu",
+                IncludeSubdirectories = true,
+            };
+
+            replayWatcher.Created += ReplayCreated;
+            replayWatcher.Deleted += ReplayDeleted;
+            replayWatcher.Renamed += ReplayRenamed;
+            beatmapWatcher.Created += BeatmapCreated;
+
+            replayWatcher.EnableRaisingEvents = true;
+            beatmapWatcher.EnableRaisingEvents = true;
+        }
+
         private void ReplayCreated(object sender, FileSystemEventArgs e)
         {
             ReplaysList.BeginInvoke((Action)(() =>
@@ -365,7 +345,7 @@ namespace o_RA.Forms
         {
             SqlCeBulkCopyOptions options = new SqlCeBulkCopyOptions();
             options |= SqlCeBulkCopyOptions.KeepNulls;
-            using (SqlCeConnection conn = new SqlCeConnection(DBHelper.dbPath))
+            using (SqlCeConnection conn = DBHelper.CreateDBConnection())
             {
                 conn.Open();
                 using (SqlCeBulkCopy bC = new SqlCeBulkCopy(conn, options))
@@ -538,7 +518,5 @@ namespace o_RA.Forms
             }
             Application.ExitThread();
         }
-
-
     }
 }

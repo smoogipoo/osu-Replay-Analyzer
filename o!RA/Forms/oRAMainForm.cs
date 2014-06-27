@@ -258,7 +258,11 @@ namespace o_RA.Forms
             FileInfo[] files = new DirectoryInfo(oRAData.ReplayDirectory).GetFiles().Where(f => f.Extension == ".osr").OrderBy(f => f.CreationTime).Reverse().ToArray();
 
             //Add replays
-            ReplaysList.BeginInvoke((Action)(() => ReplaysList.Nodes.AddRange(files.Select(f => new TreeNode{ Text = f.Name, Name = f.FullName }).ToArray())));
+            ReplaysList.BeginInvoke((Action)(() => ReplaysList.Nodes.AddRange(files.Select(f => new TreeNode
+            {
+                Text = f.Name.Substring(0, f.Name.LastIndexOf(".", StringComparison.InvariantCulture)),
+                Name = f.FullName
+            }).ToArray())));
         }
 
         /// <summary>
@@ -394,13 +398,13 @@ namespace o_RA.Forms
         private void ReplaysList_AfterSelect(object sender, TreeViewEventArgs e)
         {
             //Failsafe
-            if (!File.Exists(Path.Combine(oRAData.ReplayDirectory, e.Node.Text)))
+            if (!File.Exists(e.Node.Name))
             {
                 MessageBox.Show(Language["info_ReplayInexistent"] + '\n' + e.Node.Name);
                 return;
             }
             
-            using (CurrentReplay = new Replay(Path.Combine(oRAData.ReplayDirectory, e.Node.Text)))
+            using (CurrentReplay = new Replay(e.Node.Name))
             {
                 DataRow dR = DBHelper.GetRecord(DBConnection, "Beatmaps", "Hash", CurrentReplay.MapHash);
                 if (dR != null)
@@ -506,16 +510,6 @@ namespace o_RA.Forms
         {
             Application.Exit();
         }
-
-        private void ReplaysList_DrawNode(object sender, DrawTreeNodeEventArgs e)
-        {
-            if (e.Node.Index == -1)
-                return;
-            e.Graphics.FillRectangle(new SolidBrush(e.State.HasFlag(TreeNodeStates.Selected) ? oRAColours.Colour_Item_BG_0 : oRAColours.Colour_BG_P0), e.Bounds);
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            e.Graphics.DrawString(e.Node.Text, oRAFonts.Font_SubDescription, e.State.HasFlag(TreeNodeStates.Selected) ? new SolidBrush(oRAColours.Colour_Text_H) : new SolidBrush(oRAColours.Colour_Text_N), e.Bounds.Left + 22, e.Bounds.Top + e.Bounds.Height / 2 - e.Graphics.MeasureString(e.Node.Text, oRAFonts.Font_SubDescription).Height / 2);
-        }
-
 
         private void ToolStripMenuItem_Paint(object sender, PaintEventArgs e)
         {

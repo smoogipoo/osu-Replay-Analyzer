@@ -76,6 +76,9 @@
     <Compile Include="Controls\oRALabel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\oRAReplayList.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Forms\oRAMainForm.cs">
       <SubType>Form</SubType>
     </Compile>

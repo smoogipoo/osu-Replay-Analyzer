@@ -46,7 +46,7 @@ namespace o_RA.Forms
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.ReplaysList = new System.Windows.Forms.TreeView();
+            this.ReplaysList = new oRAReplayList();
             this.ReplayTimeline = new System.Windows.Forms.DataGridView();
             this.Progress = new oRAProgressBar();
             this.MainContainer = new oRATabControl();
@@ -173,7 +173,6 @@ namespace o_RA.Forms
             this.ReplaysList.Name = "ReplaysList";
             this.ReplaysList.Size = new System.Drawing.Size(293, 662);
             this.ReplaysList.TabIndex = 16;
-            this.ReplaysList.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.ReplaysList_DrawNode);
             this.ReplaysList.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ReplaysList_AfterSelect);
             // 
             // ReplayTimeline
@@ -292,7 +291,7 @@ namespace o_RA.Forms
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private oRATabControl MainContainer;
-        private System.Windows.Forms.TreeView ReplaysList;
+        private oRAReplayList ReplaysList;
         private oRAProgressBar Progress;
         private System.Windows.Forms.DataGridView ReplayTimeline;
     }

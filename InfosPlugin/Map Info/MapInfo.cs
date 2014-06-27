@@ -20,7 +20,6 @@ namespace InfosPlugin
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            BackColor = oRAColours.Colour_BG_P0;
             oRA.Data.ReplayChanged += HandleReplayChanged;
         }
 
@@ -34,8 +33,6 @@ namespace InfosPlugin
             tp.tpHitObjects = new List<tpHitObject>(b.HitObjects.Count);
             foreach (BaseCircle hitObject in b.HitObjects)
                 tp.tpHitObjects.Add(new tpHitObject(hitObject));
-
-
 
             customListView1.Items.Clear();
             customListView1.Items.Add(new ListViewItem());

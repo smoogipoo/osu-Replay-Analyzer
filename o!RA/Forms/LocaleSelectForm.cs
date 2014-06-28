@@ -43,8 +43,8 @@ namespace o_RA.Forms
             foreach (FileInfo file in localeFiles)
             {
                 string localeName = file.Name.Substring(0, file.Name.LastIndexOf(".", StringComparison.InvariantCulture));
-                Stream str = ResourceHelper.GetResourceStream(localeName + ".gif");
-                if (str != null)
+                Stream str = ResourceHelper.GetResourceStream("flag_" + localeName + ".gif");
+                if (str != null) 
                 {
                     //Add usercontrol
                     GifBitmapDecoder gDecoder = new GifBitmapDecoder(str, BitmapCreateOptions.None, BitmapCacheOption.OnDemand);

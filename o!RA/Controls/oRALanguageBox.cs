@@ -31,9 +31,10 @@ namespace o_RA.Controls
         {
             if (MouseOverImage == null && NormalImage == null)
                 return;
-            RectangleF drawRect = new RectangleF(new PointF(Width / 2 - MouseOverImage.Width / 2, Height / 2 - MouseOverImage.Height / 2), MouseOverImage.Size);
+            RectangleF drawRect = new RectangleF(new PointF(5, 5), new Size(ClientRectangle.Width - 10, ClientRectangle.Height - 10));
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            e.Graphics.DrawImage(mouseEntered ? MouseOverImage : NormalImage, drawRect);
+            if (MouseOverImage != null && NormalImage != null) 
+                e.Graphics.DrawImage(mouseEntered ? MouseOverImage : NormalImage, drawRect);
         }
 
         private void LanguageBox_Click(object sender, EventArgs e)

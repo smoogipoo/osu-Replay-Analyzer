@@ -55,19 +55,28 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\en.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\nl.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\de.gif" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\Menu_H.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Menu_N.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flag_nl.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flag_de.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flag_en.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flag_zh.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flag_hr.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flag_ro.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

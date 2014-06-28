@@ -63,9 +63,9 @@ namespace o_RAResources.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap de {
+        internal static System.Drawing.Bitmap flag_de {
             get {
-                object obj = ResourceManager.GetObject("de", resourceCulture);
+                object obj = ResourceManager.GetObject("flag_de", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,49 @@ namespace o_RAResources.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap en {
+        internal static System.Drawing.Bitmap flag_en {
             get {
-                object obj = ResourceManager.GetObject("en", resourceCulture);
+                object obj = ResourceManager.GetObject("flag_en", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap flag_hr {
+            get {
+                object obj = ResourceManager.GetObject("flag_hr", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap flag_nl {
+            get {
+                object obj = ResourceManager.GetObject("flag_nl", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap flag_ro {
+            get {
+                object obj = ResourceManager.GetObject("flag_ro", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap flag_zh {
+            get {
+                object obj = ResourceManager.GetObject("flag_zh", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -96,16 +136,6 @@ namespace o_RAResources.Properties {
         internal static System.Drawing.Bitmap Menu_N {
             get {
                 object obj = ResourceManager.GetObject("Menu_N", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap nl {
-            get {
-                object obj = ResourceManager.GetObject("nl", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

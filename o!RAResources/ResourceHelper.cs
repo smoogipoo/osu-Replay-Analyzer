@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 
-namespace oRAResources
+namespace o_RAResources
 {
     public class ResourceHelper
     {

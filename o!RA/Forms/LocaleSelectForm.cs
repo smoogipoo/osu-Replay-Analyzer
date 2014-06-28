@@ -3,7 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using oRAResources;
+using o_RAResources;
 using o_RA.Controls;
 
 namespace o_RA.Forms

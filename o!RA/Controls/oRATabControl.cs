@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using oRAResources;
+using o_RAResources;
 
 namespace o_RA.Controls
 {

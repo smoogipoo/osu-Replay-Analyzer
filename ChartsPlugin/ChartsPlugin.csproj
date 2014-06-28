@@ -33,8 +33,8 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="oRAInterface">
-      <HintPath>..\DLLs\oRAInterface.dll</HintPath>
+    <Reference Include="o!RAInterface">
+      <HintPath>..\DLLs\o!RAInterface.dll</HintPath>
     </Reference>
     <Reference Include="osu!BMAPI">
       <HintPath>..\DLLs\osu!BMAPI.dll</HintPath>

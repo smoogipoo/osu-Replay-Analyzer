@@ -43,7 +43,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfosPlugin", "InfosPlugin\
 		{F4F6BFAC-4D9B-4F24-963E-418806FCA1EE} = {F4F6BFAC-4D9B-4F24-963E-418806FCA1EE}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oRAResources", "o!RAResources\oRAResources.csproj", "{832D53A8-C517-4BEA-9998-0D5F231025AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "o!RAResources", "o!RAResources\o!RAResources.csproj", "{832D53A8-C517-4BEA-9998-0D5F231025AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -39,13 +39,13 @@
       <HintPath>..\DLLs\ErikEJ.SqlCe40.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="o!RAResources">
+      <HintPath>..\DLLs\o!RAResources.dll</HintPath>
+    </Reference>
     <Reference Include="oRAInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLLs\oRAInterface.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="oRAResources">
-      <HintPath>..\DLLs\oRAResources.dll</HintPath>
     </Reference>
     <Reference Include="osu!BMAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

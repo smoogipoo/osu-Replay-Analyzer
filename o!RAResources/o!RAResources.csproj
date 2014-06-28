@@ -7,8 +7,8 @@
     <ProjectGuid>{832D53A8-C517-4BEA-9998-0D5F231025AB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>oRAResources</RootNamespace>
-    <AssemblyName>oRAResources</AssemblyName>
+    <RootNamespace>o_RAResources</RootNamespace>
+    <AssemblyName>o!RAResources</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

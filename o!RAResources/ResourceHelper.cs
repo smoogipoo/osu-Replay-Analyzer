@@ -19,7 +19,7 @@ namespace oRAResources
 
         private static string GetResourceName(string resourceName)
         {
-            return Assembly.GetExecutingAssembly().GetName().Name + ".Resources." + resourceName.Replace(" ", "_")
+            return "o_RAResources.Resources." + resourceName.Replace(" ", "_")
                                                                                  .Replace("\\", ".")
                                                                                  .Replace("/", ".");
         }

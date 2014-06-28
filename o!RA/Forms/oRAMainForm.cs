@@ -62,19 +62,19 @@ namespace o_RA.Forms
                 if (Language.Count != 0)
                     Language.Clear();
 
-                Locale a = XMLHelper.DeSerialize<Locale>(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml");
-                for (int i = 0; i < a.Features.Count; i++)
+                Locale languageLocale = XMLHelper.DeSerialize<Locale>(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml");
+                for (int i = 0; i < languageLocale.Features.Count; i++)
                 {
-                    if (a.Features[i].Value != null)
-                        Language.Add(a.Features[i].Key, a.Features[i].Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
+                    if (languageLocale.Features[i].Value != null)
+                        Language.Add(languageLocale.Features[i].Key, languageLocale.Features[i].Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
                 }
                 if (Settings.GetSetting("ApplicationLocale") != "en")
                 {
-                    a = XMLHelper.DeSerialize<Locale>(Application.StartupPath + "\\locales\\en.xml");
-                    for (int i = 0; i < a.Features.Count; i++)
+                    languageLocale = XMLHelper.DeSerialize<Locale>(Application.StartupPath + "\\locales\\en.xml");
+                    for (int i = 0; i < languageLocale.Features.Count; i++)
                     {
-                        if (!Language.ContainsKey(a.Features[i].Key) && a.Features[i].Value != null)
-                            Language.Add(a.Features[i].Key, a.Features[i].Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
+                        if (!Language.ContainsKey(languageLocale.Features[i].Key) && languageLocale.Features[i].Value != null)
+                            Language.Add(languageLocale.Features[i].Key, languageLocale.Features[i].Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
                     }
                 }
             }

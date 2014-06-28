@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -62,6 +61,9 @@ namespace ChartsPlugin
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            Chart.ChartAreas[0].AxisY.Title = oRA.Data.Language["oRA_Displacement"];
+            Chart.ChartAreas[0].AxisX.Title = oRA.Data.Language["oRA_CircleNumber"];
+            Chart.Series[0].Name = oRA.Data.Language["oRA_AimAccuracy"];
             oRA.Data.ReplayChanged += HandleReplayChanged;
             oRA.Data.FrameChanged += HandleFrameChanged;
         }

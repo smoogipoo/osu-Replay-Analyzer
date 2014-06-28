@@ -9,24 +9,33 @@ namespace InfosPlugin
         {
             InitializeComponent();
         }
+        private class ComboBoxItem
+        {
+            public string Text { get; set; }
+            public Control Content { get; set; }
+        }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (UserControl c in ContentPanel.Controls)
+            for (int i = 0; i < DisplaySelectCB.Items.Count; i++)
             {
-                if (c.Name == ((ComboBox)sender).GetItemText(((ComboBox)sender).SelectedItem))
-                    c.Show();
-                else
-                    c.Hide();
+                ComboBoxItem item = (ComboBoxItem)DisplaySelectCB.Items[i];
+                item.Content.Visible = i == ((ComboBox)sender).SelectedIndex;
             }
         }
+
         private void Container_Load(object sender, EventArgs e)
         {
-            //Todo: Set names as they are in the combobox
             //Doesn't matter how you order these, as long as TWChart is last
             //As it is the default selection.
-            ContentPanel.Controls.Add(new ReplayInfo { Dock = DockStyle.Fill, Name = "Replay Information" });
-            ContentPanel.Controls.Add(new MapInfo { Dock = DockStyle.Fill, Name = "Beatmap Information" });
+            DisplaySelectCB.DisplayMember = "Text";
+            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_BeatmapInformation"], Content = new ReplayInfo { Dock = DockStyle.Fill } });
+            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_ReplayInformation"], Content = new MapInfo { Dock = DockStyle.Fill } });
+
+            foreach (ComboBoxItem item in DisplaySelectCB.Items)
+            {
+                ContentPanel.Controls.Add(item.Content);
+            }
             DisplaySelectCB.SelectedIndex = 0;
         }
     }

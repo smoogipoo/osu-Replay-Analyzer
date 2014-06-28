@@ -9,25 +9,34 @@ namespace ChartsPlugin
         {
             InitializeComponent();
         }
+        private class ComboBoxItem
+        {
+            public string Text { get; set; }
+            public Control Content { get; set; }
+        }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (UserControl c in ContentPanel.Controls)
+            for (int i = 0; i < DisplaySelectCB.Items.Count; i++)
             {
-                if (c.Name == ((ComboBox)sender).GetItemText(((ComboBox)sender).SelectedItem))
-                    c.Show();
-                else
-                    c.Hide();
+                ComboBoxItem item = (ComboBoxItem)DisplaySelectCB.Items[i];
+                item.Content.Visible = i == ((ComboBox)sender).SelectedIndex;
             }
         }
+        
         private void Container_Load(object sender, EventArgs e)
         {
-            //Todo: Set names as they are in the combobox
             //Doesn't matter how you order these, as long as TWChart is last
             //As it is the default selection.
-            ContentPanel.Controls.Add(new SRPMChart { Dock = DockStyle.Fill, Name = "Spinner RPM"});
-            ContentPanel.Controls.Add(new AimChart { Dock = DockStyle.Fill, Name = "Aim Accuracy" });
-            ContentPanel.Controls.Add(new TWChart { Dock = DockStyle.Fill, Name = "Timing Windows" });   
+            DisplaySelectCB.DisplayMember = "Text";
+            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_SpinnerRPM"], Content = new SRPMChart { Dock = DockStyle.Fill } });
+            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_AimAccuracy"], Content = new AimChart { Dock = DockStyle.Fill } });
+            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_TimingWindows"], Content = new TWChart { Dock = DockStyle.Fill } });
+
+            foreach (ComboBoxItem item in DisplaySelectCB.Items)
+            {
+                ContentPanel.Controls.Add(item.Content);
+            }
             DisplaySelectCB.SelectedIndex = 0;
         }
     }

@@ -49,10 +49,6 @@
             this.DisplaySelectCB.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.DisplaySelectCB.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DisplaySelectCB.FormattingEnabled = true;
-            this.DisplaySelectCB.Items.AddRange(new object[] {
-            "Timing Windows",
-            "Spinner RPM",
-            "Aim Accuracy"});
             this.DisplaySelectCB.Location = new System.Drawing.Point(383, 6);
             this.DisplaySelectCB.Name = "DisplaySelectCB";
             this.DisplaySelectCB.Size = new System.Drawing.Size(200, 25);

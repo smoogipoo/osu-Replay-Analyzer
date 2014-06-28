@@ -47,7 +47,7 @@ namespace ChartsPlugin
 
             if (result.PointIndex != -1 && result.Series != null && result.PointIndex < result.Series.Points.Count && !Equals(result.Series.Tag, "0"))
             {
-                ChartToolTip.SetToolTip(Chart, result.Series.Points[result.PointIndex].YValues[0] + "RPM");
+                ChartToolTip.SetToolTip(Chart, result.Series.Points[result.PointIndex].YValues[0] + oRA.Data.Language["oRA_RPM"]);
             }
             else
             {
@@ -95,6 +95,8 @@ namespace ChartsPlugin
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            Chart.ChartAreas[0].AxisX.Title = oRA.Data.Language["oRA_MapTime"];
+            Chart.ChartAreas[0].AxisY.Title = oRA.Data.Language["oRA_RPM"];
             oRA.Data.ReplayChanged += HandleReplayChanged;
         }
 

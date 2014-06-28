@@ -60,6 +60,11 @@ namespace ChartsPlugin
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            Chart.ChartAreas[0].AxisX.Title = oRA.Data.Language["oRA_CircleNumber"];
+            Chart.ChartAreas[0].AxisY.Title = oRA.Data.Language["oRA_ErrorRateTime"];
+            Chart.Series[0].Name = oRA.Data.Language["oRA_Hit50Region"];
+            Chart.Series[1].Name = oRA.Data.Language["oRA_Hit100Region"];
+            Chart.Series[2].Name = oRA.Data.Language["oRA_Hit300Region"];
             Chart.Series[3].LegendText = oRA.Data.Language["oRA_TimingWindow"];
             oRA.Data.ReplayChanged += HandleReplayChanged;
             oRA.Data.FrameChanged += HandleFrameChanged;

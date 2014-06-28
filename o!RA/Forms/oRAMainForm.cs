@@ -59,6 +59,8 @@ namespace o_RA.Forms
             }
             try
             {
+                if (Language.Count != 0)
+                    Language.Clear();
                 using (FileStream localeStream = new FileStream(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml", FileMode.Open))
                 using (XmlReader locale = XmlReader.Create(localeStream))
                 {
@@ -522,6 +524,23 @@ namespace o_RA.Forms
                 Plugins.UnloadPlugin(pS.AssemblyFile);
             }
             Application.ExitThread();
+        }
+
+        private void languageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings.AddSetting("ApplicationLocale", "");
+            Settings.Save();
+            InitializeLocale();
+
+            //Force re-load of plugins
+            foreach (Plugin p in Plugins.PluginCollection.ToArray())
+            {
+                Plugins.UnloadPlugin(p.AssemblyFile);
+                Plugins.LoadPlugin(p.AssemblyFile);
+            }
+
+            //Re-send the current beatmap and replay to the plugins
+            oRAData.UpdateStatus(CurrentReplay, CurrentBeatmap);
         }
     }
 }

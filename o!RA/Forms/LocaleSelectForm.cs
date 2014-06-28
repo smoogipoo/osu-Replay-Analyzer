@@ -28,7 +28,7 @@ namespace o_RA.Forms
 
         private void LocaleSelectForm_Load(object sender, EventArgs e)
         {
-            BorderSize = Size - ClientRectangle.Size; ;
+            BorderSize = Size - ClientRectangle.Size;
             Size = new Size(MaxWidth + 2 * BorderSize.Width, MaxHeight + BorderSize.Height + BorderSize.Width + 40);
 
             DirectoryInfo dInfo = new DirectoryInfo(Path.Combine(Application.StartupPath, "Locales"));

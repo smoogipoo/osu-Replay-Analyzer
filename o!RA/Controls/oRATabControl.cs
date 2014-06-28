@@ -113,6 +113,26 @@ namespace o_RA.Controls
             TotalHeight += 61;
         }
 
+        public void Remove(oRAPage Page)
+        {
+            Pages.Remove(Page);
+            foreach (Control c in Controls)
+            {
+                if (c.GetType() == typeof(oRALabel) && c.Text == Page.Name)
+                    Controls.Remove(c);
+            }
+            TabContainer.Controls.Remove((Control)Page.Contents);
+            TotalHeight -= 61;
+        }
+
+        public void RemoveAt(int index)
+        {
+            Pages.RemoveAt(index);
+            Controls.RemoveAt(index);
+            TabContainer.Controls.RemoveAt(index);
+            TotalHeight -= 61;
+        }
+
         private void ExpandTC(object sender, EventArgs e)
         {
             oRALabel label = (oRALabel)sender;

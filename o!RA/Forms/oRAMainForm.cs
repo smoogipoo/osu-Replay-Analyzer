@@ -112,6 +112,11 @@ namespace o_RA.Forms
             oRAData.FrameChanged += HandleFrameChanged;
 
             //Load Plugins
+            LoadPlugins();
+        }
+
+        private void LoadPlugins()
+        {
             if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
             {
                 foreach (string pluginFile in Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "Plugins"), "*.dll", SearchOption.AllDirectories))
@@ -535,9 +540,14 @@ namespace o_RA.Forms
             //Force re-load of plugins
             foreach (Plugin p in Plugins.PluginCollection.ToArray())
             {
+                foreach (oRAPage page in MainContainer.TabPages.GetPages())
+                {
+                    if (page.Name == p.Instance.p_Name)
+                        MainContainer.TabPages.Remove(page);
+                }
                 Plugins.UnloadPlugin(p.AssemblyFile);
-                Plugins.LoadPlugin(p.AssemblyFile);
             }
+            LoadPlugins();
 
             //Re-send the current beatmap and replay to the plugins
             oRAData.UpdateStatus(CurrentReplay, CurrentBeatmap);

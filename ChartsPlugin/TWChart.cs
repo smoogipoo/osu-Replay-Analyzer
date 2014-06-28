@@ -60,6 +60,7 @@ namespace ChartsPlugin
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            Chart.Series[3].LegendText = oRA.Data.Language["text_TimingWindow"];
             oRA.Data.ReplayChanged += HandleReplayChanged;
             oRA.Data.FrameChanged += HandleFrameChanged;
         }

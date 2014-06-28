@@ -36,12 +36,13 @@ namespace o_RA.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
             this.ClientSize = new System.Drawing.Size(497, 295);
             this.Name = "LocaleSelectForm";
             this.ShowIcon = false;
             this.Text = "Language";
             this.Load += new System.EventHandler(this.LocaleSelectForm_Load);
+            this.Resize += new System.EventHandler(this.LocaleSelectForm_Resize);
             this.ResumeLayout(false);
 
         }

@@ -24,7 +24,7 @@ namespace o_RA.Controls
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(new SolidBrush(mouseDown ? oRAColours.Colour_Item_BG_0 : oRAColours.Colour_BG_P1), e.ClipRectangle);
+            e.Graphics.FillRectangle(new SolidBrush(mouseDown ? oRAColours.Colour_Item_BG_0 : oRAColours.Colour_BG_P0), e.ClipRectangle);
         }
 
         protected override void OnPaint(PaintEventArgs e)

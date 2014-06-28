@@ -49,6 +49,7 @@ namespace o_RA_Locale_Generator
                 };
 
                 string language = "";
+                bool skip = false;
                 for (int c = 0; c < cellFeed.Entries.Count; c++)
                 {
                     if (c > ProgramStrings.Count + 2)
@@ -57,6 +58,8 @@ namespace o_RA_Locale_Generator
                     {
                         case 0:
                             language = ((CellEntry)cellFeed.Entries[c]).Value;
+                            if (language == "Locale Code")
+                                skip = true;
                             break;
                         case 1: case 2:
                             break;
@@ -74,7 +77,8 @@ namespace o_RA_Locale_Generator
                 if (!Directory.Exists(targetDirectory))
                     Directory.CreateDirectory(targetDirectory);
 #endif
-                XMLHelper.Serialize(targetDirectory + language + ".xml", loc);
+                if (!skip)
+                    XMLHelper.Serialize(targetDirectory + language + ".xml", loc);
             }
         }
     }

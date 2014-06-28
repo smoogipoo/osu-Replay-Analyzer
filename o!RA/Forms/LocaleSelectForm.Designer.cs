@@ -30,33 +30,23 @@ namespace o_RA.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.languageBox1 = new LanguageBox();
             this.SuspendLayout();
-            // 
-            // languageBox1
-            // 
-            this.languageBox1.BackgroundImage = global::o_RA.Properties.Resources.enUSFlag;
-            this.languageBox1.Locale = "en";
-            this.languageBox1.Location = new System.Drawing.Point(171, 87);
-            this.languageBox1.Name = "languageBox1";
-            this.languageBox1.Size = new System.Drawing.Size(155, 100);
-            this.languageBox1.TabIndex = 0;
             // 
             // LocaleSelectForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.ClientSize = new System.Drawing.Size(497, 295);
-            this.Controls.Add(this.languageBox1);
             this.Name = "LocaleSelectForm";
             this.ShowIcon = false;
             this.Text = "Language";
+            this.Load += new System.EventHandler(this.LocaleSelectForm_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private LanguageBox languageBox1;
     }
 }

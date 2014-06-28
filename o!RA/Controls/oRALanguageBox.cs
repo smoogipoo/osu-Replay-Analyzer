@@ -14,37 +14,31 @@ namespace o_RA.Controls
             InitializeComponent();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
         }
-        string v_locale;
         bool mouseEntered;
         bool mouseDown;
 
         [Description("Set the locale that corresponds to the flag."), Category("Locale")]
-        public string Locale
-        {
-            set { v_locale = value; }
-            get { return v_locale; }
-        }
+        public string Locale { get; set; }
+        public Bitmap NormalImage { get; set; }
+        public Bitmap MouseOverImage { get; set; }
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            if (mouseDown)
-                e.Graphics.FillRectangle(Brushes.Gray, 0, 0, 155, 99);
-            else
-                e.Graphics.FillRectangle(mouseEntered ? Brushes.DarkGray : Brushes.White, 0, 0, 155, 99);
-            e.Graphics.DrawRectangle(Pens.DarkGray, 0, 0, 154, 99);
+            e.Graphics.FillRectangle(new SolidBrush(mouseDown ? oRAColours.Colour_Item_BG_0 : oRAColours.Colour_BG_P1), e.ClipRectangle);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-           if (BackgroundImage != null)
-           {
-               e.Graphics.DrawImage(BackgroundImage, 5, 5, 145, 90);
-           }         
+            if (MouseOverImage == null && NormalImage == null)
+                return;
+            RectangleF drawRect = new RectangleF(new PointF(e.ClipRectangle.Width / 2 - MouseOverImage.Width / 2, e.ClipRectangle.Height / 2 - MouseOverImage.Height / 2), MouseOverImage.Size);
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            e.Graphics.DrawImage(mouseEntered ? MouseOverImage : NormalImage, drawRect);
         }
 
         private void LanguageBox_Click(object sender, EventArgs e)
         {
-            oRAMainForm.Settings.AddSetting("ApplicationLocale", v_locale);
+            oRAMainForm.Settings.AddSetting("ApplicationLocale", Locale);
             oRAMainForm.Settings.Save();
             var findForm = FindForm();
             if (findForm != null)

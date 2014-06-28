@@ -87,7 +87,12 @@ namespace o_RA.Forms
             }
             catch (FileNotFoundException)
             {
-                MessageBox.Show(@"Selected locale does not exist. Application will now exit.");
+                //If the ApplicationLocale == "" then the user's existed the locale select 
+                //form manually
+                if (Settings.GetSetting("ApplicationLocale") != "")
+                    MessageBox.Show(@"Selected locale does not exist. Application will now exit.");
+                Settings.DeleteSetting("ApplicationLocale");
+                Settings.Save();
                 Environment.Exit(1);
             }
         }

@@ -31,7 +31,7 @@ namespace o_RA.Controls
         {
             if (MouseOverImage == null && NormalImage == null)
                 return;
-            RectangleF drawRect = new RectangleF(new PointF(e.ClipRectangle.Width / 2 - MouseOverImage.Width / 2, e.ClipRectangle.Height / 2 - MouseOverImage.Height / 2), MouseOverImage.Size);
+            RectangleF drawRect = new RectangleF(new PointF(Width / 2 - MouseOverImage.Width / 2, Height / 2 - MouseOverImage.Height / 2), MouseOverImage.Size);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             e.Graphics.DrawImage(mouseEntered ? MouseOverImage : NormalImage, drawRect);
         }

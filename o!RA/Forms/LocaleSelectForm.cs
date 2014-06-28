@@ -16,23 +16,27 @@ namespace o_RA.Forms
         {
             InitializeComponent();
         }
-        const int LocaleBoxSpacing = 10;
-        const int LocaleBoxWidth = 160;
+        const int LocaleBoxWidth = 155;
         const int LocaleBoxHeight = 100;
-        const int MaxRowWidth = 3 * LocaleBoxWidth + 3 * LocaleBoxSpacing;
+
+        const int MaxHeight = 3 * LocaleBoxHeight;
+        const int MaxWidth = 3 * LocaleBoxWidth;
 
         readonly List<UserControl> LocaleBoxes = new List<UserControl>();
-        int currentStart = 0;
+        int currentStart;
 
 
-        private void LocaleSelectForm_Load(object sender, System.EventArgs e)
+        private void LocaleSelectForm_Load(object sender, EventArgs e)
         {
+            Size BorderSize = Size - ClientRectangle.Size;
+
+            MinimumSize = new Size(MaxWidth + 2 * BorderSize.Width, MaxHeight + BorderSize.Height + 40);
 
             DirectoryInfo dInfo = new DirectoryInfo(Path.Combine(Application.StartupPath, "Locales"));
             FileInfo[] localeFiles = dInfo.GetFiles("*.xml");
             if (localeFiles.Length == 0)
             {
-                MessageBox.Show(@"Error - No o!RA locales exist! Re-install the application and try again.\nApplication will now exit.");
+                MessageBox.Show(@"Error - No o!RA locales exist! Re-install the application and try again.\o!RA will now exit.");
                 Application.Exit();
             }
             //Get all the locales and put usercontrols on form
@@ -44,85 +48,66 @@ namespace o_RA.Forms
                 {
                     //Add usercontrol
                     GifBitmapDecoder gDecoder = new GifBitmapDecoder(str, BitmapCreateOptions.None, BitmapCacheOption.OnDemand);
-                    LanguageBox lb = new LanguageBox { Locale = localeName, MouseOverImage = BitmapFromSource(gDecoder.Frames[1]), NormalImage = BitmapFromSource(gDecoder.Frames[0]), Visible = false};
+                    LanguageBox lb = new LanguageBox { Locale = localeName, MouseOverImage = BitmapFromSource(gDecoder.Frames[1]), NormalImage = BitmapFromSource(gDecoder.Frames[0]) };
                     Controls.Add(lb);
                     LocaleBoxes.Add(lb);
                 }
             }
-            PopulateForm(0);
+            currentStart = 0;
+            PopulateForm();
         }
 
-        private void PopulateForm(int start)
+        private void PopulateForm()
         {
-            foreach (UserControl c in LocaleBoxes)
-                c.Visible = false;
-            if (start != 0)
+            if (currentStart != 0)
             { } //Todo: Add previous button
-            int count = LocaleBoxes.Count - start;
-
-            int midY = ClientRectangle.Height / 2;
-            int topMidY = ClientRectangle.Height / 4;
-            int botMidY = 3 * ClientRectangle.Height / 4;
+            int count = LocaleBoxes.Count - currentStart;
 
             switch (count)
             {
                 case 1: case 2: case 3:
                 {
                     //Middle row
-                    int totalWidth = count * LocaleBoxWidth + count * LocaleBoxSpacing;
-                    for (int i = LocaleBoxes.Count - count; i < LocaleBoxes.Count; i++)
+                    int totalWidth = count * LocaleBoxWidth;
+                    for (int i = LocaleBoxes.Count - count; i < count; i++)
                     {
-                        LocaleBoxes[i].Location = new Point(Width / 2 - totalWidth / 2 + i * LocaleBoxWidth + i * LocaleBoxSpacing, midY - LocaleBoxHeight / 2);
-                        LocaleBoxes[i].Visible = true;
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 - LocaleBoxHeight / 2);
                     }
                 }
                     break;
                 case 4: case 5: case 6:
                 {
                     //Top and bottom rows
-                    int totalBotWidth = (count - 3) * LocaleBoxWidth + (count - 3) * LocaleBoxSpacing;
-                    for (int i = LocaleBoxes.Count - count; i < (LocaleBoxes.Count - count) + 3; i++)
+                    int totalBotWidth = (count - 3) * LocaleBoxWidth;
+                    for (int i = 0; i < 3; i++)
                     {
                         //Fill top row
-                        LocaleBoxes[i].Location = new Point(Width / 2 - MaxRowWidth / 2 + i * LocaleBoxWidth + i * LocaleBoxSpacing, topMidY - LocaleBoxHeight / 2);
-                        LocaleBoxes[i].Visible = true;
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 - 3 * LocaleBoxHeight / 2);
                     }
-                    for (int i = (LocaleBoxes.Count - count) + 3; i < LocaleBoxes.Count; i++)
+                    for (int i = 3; i < LocaleBoxes.Count; i++)
                     {
                         //Fill bottom row
-                        LocaleBoxes[i].Location = new Point(Width / 2 - totalBotWidth / 2 + i * LocaleBoxWidth + i * LocaleBoxSpacing, botMidY - LocaleBoxHeight / 2);
-                        LocaleBoxes[i].Visible = true;
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalBotWidth / 2 + (i - 3) * LocaleBoxWidth, MaxHeight / 2 + LocaleBoxHeight / 2);
                     }
                 }
                     break;
                 case 7: case 8: case 9:
                     //All rows
-                    int totalMidWidth = (count - 6) * LocaleBoxWidth + (count - 6) * LocaleBoxSpacing;
-                    for (int i = LocaleBoxes.Count - count; i < (LocaleBoxes.Count - count) + 3; i++)
+                    int totalMidWidth = (count - 6) * LocaleBoxWidth;
+                    for (int i = 0; i < 3; i++)
                     {
                         //Fill top row
-                        LocaleBoxes[i].Location = new Point(Width / 2 - MaxRowWidth / 2 + i * LocaleBoxWidth + i * LocaleBoxSpacing, topMidY - LocaleBoxHeight / 2);
-                        LocaleBoxes[i].Visible = true;
-                    }
-                    for (int i = (LocaleBoxes.Count - count) + 3; i < (LocaleBoxes.Count - count) + 6; i++)
-                    {
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 - 3 * LocaleBoxHeight / 2);
                         //Fill bottom row
-                        LocaleBoxes[i].Location = new Point(Width / 2 - MaxRowWidth / 2 + i * LocaleBoxWidth + i * LocaleBoxSpacing, botMidY - LocaleBoxHeight / 2);
-                        LocaleBoxes[i].Visible = true;
+                        LocaleBoxes[i + 3].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 + LocaleBoxHeight / 2);
                     }
-                    for (int i = (LocaleBoxes.Count - count) + 6; i < LocaleBoxes.Count; i++)
+                    for (int i = 6; i < LocaleBoxes.Count; i++)
                     {
-                        //Fill bottom row
-                        LocaleBoxes[i].Location = new Point(Width / 2 - totalMidWidth / 2 + i * LocaleBoxWidth + i * LocaleBoxSpacing, midY - LocaleBoxHeight / 2);
-                        LocaleBoxes[i].Visible = true;
+                        //Fill middle row
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalMidWidth / 2 + (i - 6) * LocaleBoxWidth, MaxHeight / 2 - LocaleBoxHeight / 2);
                     }
                     break;
             }
-        }
-
-        private void AddControl(UserControl control)
-        {
-            Controls.Add(control);
         }
 
         /// <summary>
@@ -143,7 +128,7 @@ namespace o_RA.Forms
 
         private void LocaleSelectForm_Resize(object sender, EventArgs e)
         {
-            PopulateForm(currentStart);
+            PopulateForm();
         }
     }
 }

@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Google.GData.Client;
 using Google.GData.Spreadsheets;
 using System.Windows.Forms;
 
@@ -47,7 +43,11 @@ namespace o_RA_Locale_Generator
                 cellQuery.MaximumColumn = i;
                 cellQuery.ReturnEmpty = ReturnEmptyCells.yes;
                 cellFeed = service.Query(cellQuery);
-                StringBuilder sB = new StringBuilder();
+                Locale loc = new Locale
+                {
+                    Features = new List<LocaleElement>()
+                };
+
                 string language = "";
                 for (int c = 0; c < cellFeed.Entries.Count; c++)
                 {
@@ -57,16 +57,14 @@ namespace o_RA_Locale_Generator
                     {
                         case 0:
                             language = ((CellEntry)cellFeed.Entries[c]).Value;
-                            sB.AppendLine("<Language>");
                             break;
                         case 1: case 2:
                             break;
                         default:
-                            sB.AppendLine("\t<" + ProgramStrings[c - 3] + ">" + ((CellEntry)cellFeed.Entries[c]).Value + "</" + ProgramStrings[c - 3] + ">");
+                            loc.Features.Add(new LocaleElement { Key = ProgramStrings[c - 3], Value = ((CellEntry)cellFeed.Entries[c]).Value });
                             break;
                     }
                 }
-                sB.AppendLine("</Language>");
 #if DEBUG
                 string targetDirectory = Directory.GetParent(Directory.GetParent(Directory.GetParent(Application.StartupPath).FullName).FullName).FullName + @"\o!RA\bin\Debug\Locales\";
                 if (!Directory.Exists(targetDirectory))
@@ -76,7 +74,7 @@ namespace o_RA_Locale_Generator
                 if (!Directory.Exists(targetDirectory))
                     Directory.CreateDirectory(targetDirectory);
 #endif
-                File.WriteAllText(targetDirectory + language + ".xml", sB.ToString());
+                XMLHelper.Serialize(targetDirectory + language + ".xml", loc);
             }
         }
     }

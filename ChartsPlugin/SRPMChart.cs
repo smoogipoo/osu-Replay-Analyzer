@@ -137,7 +137,7 @@ namespace ChartsPlugin
                 {
                     ChartType = SeriesChartType.Spline,
                     BorderWidth = 2,
-                    Name = oRA.Data.Language["text_Spinner"] + " " + currentSpinnerNumber
+                    Name = oRA.Data.Language["oRA_Spinner"] + " " + currentSpinnerNumber
                 };
                 foreach (var frame in RPMCount)
                 {

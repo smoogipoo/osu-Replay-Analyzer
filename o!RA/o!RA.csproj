@@ -120,6 +120,7 @@
       <DependentUpon>PluginSettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalClasses\DBHelper.cs" />
+    <Compile Include="GlobalClasses\XMLHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalClasses\oRAFuncs.cs" />

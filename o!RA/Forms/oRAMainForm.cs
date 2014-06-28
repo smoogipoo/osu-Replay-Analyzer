@@ -61,29 +61,20 @@ namespace o_RA.Forms
             {
                 if (Language.Count != 0)
                     Language.Clear();
-                using (FileStream localeStream = new FileStream(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml", FileMode.Open))
-                using (XmlReader locale = XmlReader.Create(localeStream))
+
+                Locale a = XMLHelper.DeSerialize<Locale>(Application.StartupPath + "\\Locales\\" + Settings.GetSetting("ApplicationLocale") + ".xml");
+                for (int i = 0; i < a.Features.Count; i++)
                 {
-                    while (locale.Read())
+                    if (a.Features[i].Value != null)
+                        Language.Add(a.Features[i].Key, a.Features[i].Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
+                }
+                if (Settings.GetSetting("ApplicationLocale") != "en")
+                {
+                    a = XMLHelper.DeSerialize<Locale>(Application.StartupPath + "\\locales\\en.xml");
+                    for (int i = 0; i < a.Features.Count; i++)
                     {
-                        string n = locale.Name;
-                        locale.Read();
-                        if (!Language.ContainsKey(n) && locale.Value != "")
-                            Language.Add(n, locale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
-                    }
-                    if (Settings.GetSetting("ApplicationLocale") != "en")
-                    {
-                        using (FileStream enLocaleStream = new FileStream(Application.StartupPath + "\\locales\\en.xml", FileMode.Open))
-                        using (XmlReader enLocale = XmlReader.Create(enLocaleStream))
-                        {
-                            while (enLocale.Read())
-                            {
-                                string n = enLocale.Name;
-                                enLocale.Read();
-                                if (!Language.ContainsKey(n))
-                                    Language.Add(n, enLocale.Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
-                            }
-                        }
+                        if (!Language.ContainsKey(a.Features[i].Key) && a.Features[i].Value != null)
+                            Language.Add(a.Features[i].Key, a.Features[i].Value.Replace(@"\n", "\n").Replace(@"\t", "\t"));
                     }
                 }
             }
@@ -173,7 +164,7 @@ namespace o_RA.Forms
                                 string path = Path.GetDirectoryName(filter.Match(o.ToString()).ToString());
                                 if (IsOsuPath(path))
                                 {
-                                    string langString = Language["info_FoundosuDirectory"];
+                                    string langString = Language["oRA_FoundosuDirectory"];
                                     if (MessageBox.Show(langString.Substring(0, langString.IndexOf('|')) + @": " + path + '\n' + langString.Substring(langString.IndexOf('|') + 1), @"o!RA", MessageBoxButtons.YesNo) == DialogResult.Yes)
                                         Settings.AddSetting("GameDir", Path.GetDirectoryName(filter.Match(o.ToString()).ToString()));
                                     else
@@ -189,7 +180,7 @@ namespace o_RA.Forms
                         //Get the user to select osu! path
                         using (FolderBrowserDialog fd = new FolderBrowserDialog())
                         {
-                            fd.Description = Language["info_osuDirectory"];
+                            fd.Description = Language["oRA_osuDirectory"];
                             while (!IsOsuPath(fd.SelectedPath))
                             {
                                 if (fd.ShowDialog() == DialogResult.OK)
@@ -198,7 +189,7 @@ namespace o_RA.Forms
                                         Settings.AddSetting("GameDir", fd.SelectedPath);
                                     else
                                     {
-                                        MessageBox.Show(Language["info_osuWrongDir"], @"o!RA");
+                                        MessageBox.Show(Language["oRA_osuWrongDir"], @"o!RA");
                                     }
                                 }
                                 else
@@ -240,7 +231,7 @@ namespace o_RA.Forms
         /// </summary>
         private void PopulateBeatmaps()
         {
-            oRAControls.ProgressToolTip.Tag = Language["info_PopBeatmaps"];
+            oRAControls.ProgressToolTip.Tag = Language["oRA_PopBeatmaps"];
 
             DataTable beatmapData = DBHelper.CreateBeatmapDataTable();
             string[] beatmapFiles = Directory.GetFiles(oRAData.BeatmapDirectory, "*.osu", SearchOption.AllDirectories);
@@ -305,7 +296,7 @@ namespace o_RA.Forms
                 }
             }
             Progress.BeginInvoke((Action)(() => Progress.Value = 0));
-            oRAControls.ProgressToolTip.Tag = Language["info_OperationsCompleted"];
+            oRAControls.ProgressToolTip.Tag = Language["oRA_OperationsCompleted"];
         }
 
         private void InitializeWatchers()
@@ -392,7 +383,7 @@ namespace o_RA.Forms
             //Failsafe
             if (!File.Exists(e.Node.Name))
             {
-                MessageBox.Show(Language["info_ReplayInexistent"] + '\n' + e.Node.Name);
+                MessageBox.Show(Language["oRA_ReplayInexistent"] + '\n' + e.Node.Name);
                 return;
             }
             

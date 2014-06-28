@@ -23,14 +23,14 @@ namespace o_RA.Forms
         const int MaxWidth = 3 * LocaleBoxWidth;
 
         readonly List<UserControl> LocaleBoxes = new List<UserControl>();
+        Size BorderSize;
         int currentStart;
 
 
         private void LocaleSelectForm_Load(object sender, EventArgs e)
         {
-            Size BorderSize = Size - ClientRectangle.Size;
-
-            MinimumSize = new Size(MaxWidth + 2 * BorderSize.Width, MaxHeight + BorderSize.Height + 40);
+            BorderSize = Size - ClientRectangle.Size; ;
+            Size = new Size(MaxWidth + 2 * BorderSize.Width, MaxHeight + BorderSize.Height + BorderSize.Width + 40);
 
             DirectoryInfo dInfo = new DirectoryInfo(Path.Combine(Application.StartupPath, "Locales"));
             FileInfo[] localeFiles = dInfo.GetFiles("*.xml");
@@ -50,7 +50,7 @@ namespace o_RA.Forms
                     GifBitmapDecoder gDecoder = new GifBitmapDecoder(str, BitmapCreateOptions.None, BitmapCacheOption.OnDemand);
                     LanguageBox lb = new LanguageBox { Locale = localeName, MouseOverImage = BitmapFromSource(gDecoder.Frames[1]), NormalImage = BitmapFromSource(gDecoder.Frames[0]) };
                     Controls.Add(lb);
-                    LocaleBoxes.Add(lb);
+                    LocaleBoxes.Add(lb);                       
                 }
             }
             currentStart = 0;
@@ -61,7 +61,7 @@ namespace o_RA.Forms
         {
             if (currentStart != 0)
             { } //Todo: Add previous button
-            int count = LocaleBoxes.Count - currentStart;
+            int count = Math.Min(LocaleBoxes.Count - currentStart, 9);
 
             switch (count)
             {
@@ -71,7 +71,7 @@ namespace o_RA.Forms
                     int totalWidth = count * LocaleBoxWidth;
                     for (int i = LocaleBoxes.Count - count; i < count; i++)
                     {
-                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 - LocaleBoxHeight / 2);
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalWidth / 2 + i * LocaleBoxWidth, BorderSize.Width / 2 + MaxHeight / 2 - LocaleBoxHeight / 2);
                     }
                 }
                     break;
@@ -82,12 +82,12 @@ namespace o_RA.Forms
                     for (int i = 0; i < 3; i++)
                     {
                         //Fill top row
-                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 - 3 * LocaleBoxHeight / 2);
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, BorderSize.Width / 2 + MaxHeight / 2 - 3 * LocaleBoxHeight / 2);
                     }
                     for (int i = 3; i < LocaleBoxes.Count; i++)
                     {
                         //Fill bottom row
-                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalBotWidth / 2 + (i - 3) * LocaleBoxWidth, MaxHeight / 2 + LocaleBoxHeight / 2);
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalBotWidth / 2 + (i - 3) * LocaleBoxWidth, BorderSize.Width / 2 + MaxHeight / 2 + LocaleBoxHeight / 2);
                     }
                 }
                     break;
@@ -97,14 +97,14 @@ namespace o_RA.Forms
                     for (int i = 0; i < 3; i++)
                     {
                         //Fill top row
-                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 - 3 * LocaleBoxHeight / 2);
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, BorderSize.Width / 2 + MaxHeight / 2 - 3 * LocaleBoxHeight / 2);
                         //Fill bottom row
-                        LocaleBoxes[i + 3].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, MaxHeight / 2 + LocaleBoxHeight / 2);
+                        LocaleBoxes[i + 3].Location = new Point(ClientRectangle.Width / 2 - MaxWidth / 2 + i * LocaleBoxWidth, BorderSize.Width / 2 + MaxHeight / 2 + LocaleBoxHeight / 2);
                     }
                     for (int i = 6; i < LocaleBoxes.Count; i++)
                     {
                         //Fill middle row
-                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalMidWidth / 2 + (i - 6) * LocaleBoxWidth, MaxHeight / 2 - LocaleBoxHeight / 2);
+                        LocaleBoxes[i].Location = new Point(ClientRectangle.Width / 2 - totalMidWidth / 2 + (i - 6) * LocaleBoxWidth, BorderSize.Width / 2 + MaxHeight / 2 - LocaleBoxHeight / 2);
                     }
                     break;
             }

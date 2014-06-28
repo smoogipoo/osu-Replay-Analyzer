@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -50,7 +49,7 @@ namespace o_RA.Forms
                     GifBitmapDecoder gDecoder = new GifBitmapDecoder(str, BitmapCreateOptions.None, BitmapCacheOption.OnDemand);
                     LanguageBox lb = new LanguageBox { Locale = localeName, MouseOverImage = BitmapFromSource(gDecoder.Frames[1]), NormalImage = BitmapFromSource(gDecoder.Frames[0]) };
                     Controls.Add(lb);
-                    LocaleBoxes.Add(lb);                       
+                    LocaleBoxes.Add(lb); 
                 }
             }
             currentStart = 0;
@@ -59,9 +58,9 @@ namespace o_RA.Forms
 
         private void PopulateForm()
         {
-            if (currentStart != 0)
-            { } //Todo: Add previous button
             int count = Math.Min(LocaleBoxes.Count - currentStart, 9);
+            PrevLbl.Visible = currentStart != 0;
+            NextLbl.Visible = (currentStart + 9) <= LocaleBoxes.Count;
 
             switch (count)
             {
@@ -128,6 +127,18 @@ namespace o_RA.Forms
 
         private void LocaleSelectForm_Resize(object sender, EventArgs e)
         {
+            PopulateForm();
+        }
+
+        private void NextLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            currentStart += 9;
+            PopulateForm();
+        }
+
+        private void PrevLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            currentStart -= 9;
             PopulateForm();
         }
     }

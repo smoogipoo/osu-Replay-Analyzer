@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using oRAResources;
 
 namespace o_RA.Controls
 {
@@ -67,8 +68,8 @@ namespace o_RA.Controls
             {
                 Width = 60,
                 Height = 60,
-                Icon_Hot = Properties.Resources.Menu_H,
-                Icon_Normal = Properties.Resources.Menu_N,
+                Icon_Hot = new Bitmap(ResourceHelper.GetResourceStream("Menu_H.png")),
+                Icon_Normal = new Bitmap(ResourceHelper.GetResourceStream("Menu_N.png")),
                 Colour_Hot = oRAColours.Colour_BG_Main,
                 Text = @"Expand Tabs",
             };

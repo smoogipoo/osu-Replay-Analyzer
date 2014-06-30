@@ -30,8 +30,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\DLLs\Microsoft.Xna.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\DLLs\Microsoft.Xna.Framework.Graphics.dll</HintPath>
+    </Reference>
     <Reference Include="o!RAInterface">
       <HintPath>..\DLLs\o!RAInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="o!RAResources">
+      <HintPath>..\DLLs\o!RAResources.dll</HintPath>
     </Reference>
     <Reference Include="osu!BMAPI">
       <HintPath>..\DLLs\osu!BMAPI.dll</HintPath>
@@ -65,6 +76,12 @@
     <Compile Include="Map Info\MapInfo.Designer.cs">
       <DependentUpon>MapInfo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Map Info\MapPreview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Map Info\MapPreview.Designer.cs">
+      <DependentUpon>MapPreview.cs</DependentUpon>
+    </Compile>
     <Compile Include="Map Info\tpDifficulty.cs" />
     <Compile Include="Map Info\tpHitObject.cs" />
     <Compile Include="oRA.cs" />
@@ -87,6 +104,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Map Info\MapInfo.resx">
       <DependentUpon>MapInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Map Info\MapPreview.resx">
+      <DependentUpon>MapPreview.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

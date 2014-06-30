@@ -268,7 +268,16 @@ namespace o_RA.Forms
                             existingHashes.Add(beatmapHash);
 
                             //Increment the progressbar
-                            Progress.BeginInvoke((Action)(() => Progress.Value += 1));
+                            try
+                            {
+                                Progress.BeginInvoke((Action)(() => Progress.Value += 1));                                
+                            }
+                            catch
+                            {
+                                //If this occurs, the form has disposed
+                                //We don't want to continue any further
+                                return;
+                            }
 
                             //Free memory by pushing the rows
                             //We don't want to set this too low or we spend more time

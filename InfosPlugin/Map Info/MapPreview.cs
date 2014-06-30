@@ -117,6 +117,10 @@ namespace InfosPlugin
         {
             if (CurrentBeatmap != null)
             {
+                PlayerPosition = 0;
+                TotalBeatmapTime = 0;
+                Playing = false;
+
                 //Load the background image
                 string beatmapLoc = CurrentBeatmap.Filename.Substring(0, CurrentBeatmap.Filename.LastIndexOf(@"\", StringComparison.InvariantCulture));
                 foreach (BaseEvent ev in CurrentBeatmap.Events)
@@ -200,11 +204,13 @@ namespace InfosPlugin
 
                 if (PlayerGotoStartArea.Contains(position))
                 {
+                    Playing = false;
                     PlayerPosition = 0;
                 }
 
                 if (PlayerGotoEndArea.Contains(position))
                 {
+                    Playing = false;
                     PlayerPosition = TotalBeatmapTime;
                 }
             }

@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Windows.Forms;
 using BMAPI;
+using MapPreview;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using o_RAResources;
 using ReplayAPI;
-using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
-using Color = Microsoft.Xna.Framework.Color;
-using Point = Microsoft.Xna.Framework.Point;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace InfosPlugin
 {
-    public partial class MapPreview : UserControl
+    public partial class MapPreview : System.Windows.Forms.UserControl
     {
 
         #region Load Events
@@ -24,8 +19,8 @@ namespace InfosPlugin
         {
             InitializeComponent();
         }
-        protected override void OnPaint(PaintEventArgs e) { }
-        protected override void OnPaintBackground(PaintEventArgs e) { }
+        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e) { }
+        protected override void OnPaintBackground(System.Windows.Forms.PaintEventArgs e) { }
         private void MapPreview_Load(object sender, EventArgs e)
         {
             //Load our graphics device
@@ -38,7 +33,7 @@ namespace InfosPlugin
 
             Initialize();
             LoadContent();
-            Application.Idle += Application_Idle;
+            System.Windows.Forms.Application.Idle += Application_Idle;
             oRA.Data.ReplayChanged += HandleReplayChanged;
         }
         private void MapPreview_Resize(object sender, EventArgs e)
@@ -58,6 +53,7 @@ namespace InfosPlugin
             Draw();
         }
         #endregion
+
 
         private MouseState LastMouseState;
         private GraphicsDevice device;
@@ -225,15 +221,8 @@ namespace InfosPlugin
                 else
                     return;
                 Invalidate();
-                NOP(10000);
+                GraphicsHelper.NOP(10000);
             }
-        }
-
-        private void NOP(long ticks)
-        {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            while (sw.ElapsedTicks < ticks) { }
         }
 
         /// <summary>

@@ -76,10 +76,11 @@
     <Compile Include="Map Info\MapInfo.Designer.cs">
       <DependentUpon>MapInfo.cs</DependentUpon>
     </Compile>
-    <Compile Include="Map Info\MapPreview.cs">
+    <Compile Include="Map Preview\GraphicsHelper.cs" />
+    <Compile Include="Map Preview\MapPreview.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Map Info\MapPreview.Designer.cs">
+    <Compile Include="Map Preview\MapPreview.Designer.cs">
       <DependentUpon>MapPreview.cs</DependentUpon>
     </Compile>
     <Compile Include="Map Info\tpDifficulty.cs" />
@@ -105,7 +106,7 @@
     <EmbeddedResource Include="Map Info\MapInfo.resx">
       <DependentUpon>MapInfo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Map Info\MapPreview.resx">
+    <EmbeddedResource Include="Map Preview\MapPreview.resx">
       <DependentUpon>MapPreview.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

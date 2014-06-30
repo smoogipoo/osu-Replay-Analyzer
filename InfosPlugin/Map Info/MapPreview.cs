@@ -274,7 +274,7 @@ namespace InfosPlugin
                 //Figure out the real play area size
                 //(so that all hitobjects appear within backgrounded area)
                 Rectangle playArea = new Rectangle((int)(ClientSize.Width / 2f - 512 * objectScaling + CurrentBeatmap.HitObjects[0].Radius * objectScaling), (int)(CurrentBeatmap.HitObjects[0].Radius * objectScaling),
-                                                   (int)(1024 * objectScaling - CurrentBeatmap.HitObjects[0].Radius * objectScaling), (int)(768 * objectScaling - CurrentBeatmap.HitObjects[0].Radius * objectScaling));
+                                                   (int)(1024 * objectScaling - 2 * CurrentBeatmap.HitObjects[0].Radius * objectScaling), (int)(768 * objectScaling - 2 * CurrentBeatmap.HitObjects[0].Radius * objectScaling));
 
                 //Draw hitobjects
                 foreach (BaseCircle obj in CurrentBeatmap.HitObjects)
@@ -292,8 +292,8 @@ namespace InfosPlugin
                     }
                     else
                     {
-                        //1 second delay after approach circle has hit
-                        if (obj.StartTime - PlayerPosition < BeatmapApproachRate && PlayerPosition - obj.StartTime < 1000)
+                        //200 ms delay after approach circle has hit
+                        if (obj.StartTime - PlayerPosition < BeatmapApproachRate && PlayerPosition - obj.StartTime < 200)
                         {
                             //Origin is centre of hitcircle
                             sb.Draw(HitCircleTexture, new Rectangle((int)(playArea.X + obj.Location.X * xTransform), (int)(playArea.Y + obj.Location.Y * yTransform), (int)(2 * obj.Radius * objectScaling), (int)(2 * obj.Radius * objectScaling)), null, Color.Red, 0, new Vector2((float)obj.Radius / 2, (float)obj.Radius / 2), SpriteEffects.None, 0);

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Drawing;
 using ReplayAPI;
@@ -53,6 +51,7 @@ namespace oRAInterface
         public List<ReplayObject> ReplayObjects { get; set; }
         public string ReplayDirectory { get; set; }
         public string BeatmapDirectory { get; set; }
+        public string osuDirectory { get; set; }
         public double[] TimingWindows { get; set; }
         public int CurrentFrame { get; set; }
     }

@@ -63,6 +63,36 @@ namespace o_RAResources.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap default_followpoint {
+            get {
+                object obj = ResourceManager.GetObject("default_followpoint", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap default_hitcircle {
+            get {
+                object obj = ResourceManager.GetObject("default_hitcircle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap default_hitcircleoverlay {
+            get {
+                object obj = ResourceManager.GetObject("default_hitcircleoverlay", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap flag_de {
             get {
                 object obj = ResourceManager.GetObject("flag_de", resourceCulture);
@@ -136,6 +166,46 @@ namespace o_RAResources.Properties {
         internal static System.Drawing.Bitmap Menu_N {
             get {
                 object obj = ResourceManager.GetObject("Menu_N", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Player_End {
+            get {
+                object obj = ResourceManager.GetObject("Player_End", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Player_Pause {
+            get {
+                object obj = ResourceManager.GetObject("Player_Pause", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Player_Play {
+            get {
+                object obj = ResourceManager.GetObject("Player_Play", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Player_Start {
+            get {
+                object obj = ResourceManager.GetObject("Player_Start", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

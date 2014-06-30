@@ -41,9 +41,10 @@ namespace o_RA.Forms
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            InitializeInterface();
             InitializeLocale();
-            InitializePlugins();
             InitializeGameDirs();
+            InitializePlugins();
             Task.Factory.StartNew(() => Updater.Start(Settings));
             Task.Factory.StartNew(PopulateReplays);
             Task.Factory.StartNew(PopulateBeatmaps);
@@ -90,7 +91,7 @@ namespace o_RA.Forms
             }
         }
 
-        private void InitializePlugins()
+        private void InitializeInterface()
         {
             //Initialize plugin interface
             oRAData = new DataClass();
@@ -101,12 +102,9 @@ namespace o_RA.Forms
             oRAControls.ProgressToolTip = new ToolTip();
             oRAControls.FrameTimeline = ReplayTimeline;
             oRAData.FrameChanged += HandleFrameChanged;
-
-            //Load Plugins
-            LoadPlugins();
         }
 
-        private void LoadPlugins()
+        private void InitializePlugins()
         {
             if (Directory.Exists(Environment.CurrentDirectory + @"\Plugins\"))
             {
@@ -202,8 +200,9 @@ namespace o_RA.Forms
                 }
             }
             Settings.Save();
-            oRAData.ReplayDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Replays");
-            oRAData.BeatmapDirectory = Path.Combine(Settings.GetSetting("GameDir"), "Songs");
+            oRAData.osuDirectory = Settings.GetSetting("GameDir");
+            oRAData.ReplayDirectory = Path.Combine(oRAData.osuDirectory, "Replays");
+            oRAData.BeatmapDirectory = Path.Combine(oRAData.osuDirectory, "Songs");
         }
 
         private bool IsOsuPath(string gameDir)
@@ -547,7 +546,7 @@ namespace o_RA.Forms
                 }
                 Plugins.UnloadPlugin(p.AssemblyFile);
             }
-            LoadPlugins();
+            InitializePlugins();
 
             //Re-send the current beatmap and replay to the plugins
             oRAData.UpdateStatus(CurrentReplay, CurrentBeatmap);

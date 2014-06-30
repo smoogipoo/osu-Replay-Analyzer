@@ -171,7 +171,7 @@ namespace InfosPlugin
                 //AR0: 1800ms
                 //AR5: 1200ms
                 //AR10: 450ms
-                BeatmapApproachRate = CurrentBeatmap.ApproachRate < 5 ? (int)(1800 + CurrentBeatmap.ApproachRate * (1200 - 1800)) / 5 : (int)(1200 + (CurrentBeatmap.ApproachRate - 5) * (450 - 1200)) / 5;
+                BeatmapApproachRate = CurrentBeatmap.ApproachRate < 5 ? (int)(1800 + CurrentBeatmap.ApproachRate * (1200 - 1800) / 5) : (int)(1200 + (CurrentBeatmap.ApproachRate - 5) * (450 - 1200) / 5);
 
                 BaseCircle endObject = CurrentBeatmap.HitObjects[CurrentBeatmap.HitObjects.Count - 1];
                 if (endObject.GetType() == typeof(SpinnerInfo))
@@ -241,7 +241,6 @@ namespace InfosPlugin
             //Todo: Move these to Resize()
             float realButtonSize = ButtonScale * PlayerPlayTexture.Width;
             float objectScaling = (ClientSize.Height - realButtonSize) / 768f;
-            Rectangle playArea = new Rectangle((int)(ClientSize.Width / 2f - 512 * objectScaling), 0, (int)(1024 * objectScaling), (int)(768 * objectScaling));
 
             sb.Begin();
             /* */
@@ -264,11 +263,19 @@ namespace InfosPlugin
             sb.Draw(Playing ? PlayerPauseTexture : PlayerPlayTexture, PlayerPlayArea, Color.White * 0.5f);
             sb.Draw(PlayerGoToEndTexture, PlayerGotoEndArea, Color.White * 0.5f);
 
-            if (CurrentBeatmap != null)
+            if (CurrentBeatmap != null && CurrentBeatmap.HitObjects.Count != 0)
             {
+                //Figure out the real play area size
+                //(so that all hitobjects appear within backgrounded area)
+                Rectangle playArea = new Rectangle((int)(ClientSize.Width / 2f - 512 * objectScaling + CurrentBeatmap.HitObjects[0].Radius * objectScaling), (int)(CurrentBeatmap.HitObjects[0].Radius * objectScaling),
+                                                   (int)(1024 * objectScaling - CurrentBeatmap.HitObjects[0].Radius * objectScaling), (int)(768 * objectScaling - CurrentBeatmap.HitObjects[0].Radius * objectScaling));
+
                 //Draw hitobjects
                 foreach (BaseCircle obj in CurrentBeatmap.HitObjects)
                 {
+                    //Position transforming from osu! coords to real x-y
+                    float xTransform = (playArea.Width - (float)obj.Radius) / 512f;
+                    float yTransform = (playArea.Height - (float)obj.Radius) / 384f;
                     if (obj.GetType() == typeof(SliderInfo))
                     {
 
@@ -279,10 +286,12 @@ namespace InfosPlugin
                     }
                     else
                     {
+                        //1 second delay after approach circle has hit
                         if (obj.StartTime - PlayerPosition < BeatmapApproachRate && PlayerPosition - obj.StartTime < 1000)
                         {
-                            sb.Draw(HitCircleTexture, new Rectangle((int)(obj.Location.X + playArea.X), (int)obj.Location.Y, (int)(2 * obj.Radius * objectScaling), (int)(2 * obj.Radius * objectScaling)), null, Color.White, 0, new Vector2((float)obj.Radius / 2, (float)obj.Radius / 2), SpriteEffects.None, 0);
-                            sb.Draw(HitCircleOverlayTexture, new Rectangle((int)(obj.Location.X + playArea.X), (int)obj.Location.Y, (int)(2 * obj.Radius * objectScaling), (int)(2 * obj.Radius * objectScaling)), null, Color.White, 0, new Vector2((float)obj.Radius / 2, (float)obj.Radius / 2), SpriteEffects.None, 0);
+                            //Origin is centre of hitcircle
+                            sb.Draw(HitCircleTexture, new Rectangle((int)(playArea.X + obj.Location.X * xTransform), (int)(playArea.Y + obj.Location.Y * yTransform), (int)(2 * obj.Radius * objectScaling), (int)(2 * obj.Radius * objectScaling)), null, Color.Red, 0, new Vector2((float)obj.Radius / 2, (float)obj.Radius / 2), SpriteEffects.None, 0);
+                            sb.Draw(HitCircleOverlayTexture, new Rectangle((int)(playArea.X + obj.Location.X * xTransform), (int)(playArea.Y + obj.Location.Y * yTransform), (int)(2 * obj.Radius * objectScaling), (int)(2 * obj.Radius * objectScaling)), null, Color.White, 0, new Vector2((float)obj.Radius / 2, (float)obj.Radius / 2), SpriteEffects.None, 0);
                         }
                     }
                 }
@@ -292,9 +301,7 @@ namespace InfosPlugin
             /* */
             sb.End();
             if (device.GraphicsDeviceStatus == GraphicsDeviceStatus.Lost || device.GraphicsDeviceStatus == GraphicsDeviceStatus.NotReset)
-            {
                 device.Reset();
-            }
             device.Present();
         }
         

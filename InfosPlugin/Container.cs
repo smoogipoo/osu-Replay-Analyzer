@@ -29,9 +29,9 @@ namespace InfosPlugin
             //Doesn't matter how you order these, as long as TWChart is last
             //As it is the default selection.
             DisplaySelectCB.DisplayMember = "Text";
-            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_BeatmapInformation"], Content = new ReplayInfo { Dock = DockStyle.Fill } });
+            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_ReplayInformation"], Content = new ReplayInfo { Dock = DockStyle.Fill } });
             DisplaySelectCB.Items.Add(new ComboBoxItem { Text = "Beatmap Preview", Content = new MapPreview { Dock = DockStyle.Fill } });
-            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_ReplayInformation"], Content = new MapInfo { Dock = DockStyle.Fill } });
+            DisplaySelectCB.Items.Add(new ComboBoxItem { Text = oRA.Data.Language["oRA_BeatmapInformation"], Content = new MapInfo { Dock = DockStyle.Fill } });
 
             foreach (ComboBoxItem item in DisplaySelectCB.Items)
             {

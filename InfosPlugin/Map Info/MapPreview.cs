@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using BMAPI;
 using Microsoft.Xna.Framework;
@@ -10,6 +11,8 @@ using o_RAResources;
 using ReplayAPI;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Color = Microsoft.Xna.Framework.Color;
+using Point = Microsoft.Xna.Framework.Point;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace InfosPlugin
 {
@@ -41,6 +44,8 @@ namespace InfosPlugin
         private void MapPreview_Resize(object sender, EventArgs e)
         {
             //Resize our graphics device accordingly
+            if (ClientSize.Height <= 0 || ClientSize.Width <= 0)
+                return;
             PresentationParameters pp = device.PresentationParameters;
             pp.BackBufferHeight = ClientSize.Height;
             pp.BackBufferWidth = ClientSize.Width;
@@ -77,7 +82,11 @@ namespace InfosPlugin
         private Rectangle PlayerGotoStartArea;
         private Rectangle PlayerGotoEndArea;
 
-        private bool Playing = false;
+        private bool Playing;
+
+        private int PlayerPosition;
+        private int TotalBeatmapTime;
+        private int BeatmapApproachRate;
 
         private void HandleReplayChanged(Replay r, Beatmap b)
         {
@@ -88,7 +97,7 @@ namespace InfosPlugin
         /// <summary>
         /// One-time initializations.
         /// </summary>
-        public void Initialize()
+        private void Initialize()
         {
             //Spritebatch initialization
             sb = new SpriteBatch(device);
@@ -97,12 +106,14 @@ namespace InfosPlugin
             PlayerPauseTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Pause.png"));
             PlayerGoToStartTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Start.png"));
             PlayerGoToEndTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_End.png"));
+
+
         }
 
         /// <summary>
         /// Load sprites here.
         /// </summary>
-        public void LoadContent()
+        private void LoadContent()
         {
             if (CurrentBeatmap != null)
             {
@@ -153,13 +164,27 @@ namespace InfosPlugin
                     HitCircleOverlayTexture = Texture2D.FromStream(device, new FileStream(hitCircleOverlayFile, FileMode.Open, FileAccess.Read, FileShare.Read));
                 else
                     HitCircleOverlayTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("default_hitcircleoverlay.png"));
+
+                //Load the beatmap
+                
+                //Linearly interpolate approachrate timings
+                //AR0: 1800ms
+                //AR5: 1200ms
+                //AR10: 450ms
+                BeatmapApproachRate = CurrentBeatmap.ApproachRate < 5 ? (int)(1800 + CurrentBeatmap.ApproachRate * (1200 - 1800)) / 5 : (int)(1200 + (CurrentBeatmap.ApproachRate - 5) * (450 - 1200)) / 5;
+
+                BaseCircle endObject = CurrentBeatmap.HitObjects[CurrentBeatmap.HitObjects.Count - 1];
+                if (endObject.GetType() == typeof(SpinnerInfo))
+                    TotalBeatmapTime = ((SpinnerInfo)endObject).EndTime + BeatmapApproachRate;
+                else
+                    TotalBeatmapTime = endObject.StartTime + BeatmapApproachRate;
             }
         }
         
         /// <summary>
         /// Graphics updating thread (handle IO here).
         /// </summary>
-        new public void Update()
+        new private void Update()
         {
             MouseState state = Mouse.GetState();
             Point position = new Point(PointToClient(MousePosition).X, PointToClient(MousePosition).Y);
@@ -168,43 +193,64 @@ namespace InfosPlugin
                 if (PlayerPlayArea.Contains(position))
                 {
                     Playing = !Playing;
-
-                    //Todo: Play the beatmap from the current position
+                    Thread t = new Thread(IncrementPlayer);
+                    t.IsBackground = true;
+                    t.Start();
                 }
 
                 if (PlayerGotoStartArea.Contains(position))
                 {
-                    //Todo: Put position of preview to the start
+                    PlayerPosition = 0;
                 }
 
                 if (PlayerGotoEndArea.Contains(position))
                 {
-                    //Todo: Put position of preview to the end
+                    PlayerPosition = TotalBeatmapTime;
                 }
             }
             LastMouseState = state;
+        }
+        private void IncrementPlayer()
+        {
+            while (true)
+            {
+                if (PlayerPosition != TotalBeatmapTime && Playing)
+                    PlayerPosition += 1;
+                else
+                    return;
+                Invalidate();
+                NOP(10000);
+            }
+        }
+
+        private void NOP(long ticks)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            while (sw.ElapsedTicks < ticks) { }
         }
 
         /// <summary>
         /// Main graphics thread (handle drawing here).
         /// </summary>
-        public void Draw()
+        private void Draw()
         {
             device.Clear(new Color(43, 43, 43));
 
             //Arbitrary spacing at the bottom
+            //Todo: Move these to Resize()
             float realButtonSize = ButtonScale * PlayerPlayTexture.Width;
             float objectScaling = (ClientSize.Height - realButtonSize) / 768f;
+            Rectangle playArea = new Rectangle((int)(ClientSize.Width / 2f - 512 * objectScaling), 0, (int)(1024 * objectScaling), (int)(768 * objectScaling));
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            sb.Begin();
             /* */
 
             //Draw the beatmap background
             if (BackgroundTexture != null)
             {
-                sb.Draw(BackgroundTexture, new Vector2(ClientSize.Width / 2f, 0), null, Color.White, 0, new Vector2(BackgroundTexture.Width / 2f, 0), (768f / BackgroundTexture.Height) * objectScaling, SpriteEffects.None, 0);             
+                sb.Draw(BackgroundTexture, new Vector2(ClientSize.Width / 2f, 0), null, Color.White * 0.25f, 0, new Vector2(BackgroundTexture.Width / 2f, 0), (768f / BackgroundTexture.Height) * objectScaling, SpriteEffects.None, 0);             
             }
-
             //Get the areas for the play-control buttons
             PlayerGotoStartArea = new Rectangle((int)(ClientSize.Width / 2f - realButtonSize / 2 - ButtonSpacing - realButtonSize), (int)(ClientSize.Height - realButtonSize), 
                                                 (int)(realButtonSize), (int)(ButtonScale * PlayerPlayTexture.Height));
@@ -217,6 +263,31 @@ namespace InfosPlugin
             sb.Draw(PlayerGoToStartTexture, PlayerGotoStartArea, Color.White * 0.5f);
             sb.Draw(Playing ? PlayerPauseTexture : PlayerPlayTexture, PlayerPlayArea, Color.White * 0.5f);
             sb.Draw(PlayerGoToEndTexture, PlayerGotoEndArea, Color.White * 0.5f);
+
+            if (CurrentBeatmap != null)
+            {
+                //Draw hitobjects
+                foreach (BaseCircle obj in CurrentBeatmap.HitObjects)
+                {
+                    if (obj.GetType() == typeof(SliderInfo))
+                    {
+
+                    }
+                    else if (obj.GetType() == typeof(SpinnerInfo))
+                    {
+
+                    }
+                    else
+                    {
+                        if (obj.StartTime - PlayerPosition < BeatmapApproachRate && PlayerPosition - obj.StartTime < 1000)
+                        {
+                            sb.Draw(HitCircleTexture, new Rectangle((int)(obj.Location.X + playArea.X), (int)obj.Location.Y, (int)(2 * obj.Radius * objectScaling), (int)(2 * obj.Radius * objectScaling)), null, Color.White, 0, new Vector2((float)obj.Radius / 2, (float)obj.Radius / 2), SpriteEffects.None, 0);
+                            sb.Draw(HitCircleOverlayTexture, new Rectangle((int)(obj.Location.X + playArea.X), (int)obj.Location.Y, (int)(2 * obj.Radius * objectScaling), (int)(2 * obj.Radius * objectScaling)), null, Color.White, 0, new Vector2((float)obj.Radius / 2, (float)obj.Radius / 2), SpriteEffects.None, 0);
+                        }
+                    }
+                }
+            }
+            
 
             /* */
             sb.End();

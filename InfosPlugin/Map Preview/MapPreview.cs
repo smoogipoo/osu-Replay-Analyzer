@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using BMAPI;
-using MapPreview;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -44,6 +44,7 @@ namespace InfosPlugin
             PresentationParameters pp = device.PresentationParameters;
             pp.BackBufferHeight = ClientSize.Height;
             pp.BackBufferWidth = ClientSize.Width;
+
             device.Reset(pp);
         }
 
@@ -60,7 +61,8 @@ namespace InfosPlugin
         private SpriteBatch sb;
 
         const float ButtonScale = 0.5f;
-        const int ButtonSpacing = 2;
+        const float ButtonSize = 16; //px
+        const int ButtonSpacing = 4;
 
         private Beatmap CurrentBeatmap;
 
@@ -69,14 +71,9 @@ namespace InfosPlugin
         private Texture2D HitCircleTexture;
         private Texture2D HitCircleOverlayTexture;
 
-        private Texture2D PlayerPlayTexture;
-        private Texture2D PlayerPauseTexture;
-        private Texture2D PlayerGoToStartTexture;
-        private Texture2D PlayerGoToEndTexture;
-
-        private Rectangle PlayerPlayArea;
-        private Rectangle PlayerGotoStartArea;
-        private Rectangle PlayerGotoEndArea;
+        private GraphicsHelper.TexturedButton PlayerPlayPauseButton;
+        private GraphicsHelper.TexturedButton PlayerGotoStartButton;
+        private GraphicsHelper.TexturedButton PlayerGotoEndButton;
 
         private bool Playing;
 
@@ -98,12 +95,10 @@ namespace InfosPlugin
             //Spritebatch initialization
             sb = new SpriteBatch(device);
 
-            PlayerPlayTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Play.png"));
-            PlayerPauseTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Pause.png"));
-            PlayerGoToStartTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Start.png"));
-            PlayerGoToEndTexture = Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_End.png"));
 
-
+            PlayerPlayPauseButton = new GraphicsHelper.TexturedButton(this, Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Play.png")), Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Pause.png")));
+            PlayerGotoStartButton = new GraphicsHelper.TexturedButton(this, Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_Start.png")));
+            PlayerGotoEndButton = new GraphicsHelper.TexturedButton(this, Texture2D.FromStream(device, ResourceHelper.GetResourceStream("Player_End.png")));
         }
 
         /// <summary>
@@ -188,38 +183,84 @@ namespace InfosPlugin
         {
             MouseState state = Mouse.GetState();
             Point position = new Point(PointToClient(MousePosition).X, PointToClient(MousePosition).Y);
-            if (state.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released)
+
+            //Update Play/Pause button
+            if (PlayerPlayPauseButton.DisplayRectangle.Contains(position))
             {
-                if (PlayerPlayArea.Contains(position))
+                if (state.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released)
                 {
-                    Playing = !Playing;
-                    Thread t = new Thread(IncrementPlayer);
-                    t.IsBackground = true;
-                    t.Start();
+                    if (PlayerPlayPauseButton.DisplayRectangle.Contains(position))
+                    {
+                        PlayerPlayPauseButton.Trigger();
+                        Playing = !Playing;
+                        Thread t = new Thread(IncrementPlayer);
+                        t.IsBackground = true;
+                        t.Start();
+                    }
                 }
+                PlayerPlayPauseButton.Enter();
+            }
+            else
+            {
+                PlayerPlayPauseButton.Leave();
+            }
 
-                if (PlayerGotoStartArea.Contains(position))
+            //Update GotoStart button
+            if (PlayerGotoStartButton.DisplayRectangle.Contains(position))
+            {
+                if (state.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released)
                 {
-                    Playing = false;
-                    PlayerPosition = 0;
+                    if (PlayerGotoStartButton.DisplayRectangle.Contains(position))
+                    {
+                        PlayerGotoStartButton.Trigger();
+                        if (Playing)
+                            PlayerPlayPauseButton.Trigger();
+                        Playing = false;
+                        PlayerPosition = 0;
+                    }
                 }
+                PlayerGotoStartButton.Enter();
+            }
+            else
+            {
+                PlayerGotoStartButton.Leave();
+            }
 
-                if (PlayerGotoEndArea.Contains(position))
+            //Update GotoEnd button
+            if (PlayerGotoEndButton.DisplayRectangle.Contains(position))
+            {
+                if (state.LeftButton == ButtonState.Pressed && LastMouseState.LeftButton == ButtonState.Released)
                 {
-                    Playing = false;
-                    PlayerPosition = TotalBeatmapTime;
+                    if (PlayerGotoEndButton.DisplayRectangle.Contains(position))
+                    {
+                        PlayerGotoEndButton.Trigger();
+                        if (Playing)
+                            PlayerPlayPauseButton.Trigger();
+                        Playing = false;
+                        PlayerPosition = TotalBeatmapTime;
+                    }
                 }
+                PlayerGotoEndButton.Enter();
+            }
+            else
+            {
+                PlayerGotoEndButton.Leave();
             }
             LastMouseState = state;
         }
+
         private void IncrementPlayer()
         {
-            while (true)
+            while (Playing)
             {
-                if (PlayerPosition != TotalBeatmapTime && Playing)
+                if (PlayerPosition < TotalBeatmapTime)
                     PlayerPosition += 1;
                 else
+                {
+                    PlayerPlayPauseButton.Trigger();
+                    Playing = false;
                     return;
+                }
                 Invalidate();
                 GraphicsHelper.NOP(10000);
             }
@@ -234,8 +275,7 @@ namespace InfosPlugin
 
             //Arbitrary spacing at the bottom
             //Todo: Move these to Resize()
-            float realButtonSize = ButtonScale * PlayerPlayTexture.Width;
-            float objectScaling = (ClientSize.Height - realButtonSize) / 768f;
+            float objectScaling = (ClientSize.Height - ButtonSize) / 768f;
 
             sb.Begin();
             /* */
@@ -245,18 +285,19 @@ namespace InfosPlugin
             {
                 sb.Draw(BackgroundTexture, new Vector2(ClientSize.Width / 2f, 0), null, Color.White * 0.25f, 0, new Vector2(BackgroundTexture.Width / 2f, 0), (768f / BackgroundTexture.Height) * objectScaling, SpriteEffects.None, 0);             
             }
-            //Get the areas for the play-control buttons
-            PlayerGotoStartArea = new Rectangle((int)(ClientSize.Width / 2f - realButtonSize / 2 - ButtonSpacing - realButtonSize), (int)(ClientSize.Height - realButtonSize), 
-                                                (int)(realButtonSize), (int)(ButtonScale * PlayerPlayTexture.Height));
-            PlayerPlayArea = new Rectangle((int)(ClientSize.Width / 2f - realButtonSize / 2), (int)(ClientSize.Height - realButtonSize),
-                                           (int)(realButtonSize), (int)(ButtonScale * PlayerPlayTexture.Height));
-            PlayerGotoEndArea = new Rectangle((int)(ClientSize.Width / 2f + realButtonSize / 2 + ButtonSpacing), (int)(ClientSize.Height - realButtonSize),
-                                              (int)(realButtonSize), (int)(ButtonScale * PlayerPlayTexture.Height));
 
             //Draw play/pause/start/end buttons
-            sb.Draw(PlayerGoToStartTexture, PlayerGotoStartArea, Color.White * 0.5f);
-            sb.Draw(Playing ? PlayerPauseTexture : PlayerPlayTexture, PlayerPlayArea, Color.White * 0.5f);
-            sb.Draw(PlayerGoToEndTexture, PlayerGotoEndArea, Color.White * 0.5f);
+            PlayerPlayPauseButton.Position = new Vector2(ClientSize.Width / 2f, ClientSize.Height - ButtonSize / 2);
+            PlayerGotoStartButton.Position = new Vector2(ClientSize.Width / 2f - ButtonSpacing - ButtonSize, ClientSize.Height - ButtonSize / 2);
+            PlayerGotoEndButton.Position = new Vector2(ClientSize.Width / 2f + ButtonSpacing + ButtonSize, ClientSize.Height - ButtonSize / 2);
+
+            if (PlayerGotoStartButton.Texture != null)
+                sb.Draw(PlayerGotoStartButton.Texture, PlayerGotoStartButton.Position, null, PlayerGotoStartButton.Color, 0, PlayerGotoStartButton.Origin, PlayerGotoStartButton.Scale, SpriteEffects.None, 1);
+            if (PlayerPlayPauseButton.Texture != null)
+                sb.Draw(PlayerPlayPauseButton.Texture, PlayerPlayPauseButton.Position, null, PlayerPlayPauseButton.Color, 0, PlayerPlayPauseButton.Origin, PlayerPlayPauseButton.Scale, SpriteEffects.None, 1);
+            if (PlayerGotoEndButton.Texture != null)
+                sb.Draw(PlayerGotoEndButton.Texture, PlayerGotoEndButton.Position, null, PlayerGotoEndButton.Color, 0, PlayerGotoEndButton.Origin, PlayerGotoEndButton.Scale, SpriteEffects.None, 1);
+
 
             if (CurrentBeatmap != null && CurrentBeatmap.HitObjects.Count != 0)
             {

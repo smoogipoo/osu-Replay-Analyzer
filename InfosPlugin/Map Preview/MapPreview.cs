@@ -184,6 +184,7 @@ namespace InfosPlugin
             MouseState state = Mouse.GetState();
             Point position = new Point(PointToClient(MousePosition).X, PointToClient(MousePosition).Y);
 
+            #region Update Buttons
             //Update Play/Pause button
             if (PlayerPlayPauseButton.DisplayRectangle.Contains(position))
             {
@@ -246,6 +247,8 @@ namespace InfosPlugin
             {
                 PlayerGotoEndButton.Leave();
             }
+            #endregion
+            
             LastMouseState = state;
         }
 

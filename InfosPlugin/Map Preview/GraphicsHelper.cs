@@ -15,67 +15,119 @@ namespace InfosPlugin
             while (sw.ElapsedTicks < ticks) { }
         }
 
-        public class TexturedButton
+        public class TexturedControl
         {
-
-            private Control Container { get; set; }
-
-            /// <summary>
-            /// Creates a new TexturedButton.
-            /// </summary>
-            /// <param name="container">The object containing the button.</param>
-            /// <param name="texture">The texture of the button.</param>
-            public TexturedButton(Control container, Texture2D texture)
-            {
-                Container = container;
-                NormalTexture = texture;
-                TriggeredTexture = texture;
-                Texture = NormalTexture;
-            }
-            /// <summary>
-            /// Creates a new TexturedButton.
-            /// </summary>
-            /// <param name="container">The object containing the button.</param>
-            /// <param name="texture">The texture of the button.</param>
-            /// <param name="scale">The button size scale.</param>
-            public TexturedButton(Control container, Texture2D texture, float scale)
-            {
-                Container = container;
-                NormalTexture = texture;
-                TriggeredTexture = texture;
-                Texture = NormalTexture;
-                Scale = scale;
-            }
-            /// <summary>
-            /// Creates a new TexturedButton.
-            /// </summary>
-            /// <param name="container">The object containing the button.</param>
-            /// <param name="normalTexture">The texture of the button when normal.</param>
-            /// <param name="triggerTexture">The texture of the button when clicked.</param>
-            public TexturedButton(Control container, Texture2D normalTexture, Texture2D triggerTexture)
-            {
-                Container = container;
-                NormalTexture = normalTexture;
-                TriggeredTexture = triggerTexture;
-                Texture = NormalTexture;
-            }
-            /// <summary>
-            /// Creates a new TexturedButton.
-            /// </summary>
-            /// <param name="container">The object containing the button.</param>
-            /// <param name="normalTexture">The texture of the button when normal.</param>
-            /// <param name="triggerTexture">The texture of the button when clicked.</param>
-            /// <param name="scale">The button size scale.</param>
-            public TexturedButton(Control container, Texture2D normalTexture, Texture2D triggerTexture, float scale)
-            {
-                Container = container;
-                NormalTexture = normalTexture;
-                TriggeredTexture = triggerTexture;
-                Texture = NormalTexture;
-                Scale = scale;
-            }
-
+            protected Control Container { get; set; }
             public float Scale = 0.5f;
+            public Color Color = Color.White;
+            public Texture2D Texture { get; set; }
+            public Vector2 Position = Vector2.Zero;
+            public Vector2 Origin
+            {
+                get
+                {
+                    if (Texture != null)
+                        return new Vector2(Texture.Width / 2f, Texture.Height / 2f);
+                    return Vector2.Zero;
+                }
+            }
+
+            /// <summary>
+            /// Creates a new textured control with the default scale.
+            /// </summary>
+            /// <param name="container">The object containing the button.</param>
+            /// <param name="texture">The texture of the button.</param>
+            public TexturedControl(Control container, Texture2D texture)
+            {
+                Container = container;
+                Texture = texture;
+            }
+            /// <summary>
+            /// Creates a new textured control with the specified scale.
+            /// </summary>
+            /// <param name="container">The object containing the button.</param>
+            /// <param name="texture">The texture of the button.</param>
+            /// <param name="scale">The button size scale.</param>
+            public TexturedControl(Control container, Texture2D texture, float scale)
+            {
+                Container = container;
+                Texture = texture;
+                Scale = scale;
+            }
+
+            /// <summary>
+            /// The control's rectangle after scaling.
+            /// </summary>
+            public Rectangle DisplayRectangle
+            {
+                get
+                {
+                    if (Texture != null)
+                        return new Rectangle((int)(Position.X - Origin.X * Scale), (int)(Position.Y - Origin.Y * Scale), (int)(Texture.Width * Scale), (int)(Texture.Height * Scale));
+                    return Rectangle.Empty;
+                }
+            }
+
+            /// <summary>
+            /// The control's MouseClick event.
+            /// </summary>
+            public virtual void Trigger() { }
+            /// <summary>
+            /// The control's MouseEnter event.
+            /// </summary>
+            public virtual void Enter() { }
+            /// <summary>
+            /// The control's MouseLeave event.
+            /// </summary>
+            public virtual void Leave() { }
+        }
+
+        public class TexturedButton : TexturedControl
+        {
+            ///<summary>
+            /// Creates a new textured button control.
+            /// </summary>
+            /// <param name="container">The object containing the button.</param>
+            /// <param name="texture">The texture of the button.</param>
+            public TexturedButton(Control container, Texture2D texture) : base(container, texture)
+            {
+                NormalTexture = texture;
+                TriggeredTexture = texture;
+            }
+            ///<summary>
+            /// Creates a new textured button control with the specified scale.
+            /// </summary>
+            /// <param name="container">The object containing the button.</param>
+            /// <param name="texture">The texture of the button.</param>
+            /// <param name="scale">The button size scale.</param>
+            public TexturedButton(Control container, Texture2D texture, float scale) : base(container, texture, scale)
+            {
+                NormalTexture = texture;
+                TriggeredTexture = texture;
+            }
+            ///<summary>
+            /// Creates a new textured button control which changes texture when triggered.
+            /// </summary>
+            /// <param name="container">The object containing the button.</param>
+            /// <param name="normalTexture">The texture of the button when normal.</param>
+            /// <param name="triggerTexture">The texture of the button when clicked.</param>
+            public TexturedButton(Control container, Texture2D normalTexture, Texture2D triggerTexture) : base(container, normalTexture)
+            {
+                NormalTexture = normalTexture;
+                TriggeredTexture = triggerTexture;
+            }
+            ///<summary>
+            /// Creates a new textured button control with the specified scale which changes texture when triggered.
+            /// </summary>
+            /// <param name="container">The object containing the button.</param>
+            /// <param name="normalTexture">The texture of the button when normal.</param>
+            /// <param name="triggerTexture">The texture of the button when clicked.</param>
+            /// <param name="scale">The button size scale.</param>
+            public TexturedButton(Control container, Texture2D normalTexture, Texture2D triggerTexture, float scale) : base(container, normalTexture, scale)
+            {
+                NormalTexture = normalTexture;
+                TriggeredTexture = triggerTexture;
+            }
 
             /// <summary>
             /// Controls the maximum size of the button before scaling.
@@ -101,16 +153,6 @@ namespace InfosPlugin
             public Color NormalColor = Color.White;
 
             /// <summary>
-            /// The current color of the button.
-            /// </summary>
-            public Color Color = Color.White;
-
-            /// <summary>
-            /// The button's current texture.
-            /// </summary>
-            public Texture2D Texture { get; set; }
-
-            /// <summary>
             /// The button's normal texture.
             /// </summary>
             private Texture2D NormalTexture { get; set; }
@@ -123,43 +165,10 @@ namespace InfosPlugin
             /// </summary>
             public bool Triggered = false;
 
-            /// <summary>
-            /// The screen position of the button.
-            /// </summary>
-            public Vector2 Position = Vector2.Zero;
-            /// <summary>
-            /// The origin of the button relative to the button's position.
-            /// </summary>
-            public Vector2 Origin
-            {
-                get
-                {
-                    if (Texture != null)
-                        return new Vector2(Texture.Width / 2f, Texture.Height / 2f);
-                    return Vector2.Zero;
-                }
-            }
-
-            /// <summary>
-            /// The button's rectangle after scaling.
-            /// </summary>
-            public Rectangle DisplayRectangle
-            {
-                get
-                {
-                    if (Texture != null)
-                        return new Rectangle((int)(Position.X - Origin.X * Scale), (int)(Position.Y - Origin.Y * Scale), (int)(Texture.Width * Scale), (int)(Texture.Height * Scale));
-                    return Rectangle.Empty;
-                }
-            }
-
-            //Internal threads
+            //Internal scale thread
             private Thread TriggerThread;
 
-            /// <summary>
-            /// Triggers the button for scaling.
-            /// </summary>
-            public void Trigger()
+            public override void Trigger()
             {
                 Triggered = !Triggered;
                 if (TriggerThread != null && TriggerThread.ThreadState == System.Threading.ThreadState.Running)
@@ -171,6 +180,8 @@ namespace InfosPlugin
                     while (Scale.CompareTo(BUTTON_MIN_SCALE) > 0)
                     {
                         Scale -= scaleAmount;
+
+                        //Force graphics redraw on the container
                         Container.Invalidate();
                         NOP(10000); //1ms
                     }
@@ -190,17 +201,12 @@ namespace InfosPlugin
 
             }
 
-            /// <summary>
-            /// Triggers the button's mouse enter event.
-            /// </summary>
-            public void Enter()
+            public override void Enter()
             {
                 Color = HotColor;
             }
-            /// <summary>
-            /// Triggers the button's mouse leave event.
-            /// </summary>
-            public void Leave()
+
+            public override void Leave()
             {
                 Color = NormalColor;
             }

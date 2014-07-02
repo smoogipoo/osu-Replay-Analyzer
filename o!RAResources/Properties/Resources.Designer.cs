@@ -63,6 +63,16 @@ namespace o_RAResources.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap default_approachcircle {
+            get {
+                object obj = ResourceManager.GetObject("default_approachcircle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap default_followpoint {
             get {
                 object obj = ResourceManager.GetObject("default_followpoint", resourceCulture);

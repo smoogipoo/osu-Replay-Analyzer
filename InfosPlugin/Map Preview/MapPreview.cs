@@ -117,7 +117,7 @@ namespace InfosPlugin
                 string beatmapLoc = CurrentBeatmap.Filename.Substring(0, CurrentBeatmap.Filename.LastIndexOf(@"\", StringComparison.InvariantCulture));
                 foreach (EventBase ev in CurrentBeatmap.Events)
                 {
-                    if (ev.GetType() == typeof(ContentEvent))
+                    if (ev.GetType() == typeof(ContentEvent) && ((ContentEvent)ev).Type == ContentType.Image)
                     {
                         string filePath = Path.Combine(beatmapLoc, ((ContentEvent)ev).Filename);
                         if (File.Exists(filePath))

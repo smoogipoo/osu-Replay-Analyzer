@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D27C2719-0033-4F58-ACE1-E709DB89B2F3}</ProjectGuid>
+    <ProjectGuid>{7D292085-3F6F-4299-B941-4D2C185DA37E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ReplayAPI</RootNamespace>
-    <AssemblyName>osu!ReplayAPI</AssemblyName>
+    <RootNamespace>BMAPI</RootNamespace>
+    <AssemblyName>osu!BMAPI</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,17 +21,14 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\DLLs\</OutputPath>
+    <OutputPath>..\..\o!RA\DLLs\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -44,31 +40,27 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Event_Background.cs" />
+    <Compile Include="Event_Base.cs" />
+    <Compile Include="Event_Colour.cs" />
+    <Compile Include="HitObject_Circle.cs" />
+    <Compile Include="Info_Beatmap.cs" />
+    <Compile Include="BMAPI.cs" />
+    <Compile Include="Event_Break.cs" />
+    <Compile Include="Helper_Colour.cs" />
+    <Compile Include="Info_Combo.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="LifeInfo.cs" />
-    <Compile Include="LZMACoder.cs" />
-    <Compile Include="LZMA\CommandLineParser.cs" />
-    <Compile Include="LZMA\CRC.cs" />
-    <Compile Include="LZMA\ICoder.cs" />
-    <Compile Include="LZMA\IMatchFinder.cs" />
-    <Compile Include="LZMA\InBuffer.cs" />
-    <Compile Include="LZMA\LzBinTree.cs" />
-    <Compile Include="LZMA\LzInWindow.cs" />
-    <Compile Include="LZMA\LzmaBase.cs" />
-    <Compile Include="LZMA\LzmaDecoder.cs" />
-    <Compile Include="LZMA\LzmaEncoder.cs" />
-    <Compile Include="LZMA\LzOutWindow.cs" />
-    <Compile Include="LZMA\OutBuffer.cs" />
-    <Compile Include="Replay.cs" />
+    <Compile Include="Helper_Point2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LZMA\RangeCoder.cs" />
-    <Compile Include="LZMA\RangeCoderBit.cs" />
-    <Compile Include="LZMA\RangeCoderBitTree.cs" />
-    <Compile Include="ReplayInfo.cs" />
+    <Compile Include="HitObject_Slider.cs" />
+    <Compile Include="HitObject_Spinner.cs" />
+    <Compile Include="Info_TimingPoint.cs" />
+    <Compile Include="Event_Video.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

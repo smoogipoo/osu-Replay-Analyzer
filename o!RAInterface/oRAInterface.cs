@@ -65,7 +65,7 @@ namespace oRAInterface
     public struct ReplayObject
     {
         public ReplayInfo Frame { get; set; }
-        public BaseCircle Object { get; set; }
+        public HitObject_Circle Object { get; set; }
     }
 }
 namespace o_RA

@@ -31,7 +31,7 @@ namespace InfosPlugin
 
             tpDifficulty tp = new tpDifficulty();
             tp.tpHitObjects = new List<tpHitObject>(b.HitObjects.Count);
-            foreach (BaseCircle hitObject in b.HitObjects)
+            foreach (HitObject_Circle hitObject in b.HitObjects)
                 tp.tpHitObjects.Add(new tpHitObject(hitObject));
 
             customListView1.Items.Clear();
@@ -60,7 +60,7 @@ namespace InfosPlugin
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapHP"], b.HPDrainRate.ToString("0.00") }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapCS"], b.CircleSize.ToString("0.00") }));
             customListView1.Items.Add(new ListViewItem());
-            foreach (ComboInfo combo in b.ComboColours)
+            foreach (Info_Combo combo in b.ComboColours)
             {
                 ListViewItem li = new ListViewItem(oRA.Data.Language["oRA_MapComboColour"] + " " + combo.ComboNumber + ":");
                 ListViewItem.ListViewSubItem colorItem = new ListViewItem.ListViewSubItem();
@@ -71,7 +71,7 @@ namespace InfosPlugin
             }
             customListView1.Items.Add(new ListViewItem());
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapTotalTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
-            totalTime = b.Events.Where(brk => brk.GetType() == typeof(BreakInfo)).Aggregate(totalTime, (current, brk) => current - (((BreakInfo)brk).EndTime - brk.StartTime));
+            totalTime = b.Events.Where(brk => brk.GetType() == typeof(Event_Break)).Aggregate(totalTime, (current, brk) => current - (((Event_Break)brk).EndTime - brk.StartTime));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapDrainTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
             if (tp.CalculateStrainValues())
             {

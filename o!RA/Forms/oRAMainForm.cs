@@ -408,18 +408,18 @@ namespace o_RA.Forms
                     //First modify the beatmap attributes according by player mods
                     if ((CurrentReplay.Mods & Modifications.HardRock) == Modifications.HardRock)
                     {
-                        CurrentBeatmap.OverallDifficulty = Math.Min(CurrentBeatmap.OverallDifficulty *= 1.4, 10);
-                        CurrentBeatmap.CircleSize = CurrentBeatmap.CircleSize * 1.4;
+                        CurrentBeatmap.OverallDifficulty = Math.Min(CurrentBeatmap.OverallDifficulty *= 1.4f, 10);
+                        CurrentBeatmap.CircleSize = CurrentBeatmap.CircleSize * 1.4f;
                     }
                     if ((CurrentReplay.Mods & Modifications.DoubleTime) == Modifications.DoubleTime)
                     {
-                        CurrentBeatmap.OverallDifficulty = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * CurrentBeatmap.OverallDifficulty, 11);
-                        CurrentBeatmap.ApproachRate = Math.Min(13.0 / 3.0 + (2.0 / 3.0) * CurrentBeatmap.ApproachRate, 11);
+                        CurrentBeatmap.OverallDifficulty = (float)Math.Min(13.0 / 3.0 + (2.0 / 3.0) * CurrentBeatmap.OverallDifficulty, 11);
+                        CurrentBeatmap.ApproachRate = (float)Math.Min(13.0 / 3.0 + (2.0 / 3.0) * CurrentBeatmap.ApproachRate, 11);
                     }
                     if ((CurrentReplay.Mods & Modifications.HalfTime) == Modifications.HalfTime)
                     {
-                        CurrentBeatmap.OverallDifficulty = (3.0 / 2.0) * CurrentBeatmap.OverallDifficulty - 13.0 / 2.0;
-                        CurrentBeatmap.ApproachRate = (3.0 / 2.0) * CurrentBeatmap.ApproachRate - 13.0 / 2.0;
+                        CurrentBeatmap.OverallDifficulty = (float)((3.0 / 2.0) * CurrentBeatmap.OverallDifficulty - 13.0 / 2.0);
+                        CurrentBeatmap.ApproachRate = (float)((3.0 / 2.0) * CurrentBeatmap.ApproachRate - 13.0 / 2.0);
                     }
                     if ((CurrentReplay.Mods & Modifications.Easy) == Modifications.Easy)
                     {

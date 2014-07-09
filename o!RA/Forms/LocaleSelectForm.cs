@@ -4,8 +4,8 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using o_RAResources;
 using o_RA.Controls;
+using o_RAResources;
 
 namespace o_RA.Forms
 {

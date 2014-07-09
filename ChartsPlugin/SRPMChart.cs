@@ -5,6 +5,8 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using BMAPI;
+using BMAPI.v1;
+using BMAPI.v1.HitObjects;
 using ReplayAPI;
 
 namespace ChartsPlugin
@@ -107,12 +109,12 @@ namespace ChartsPlugin
             Chart.ChartAreas[0].AxisX.ScaleView.ZoomReset(0);
             Chart.ChartAreas[0].AxisY.ScaleView.ZoomReset(0);
             int currentSpinnerNumber = 1;
-            foreach (var spinner in b.HitObjects.Where(o => o.GetType() == typeof(HitObject_Spinner)))
+            foreach (var spinner in b.HitObjects.Where(o => o.GetType() == typeof(SpinnerObject)))
             {
-                Helper_Point2 currentPosition = new Helper_Point2(-500, -500);
+                Point2 currentPosition = new Point2(-500, -500);
                 Dictionary<double, int> RPMCount = new Dictionary<double, int>();
                 double currentTime = 0;
-                foreach (ReplayInfo repPoint in r.ReplayFrames.Where(repPoint => repPoint.Time < ((HitObject_Spinner)spinner).EndTime && repPoint.Time > spinner.StartTime))
+                foreach (ReplayInfo repPoint in r.ReplayFrames.Where(repPoint => repPoint.Time < ((SpinnerObject)spinner).EndTime && repPoint.Time > spinner.StartTime))
                 {
                     if ((int)currentPosition.X == -500)
                     {
@@ -124,9 +126,9 @@ namespace ChartsPlugin
                         currentTime += repPoint.TimeDiff;
                         if (RPMCount.Keys.Contains(currentTime))
                             continue;
-                        double ptsDist = currentPosition.DistanceTo(new Helper_Point2(repPoint.X, repPoint.Y));
+                        double ptsDist = currentPosition.DistanceTo(new Point2(repPoint.X, repPoint.Y));
                         double p1CDist = currentPosition.DistanceTo(spinner.Location);
-                        double p2CDist = new Helper_Point2(repPoint.X, repPoint.Y).DistanceTo(spinner.Location);
+                        double p2CDist = new Point2(repPoint.X, repPoint.Y).DistanceTo(spinner.Location);
                         double travelDegrees = Math.Acos((Math.Pow(p1CDist, 2) + Math.Pow(p2CDist, 2) - Math.Pow(ptsDist, 2)) / (2 * p1CDist * p2CDist)) * (180 / Math.PI);
                         RPMCount.Add(currentTime, (int)Math.Min((travelDegrees / (0.006 * repPoint.TimeDiff)), 477));
                         currentPosition.X = repPoint.X;

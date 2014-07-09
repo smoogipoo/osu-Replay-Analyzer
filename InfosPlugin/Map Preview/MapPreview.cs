@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using BMAPI;
+using BMAPI.v1;
+using BMAPI.v1.Events;
+using BMAPI.v1.HitObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -78,7 +79,7 @@ namespace InfosPlugin
         private bool Playing;
 
         private int PlayerPosition;
-        private int TotalBeatmapTime;
+        private float TotalBeatmapTime;
         private int BeatmapApproachRate;
 
         private void HandleReplayChanged(Replay r, Beatmap b)
@@ -114,11 +115,11 @@ namespace InfosPlugin
 
                 //Load the background image
                 string beatmapLoc = CurrentBeatmap.Filename.Substring(0, CurrentBeatmap.Filename.LastIndexOf(@"\", StringComparison.InvariantCulture));
-                foreach (Event_Base ev in CurrentBeatmap.Events)
+                foreach (EventBase ev in CurrentBeatmap.Events)
                 {
-                    if (ev.GetType() == typeof(Event_Background))
+                    if (ev.GetType() == typeof(ContentEvent))
                     {
-                        string filePath = Path.Combine(beatmapLoc, ((Event_Background)ev).Filename);
+                        string filePath = Path.Combine(beatmapLoc, ((ContentEvent)ev).Filename);
                         if (File.Exists(filePath))
                         {
                             //Set the new texture
@@ -168,9 +169,9 @@ namespace InfosPlugin
                 //AR10: 450ms
                 BeatmapApproachRate = CurrentBeatmap.ApproachRate < 5 ? (int)(1800 + CurrentBeatmap.ApproachRate * (1200 - 1800) / 5) : (int)(1200 + (CurrentBeatmap.ApproachRate - 5) * (450 - 1200) / 5);
 
-                HitObject_Circle endObject = CurrentBeatmap.HitObjects[CurrentBeatmap.HitObjects.Count - 1];
-                if (endObject.GetType() == typeof(HitObject_Spinner))
-                    TotalBeatmapTime = ((HitObject_Spinner)endObject).EndTime + BeatmapApproachRate;
+                CircleObject endObject = CurrentBeatmap.HitObjects[CurrentBeatmap.HitObjects.Count - 1];
+                if (endObject.GetType() == typeof(SpinnerObject))
+                    TotalBeatmapTime = ((SpinnerObject)endObject).EndTime + BeatmapApproachRate;
                 else
                     TotalBeatmapTime = endObject.StartTime + BeatmapApproachRate;
             }
@@ -238,7 +239,7 @@ namespace InfosPlugin
                         if (Playing)
                             PlayerPlayPauseButton.Trigger();
                         Playing = false;
-                        PlayerPosition = TotalBeatmapTime;
+                        PlayerPosition = (int)TotalBeatmapTime;
                     }
                 }
                 PlayerGotoEndButton.Enter();
@@ -310,16 +311,16 @@ namespace InfosPlugin
                                                    (int)(1024 * objectScaling - 2 * CurrentBeatmap.HitObjects[0].Radius * objectScaling), (int)(768 * objectScaling - 2 * CurrentBeatmap.HitObjects[0].Radius * objectScaling));
 
                 //Draw hitobjects
-                foreach (HitObject_Circle obj in CurrentBeatmap.HitObjects)
+                foreach (CircleObject obj in CurrentBeatmap.HitObjects)
                 {
                     //Position transforming from osu! coords to real x-y
-                    float xTransform = (playArea.Width - (float)obj.Radius) / 512f;
-                    float yTransform = (playArea.Height - (float)obj.Radius) / 384f;
-                    if (obj.GetType() == typeof(HitObject_Slider))
+                    float xTransform = (playArea.Width - obj.Radius) / 512f;
+                    float yTransform = (playArea.Height - obj.Radius) / 384f;
+                    if (obj.GetType() == typeof(SliderObject))
                     {
 
                     }
-                    else if (obj.GetType() == typeof(HitObject_Spinner))
+                    else if (obj.GetType() == typeof(SpinnerObject))
                     {
 
                     }

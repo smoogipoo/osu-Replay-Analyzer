@@ -5,8 +5,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using BMAPI;
-using o_RA;
+using BMAPI.v1;
+using BMAPI.v1.Events;
+using BMAPI.v1.HitObjects;
 using ReplayAPI;
 
 namespace InfosPlugin
@@ -25,13 +26,13 @@ namespace InfosPlugin
 
         public void HandleReplayChanged(Replay r, Beatmap b)
         {
-            int totalTime = 0;
+            float totalTime = 0;
             if (b.HitObjects.Count > 0)
                 totalTime = b.HitObjects[b.HitObjects.Count - 1].StartTime - b.HitObjects[0].StartTime;
 
             tpDifficulty tp = new tpDifficulty();
             tp.tpHitObjects = new List<tpHitObject>(b.HitObjects.Count);
-            foreach (HitObject_Circle hitObject in b.HitObjects)
+            foreach (CircleObject hitObject in b.HitObjects)
                 tp.tpHitObjects.Add(new tpHitObject(hitObject));
 
             customListView1.Items.Clear();
@@ -60,7 +61,7 @@ namespace InfosPlugin
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapHP"], b.HPDrainRate.ToString("0.00") }));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapCS"], b.CircleSize.ToString("0.00") }));
             customListView1.Items.Add(new ListViewItem());
-            foreach (Info_Combo combo in b.ComboColours)
+            foreach (Combo combo in b.ComboColours)
             {
                 ListViewItem li = new ListViewItem(oRA.Data.Language["oRA_MapComboColour"] + " " + combo.ComboNumber + ":");
                 ListViewItem.ListViewSubItem colorItem = new ListViewItem.ListViewSubItem();
@@ -71,7 +72,7 @@ namespace InfosPlugin
             }
             customListView1.Items.Add(new ListViewItem());
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapTotalTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
-            totalTime = b.Events.Where(brk => brk.GetType() == typeof(Event_Break)).Aggregate(totalTime, (current, brk) => current - (((Event_Break)brk).EndTime - brk.StartTime));
+            totalTime = b.Events.Where(brk => brk.GetType() == typeof(BreakEvent)).Aggregate(totalTime, (current, brk) => current - (((BreakEvent)brk).EndTime - brk.StartTime));
             customListView1.Items.Add(new ListViewItem(new[] { oRA.Data.Language["oRA_MapDrainTime"], TimeSpan.FromMilliseconds(totalTime).Minutes + ":" + TimeSpan.FromMilliseconds(totalTime).Seconds.ToString("00") }));
             if (tp.CalculateStrainValues())
             {

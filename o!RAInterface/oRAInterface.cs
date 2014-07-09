@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
+using BMAPI.v1;
+using BMAPI.v1.HitObjects;
 using ReplayAPI;
-using BMAPI;
 
 namespace oRAInterface
 {
@@ -65,7 +66,7 @@ namespace oRAInterface
     public struct ReplayObject
     {
         public ReplayInfo Frame { get; set; }
-        public HitObject_Circle Object { get; set; }
+        public CircleObject Object { get; set; }
     }
 }
 namespace o_RA

@@ -1,5 +1,6 @@
 ﻿using System;
 using BMAPI;
+using BMAPI.v1.HitObjects;
 
 namespace InfosPlugin
 {
@@ -23,7 +24,7 @@ namespace InfosPlugin
         // In milliseconds. The smaller the value, the more accurate sliders are approximated. 0 leads to an infinite loop, so use something bigger.
         private const int LAZY_SLIDER_STEP_LENGTH = 1;
 
-        public tpHitObject(HitObject_Circle BaseHitObject)
+        public tpHitObject(CircleObject BaseHitObject)
         {
             this.BaseHitObject = BaseHitObject;
 
@@ -33,9 +34,9 @@ namespace InfosPlugin
             
 
             // Calculate approximation of lazy movement on the slider
-            if (BaseHitObject.GetType() == typeof(HitObject_Slider))
+            if (BaseHitObject.GetType() == typeof(SliderObject))
             {
-                HitObject_Slider hO = (HitObject_Slider)BaseHitObject;
+                SliderObject hO = (SliderObject)BaseHitObject;
 
                 float SliderFollowCircleRadius = BaseHitObject.Radius * 3; // Not sure if this is correct, but here we do not need 100% exact values. This comes pretty darn close in my tests.
 
@@ -43,12 +44,12 @@ namespace InfosPlugin
                 double SegmentEndTime = hO.StartTime + SegmentLength;
 
                 // For simplifying this step we use actual osu! coordinates and simply scale the length, that we obtain by the ScalingFactor later
-                Helper_Point2 CursorPos = hO.Location; // 
+                Point2 CursorPos = hO.Location; // 
 
                 // Actual computation of the first lazy curve
-                for (int Time = hO.StartTime + LAZY_SLIDER_STEP_LENGTH; Time < SegmentEndTime; Time += LAZY_SLIDER_STEP_LENGTH)
+                for (int Time = (int)hO.StartTime + LAZY_SLIDER_STEP_LENGTH; Time < SegmentEndTime; Time += LAZY_SLIDER_STEP_LENGTH)
                 {
-                    Helper_Point2 Difference = hO.PositionAtTime(Time) - CursorPos;
+                    Point2 Difference = hO.PositionAtTime(Time) - CursorPos;
                     float Distance = Difference.Length;
 
                     // Did we move away too far?
@@ -79,7 +80,7 @@ namespace InfosPlugin
 
                     for (double Time = SegmentEndTime - SegmentLength + LAZY_SLIDER_STEP_LENGTH; Time < SegmentEndTime; Time += LAZY_SLIDER_STEP_LENGTH)
                     {
-                        Helper_Point2 Difference = hO.PositionAtTime((int)Time) - CursorPos;
+                        Point2 Difference = hO.PositionAtTime((int)Time) - CursorPos;
                         float Distance = Difference.Length;
 
                         // Did we move away too far?
@@ -108,10 +109,10 @@ namespace InfosPlugin
             }
         }
 
-        public HitObject_Circle BaseHitObject;
+        public CircleObject BaseHitObject;
         public double[] Strains = {1, 1};
-        private readonly Helper_Point2 NormalizedStartPosition;
-        private readonly Helper_Point2 NormalizedEndPosition;
+        private readonly Point2 NormalizedStartPosition;
+        private readonly Point2 NormalizedEndPosition;
         private readonly float LazySliderLengthFirst;
         private readonly float LazySliderLengthSubsequent;
         
@@ -184,11 +185,11 @@ namespace InfosPlugin
             double TimeElapsed = BaseHitObject.StartTime - PreviousHitObject.BaseHitObject.StartTime;
             double Decay = Math.Pow(DECAY_BASE[(int)Type], TimeElapsed / 1000);
 
-            if (BaseHitObject.GetType() == typeof(HitObject_Spinner))
+            if (BaseHitObject.GetType() == typeof(SpinnerObject))
             {
                 // Do nothing for spinners
             }
-            else if (BaseHitObject.GetType() == typeof(HitObject_Slider))
+            else if (BaseHitObject.GetType() == typeof(SliderObject))
             {
                 switch(Type)
                 {
@@ -198,7 +199,7 @@ namespace InfosPlugin
                         // The spacing weight exists to differentiate between being able to easily alternate or having to single.
                         Addition =
                             SpacingWeight(PreviousHitObject.LazySliderLengthFirst +
-                                          PreviousHitObject.LazySliderLengthSubsequent * (((HitObject_Slider)BaseHitObject).RepeatCount - 1) +
+                                          PreviousHitObject.LazySliderLengthSubsequent * (((SliderObject)BaseHitObject).RepeatCount - 1) +
                                           DistanceTo(PreviousHitObject), Type) *
                             SPACING_WEIGHT_SCALING[(int)Type];
                         break;
@@ -211,7 +212,7 @@ namespace InfosPlugin
                         Addition =
                             (
                                 SpacingWeight(PreviousHitObject.LazySliderLengthFirst, Type) +
-                                SpacingWeight(PreviousHitObject.LazySliderLengthSubsequent, Type) * (((HitObject_Slider)BaseHitObject).RepeatCount - 1) +
+                                SpacingWeight(PreviousHitObject.LazySliderLengthSubsequent, Type) * (((SliderObject)BaseHitObject).RepeatCount - 1) +
                                 SpacingWeight(DistanceTo(PreviousHitObject), Type)
                             ) *
                             SPACING_WEIGHT_SCALING[(int)Type];
@@ -219,7 +220,7 @@ namespace InfosPlugin
                 }
                 
             }
-            else if (BaseHitObject.GetType() == typeof(HitObject_Circle))
+            else if (BaseHitObject.GetType() == typeof(CircleObject))
             {
                 Addition = SpacingWeight(DistanceTo(PreviousHitObject), Type) * SPACING_WEIGHT_SCALING[(int)Type];
             }

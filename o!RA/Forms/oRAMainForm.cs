@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BMAPI.v1;
+using BMAPI.v1.HitObjects;
 using ErikEJ.SqlCe;
 using Microsoft.Win32;
 using oRAInterface;
@@ -409,6 +410,10 @@ namespace o_RA.Forms
                     {
                         CurrentBeatmap.OverallDifficulty = Math.Min(CurrentBeatmap.OverallDifficulty *= 1.4f, 10);
                         CurrentBeatmap.CircleSize = CurrentBeatmap.CircleSize * 1.4f;
+
+                        //Y-mirror objects
+                        foreach (CircleObject obj in CurrentBeatmap.HitObjects)
+                            obj.Location.Y = 384 - obj.Location.Y;
                     }
                     if ((CurrentReplay.Mods & Modifications.DoubleTime) == Modifications.DoubleTime)
                     {

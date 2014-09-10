@@ -20,8 +20,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "o!RAInterface", "o!RAInterf
 		{7D292085-3F6F-4299-B941-4D2C185DA37E} = {7D292085-3F6F-4299-B941-4D2C185DA37E}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu!BMAPI", "osu!BMAPIC#\osu!BMAPI.csproj", "{7D292085-3F6F-4299-B941-4D2C185DA37E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oRASDK", "oRASDK\oRASDK.csproj", "{772FF769-F3BD-4A86-901B-2928800C4548}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F4F6BFAC-4D9B-4F24-963E-418806FCA1EE} = {F4F6BFAC-4D9B-4F24-963E-418806FCA1EE}
@@ -45,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "o!RAResources", "o!RAResour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu!ReplayAPI", "osu!ReplayAPI\osu!ReplayAPI\osu!ReplayAPI.csproj", "{D27C2719-0033-4F58-ACE1-E709DB89B2F3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu!BMAPI", "osu!BMAPI\osu!BMAPI.csproj", "{7D292085-3F6F-4299-B941-4D2C185DA37E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,10 +63,6 @@ Global
 		{F4F6BFAC-4D9B-4F24-963E-418806FCA1EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4F6BFAC-4D9B-4F24-963E-418806FCA1EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4F6BFAC-4D9B-4F24-963E-418806FCA1EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{772FF769-F3BD-4A86-901B-2928800C4548}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{772FF769-F3BD-4A86-901B-2928800C4548}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{772FF769-F3BD-4A86-901B-2928800C4548}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,6 +83,10 @@ Global
 		{D27C2719-0033-4F58-ACE1-E709DB89B2F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D27C2719-0033-4F58-ACE1-E709DB89B2F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D27C2719-0033-4F58-ACE1-E709DB89B2F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D292085-3F6F-4299-B941-4D2C185DA37E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

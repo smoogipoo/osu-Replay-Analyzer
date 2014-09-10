@@ -1,6 +1,0 @@
-﻿(*) Make tab icons
-
-Ideas:
-	(*) Distance from center of circle
-	(*) Acc per % of song
-	(*) Compare replays

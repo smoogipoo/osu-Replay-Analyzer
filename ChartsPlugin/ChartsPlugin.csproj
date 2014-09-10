@@ -33,14 +33,17 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="o!RAInterface">
-      <HintPath>..\DLLs\o!RAInterface.dll</HintPath>
+    <Reference Include="o!RAInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\o!RAInterface\obj\Debug\o!RAInterface.dll</HintPath>
     </Reference>
-    <Reference Include="osu!BMAPI">
-      <HintPath>..\DLLs\osu!BMAPI.dll</HintPath>
+    <Reference Include="osu!BMAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\osu!BMAPI\obj\Debug\osu!BMAPI.dll</HintPath>
     </Reference>
-    <Reference Include="osu!ReplayAPI">
-      <HintPath>..\DLLs\osu!ReplayAPI.dll</HintPath>
+    <Reference Include="osu!ReplayAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\osu!ReplayAPI\osu!ReplayAPI\obj\Debug\osu!ReplayAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

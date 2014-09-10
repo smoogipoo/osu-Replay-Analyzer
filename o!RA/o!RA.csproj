@@ -39,22 +39,21 @@
       <HintPath>..\DLLs\ErikEJ.SqlCe40.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="o!RAInterface">
-      <HintPath>..\DLLs\o!RAInterface.dll</HintPath>
+    <Reference Include="o!RAInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\o!RAInterface\obj\Debug\o!RAInterface.dll</HintPath>
     </Reference>
-    <Reference Include="o!RAResources">
-      <HintPath>..\DLLs\o!RAResources.dll</HintPath>
+    <Reference Include="o!RAResources, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\o!RAResources\obj\Debug\o!RAResources.dll</HintPath>
     </Reference>
     <Reference Include="osu!BMAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DLLs\osu!BMAPI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\osu!BMAPI\obj\Debug\osu!BMAPI.dll</HintPath>
     </Reference>
     <Reference Include="osu!ReplayAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DLLs\osu!ReplayAPI.dll</HintPath>
-      <Private>True</Private>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <HintPath>..\osu!ReplayAPI\osu!ReplayAPI\obj\Debug\osu!ReplayAPI.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />

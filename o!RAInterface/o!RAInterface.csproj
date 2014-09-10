@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\DLLs\</OutputPath>
+    <OutputPath>.\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,10 +31,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="osu!BMAPI">
-      <HintPath>..\o!RA\DLLs\osu!BMAPI.dll</HintPath>
+      <HintPath>..\osu!BMAPI\obj\Debug\osu!BMAPI.dll</HintPath>
     </Reference>
     <Reference Include="osu!ReplayAPI">
-      <HintPath>..\o!RA\DLLs\osu!ReplayAPI.dll</HintPath>
+      <HintPath>..\osu!ReplayAPI\osu!ReplayAPI\obj\Debug\osu!ReplayAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
